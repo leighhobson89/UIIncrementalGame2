@@ -4,10 +4,8 @@ import {
     getScoreIncrementValue, 
     setScoreIncrementValue, 
     updateScoreDisplay,
-    getManualClickRate,
-    getLanguage
+    getManualClickRate 
 } from './constantsAndGlobalVars.js';
-import { localize } from './localization.js';
 import TimerManager from './timerManager.js';
 
 // Create a single TimerManager instance for all timers
@@ -68,16 +66,7 @@ class Upgrade {
         const canAfford = getScore() >= this.currentCost;
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
-        
-        // Get localized description
-        const description = localize(this.id === 'betterClicks' ? 'betterClicks' : 'autoClicker', getLanguage());
-        const buyText = localize('buy', getLanguage());
-        
-        // Format the button text with localized strings
-        this.button.innerHTML = `
-            <span>${description} (${this.count})</span>
-            <span class="upgrade-cost">${buyText} (${this.currentCost} ${localize('points', getLanguage()).toLowerCase()})</span>
-        `;
+        this.button.textContent = `${this.description} (${this.count}) - ${this.currentCost} points`;
     }
 }
 
@@ -86,15 +75,15 @@ const betterClicks = new Upgrade(
     'betterClicks',
     10,     // base cost
     1.13,   // cost multiplier
-    localize('betterClicks', getLanguage()),
+    'Better Clicks',
     (upgrade) => {
         const increment = getScoreIncrementValue() + 1;
         setScoreIncrementValue(increment);
         
         // Update description to show new click value
-        const upgradeInfo = upgrade.button.closest('.upgrade-item')?.querySelector('.upgrade-desc');
+        const upgradeInfo = upgrade.button.closest('.upgrade-item')?.querySelector('.upgrade-info p');
         if (upgradeInfo) {
-            upgradeInfo.textContent = localize('betterClicksDesc', getLanguage()).replace('+1', `+${increment}`);
+            upgradeInfo.textContent = `+${increment} points per click`;
         }
     }
 );
@@ -196,21 +185,16 @@ class AutoClicker {
     // Update the points per second display
     updatePPSDisplay() {
         const ppsElement = document.getElementById('pointsPerSecond');
-        if (!ppsElement) return;
-        
-        // Get manual click rate from global state
-        const manualRate = getManualClickRate();
-        const totalRate = this.pointsPerSecond + manualRate;
-        const language = getLanguage();
-        
-        if (this.pointsPerSecond > 0 && manualRate > 0) {
-            // Show detailed breakdown if we have both auto and manual rates
-            const autoText = localize('autoClicker', language).toLowerCase();
-            const clickText = localize('clickMe', language).toLowerCase();
-            ppsElement.textContent = `${totalRate.toFixed(1)}/sec (${this.pointsPerSecond.toFixed(1)} ${autoText} + ${manualRate.toFixed(1)} ${clickText})`;
-        } else {
-            // Just show total rate
-            ppsElement.textContent = `${totalRate.toFixed(1)}/sec`;
+        if (ppsElement) {
+            // Get manual click rate from global state
+            const manualRate = getManualClickRate();
+            const totalRate = this.pointsPerSecond + manualRate;
+            
+            let displayText = `${totalRate.toFixed(1)}/sec`;
+            if (this.pointsPerSecond > 0 && manualRate > 0) {
+                displayText += ` (${this.pointsPerSecond.toFixed(1)} auto + ${manualRate.toFixed(1)} click)`;
+            }
+            ppsElement.textContent = displayText;
         }
     }
 
@@ -232,25 +216,8 @@ class AutoClicker {
         
         const currentScore = getScore();
         const canAfford = currentScore >= this.currentCost;
-        const language = getLanguage();
         
-        // Get localized description and button text
-        const description = localize(this.id, language);
-        const buyText = localize('buy', language);
-        const pointsText = localize('points', language).toLowerCase();
-        
-        // Format the button with HTML for better styling
-        this.button.innerHTML = `
-            <div class="upgrade-header">
-                <span class="upgrade-name">${description}</span>
-                <span class="upgrade-count">(${this.count})</span>
-            </div>
-            <div class="upgrade-desc">${localize(`${this.id}Desc`, language)}</div>
-            <div class="upgrade-cost">
-                ${buyText} (${this.currentCost} ${pointsText})
-            </div>
-        `;
-        
+        this.button.textContent = `${this.description} (${this.count}) - ${this.currentCost} points`;
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
     }

@@ -65,7 +65,7 @@ export function setScoreIncrementValue(value) {
     scoreIncrementValue = value;
 }
 
-function updateScoreDisplay() {
+export function updateScoreDisplay() {
     const scoreElement = document.getElementById('points');
     if (scoreElement) {
         scoreElement.textContent = Math.floor(score);

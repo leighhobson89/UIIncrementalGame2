@@ -12,12 +12,21 @@ import {
     getScore,
     setScore,
     getScoreIncrementValue,
-    setScoreIncrementValue
+    setScoreIncrementValue,
+    updateScoreDisplay
 } from './constantsAndGlobalVars.js';
+import { initUpgrades, betterClicks, autoClicker, updateAutoclickers } from './upgrades.js';
+
+// Game timing
+let lastTime = 0;
+const fixedTimeStep = 1000 / 60; // 60 FPS
 
 //--------------------------------------------------------------------------------------------------------
 
 export function startGame() {
+    // Initialize all upgrades
+    initUpgrades();
+    
     // Set up main clicker button
     const mainClicker = document.getElementById('mainClicker');
     if (mainClicker) {
@@ -34,88 +43,31 @@ export function startGame() {
         });
     }
     
-    // Set up Better Clicks upgrade button
-    const betterClicksBtn = document.getElementById('betterClicksBtn');
-    if (betterClicksBtn) {
-        console.log('Better Clicks button found');
-        betterClicksBtn.addEventListener('click', (e) => {
-            console.log('Better Clicks button clicked');
-            e.stopPropagation(); // Prevent event bubbling
-            
-            const currentScore = getScore();
-            const currentCost = parseInt(betterClicksBtn.getAttribute('data-cost'));
-            
-            console.log('Current score:', currentScore, 'Cost:', currentCost);
-            
-            if (currentScore >= currentCost) {
-                console.log('Enough points, processing upgrade...');
-                // Deduct points
-                setScore(currentScore - currentCost);
-                
-                // Increase click value
-                const currentIncrement = getScoreIncrementValue();
-                setScoreIncrementValue(currentIncrement + 1);
-                
-                // Update cost for next purchase (increase by 13%)
-                const newCost = Math.floor(currentCost * 1.13);
-                betterClicksBtn.setAttribute('data-cost', newCost);
-                
-                // Update button text
-                betterClicksBtn.textContent = `Buy (${newCost} points)`;
-                
-                // Update the upgrade description to show the new click value
-                const upgradeInfo = betterClicksBtn.closest('.upgrade-item').querySelector('.upgrade-info p');
-                if (upgradeInfo) {
-                    upgradeInfo.textContent = `+${currentIncrement + 1} points per click`;
-                }
-            }
-        });
-    }
-    
     gameLoop();
 }
 
 function updateButtonStates() {
-    const currentScore = getScore();
-    
-    // Update Better Clicks button
-    const betterClicksBtn = document.getElementById('betterClicksBtn');
-    if (betterClicksBtn) {
-        const cost = parseInt(betterClicksBtn.getAttribute('data-cost'));
-        if (currentScore >= cost) {
-            betterClicksBtn.classList.remove('disabled');
-            betterClicksBtn.disabled = false;
-        } else {
-            betterClicksBtn.classList.add('disabled');
-            betterClicksBtn.disabled = true;
-        }
-    }
-    
-    // Update Auto-Clicker button
-    const autoClickerBtn = document.getElementById('autoClickerBtn');
-    if (autoClickerBtn) {
-        const cost = parseInt(autoClickerBtn.getAttribute('data-cost'));
-        if (currentScore >= cost) {
-            autoClickerBtn.classList.remove('disabled');
-            autoClickerBtn.disabled = false;
-        } else {
-            autoClickerBtn.classList.add('disabled');
-            autoClickerBtn.disabled = true;
-        }
-    }
+    // Update button states for all upgrades
+    if (betterClicks) betterClicks.updateButtonState();
+    if (autoClicker) autoClicker.updateButtonState();
 }
 
-export function gameLoop() {
+export function gameLoop(timestamp) {
+    // Calculate delta time
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+    
+    // Update autoclickers to generate points
+    updateAutoclickers(deltaTime);
+    
+    // Update button states
+    updateButtonStates();
+    
     if (gameState === getGameVisibleActive() || gameState === getGameVisiblePaused()) {
-        // Update button states every frame
-        updateButtonStates();
-        
-        if (gameState === getGameVisibleActive()) {
-            // Game logic for active state
-        }
-
-        requestAnimationFrame(gameLoop);
+        // Game logic for active state
     }
+
+    requestAnimationFrame(gameLoop);
 }
 
 export function setGameState(newState) {

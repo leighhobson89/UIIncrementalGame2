@@ -594,6 +594,7 @@ button.disabled {
 
 .upgrade-btn {
     white-space: nowrap;
+    transition: all 0.2s ease;
     background: var(--theme-button-bg);
     border: 1px solid var(--theme-border);
     padding: 0.5rem 1rem;
@@ -601,8 +602,20 @@ button.disabled {
     color: var(--theme-text);
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s ease;
     box-shadow: 0 2px 4px var(--theme-shadow);
+}
+
+.upgrade-btn:disabled,
+.upgrade-btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.upgrade-btn:not(:disabled):not(.disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .upgrade-btn:hover {

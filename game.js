@@ -11,7 +11,8 @@ import {
     gameState,
     getScore,
     setScore,
-    getScoreIncrementValue
+    getScoreIncrementValue,
+    setScoreIncrementValue
 } from './constantsAndGlobalVars.js';
 
 //--------------------------------------------------------------------------------------------------------
@@ -33,14 +34,84 @@ export function startGame() {
         });
     }
     
+    // Set up Better Clicks upgrade button
+    const betterClicksBtn = document.getElementById('betterClicksBtn');
+    if (betterClicksBtn) {
+        console.log('Better Clicks button found');
+        betterClicksBtn.addEventListener('click', (e) => {
+            console.log('Better Clicks button clicked');
+            e.stopPropagation(); // Prevent event bubbling
+            
+            const currentScore = getScore();
+            const currentCost = parseInt(betterClicksBtn.getAttribute('data-cost'));
+            
+            console.log('Current score:', currentScore, 'Cost:', currentCost);
+            
+            if (currentScore >= currentCost) {
+                console.log('Enough points, processing upgrade...');
+                // Deduct points
+                setScore(currentScore - currentCost);
+                
+                // Increase click value
+                const currentIncrement = getScoreIncrementValue();
+                setScoreIncrementValue(currentIncrement + 1);
+                
+                // Update cost for next purchase (increase by 13%)
+                const newCost = Math.floor(currentCost * 1.13);
+                betterClicksBtn.setAttribute('data-cost', newCost);
+                
+                // Update button text
+                betterClicksBtn.textContent = `Buy (${newCost} points)`;
+                
+                // Update the upgrade description to show the new click value
+                const upgradeInfo = betterClicksBtn.closest('.upgrade-item').querySelector('.upgrade-info p');
+                if (upgradeInfo) {
+                    upgradeInfo.textContent = `+${currentIncrement + 1} points per click`;
+                }
+            }
+        });
+    }
+    
     gameLoop();
+}
+
+function updateButtonStates() {
+    const currentScore = getScore();
+    
+    // Update Better Clicks button
+    const betterClicksBtn = document.getElementById('betterClicksBtn');
+    if (betterClicksBtn) {
+        const cost = parseInt(betterClicksBtn.getAttribute('data-cost'));
+        if (currentScore >= cost) {
+            betterClicksBtn.classList.remove('disabled');
+            betterClicksBtn.disabled = false;
+        } else {
+            betterClicksBtn.classList.add('disabled');
+            betterClicksBtn.disabled = true;
+        }
+    }
+    
+    // Update Auto-Clicker button
+    const autoClickerBtn = document.getElementById('autoClickerBtn');
+    if (autoClickerBtn) {
+        const cost = parseInt(autoClickerBtn.getAttribute('data-cost'));
+        if (currentScore >= cost) {
+            autoClickerBtn.classList.remove('disabled');
+            autoClickerBtn.disabled = false;
+        } else {
+            autoClickerBtn.classList.add('disabled');
+            autoClickerBtn.disabled = true;
+        }
+    }
 }
 
 export function gameLoop() {
     if (gameState === getGameVisibleActive() || gameState === getGameVisiblePaused()) {
-        ctx.clearRect(0, 0, getElements().canvas.width, getElements().canvas.height);
-
+        // Update button states every frame
+        updateButtonStates();
+        
         if (gameState === getGameVisibleActive()) {
+            // Game logic for active state
         }
 
         requestAnimationFrame(gameLoop);

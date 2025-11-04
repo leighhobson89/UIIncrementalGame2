@@ -50,6 +50,11 @@ export function getScore() {
 export function setScore(value) {
     score = value;
     updateScoreDisplay();
+    
+    // Update button states when score changes
+    if (typeof updateButtonStates === 'function') {
+        setTimeout(updateButtonStates, 0);
+    }
 }
 
 export function getScoreIncrementValue() {

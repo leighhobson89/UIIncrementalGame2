@@ -1,10 +1,8 @@
 import { localize } from './localization.js';
 import { 
     setGameStateVariable, 
-    getBeginGameStatus, 
     getMenuState, 
-    getGameVisiblePaused, 
-    getGameVisibleActive, 
+    getGameActive,
     getElements, 
     getLanguage, 
     getGameInProgress, 
@@ -13,9 +11,11 @@ import {
     setScore,
     getScoreIncrementValue,
     setScoreIncrementValue,
-    updateScoreDisplay
+    updateScoreDisplay,
+    trackManualClick,
+    getManualClickRate
 } from './constantsAndGlobalVars.js';
-import { initUpgrades, betterClicks, autoClicker, updateAutoclickers } from './upgrades.js';
+import { initUpgrades, betterClicks, autoClicker } from './upgrades.js';
 
 // Game timing
 let lastTime = 0;
@@ -34,6 +34,9 @@ export function startGame() {
             const currentScore = getScore();
             const increment = getScoreIncrementValue();
             setScore(currentScore + increment);
+            
+            // Track the click and get current click rate
+            const manualPPS = trackManualClick();
             
             // Add click animation
             mainClicker.classList.add('clicked');
@@ -57,13 +60,13 @@ export function gameLoop(timestamp) {
     const deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     
-    // Update autoclickers to generate points
-    updateAutoclickers(deltaTime);
+    // Update autoclicker with delta time
+    if (autoClicker) autoClicker.update(deltaTime);
     
     // Update button states
     updateButtonStates();
     
-    if (gameState === getGameVisibleActive() || gameState === getGameVisiblePaused()) {
+    if (gameState === getGameActive()) {
         // Game logic for active state
     }
 
@@ -85,69 +88,51 @@ export function setGameState(newState) {
     if (elements.canvasContainer) elements.canvasContainer.classList.remove('d-flex');
     if (elements.gameContainer) elements.gameContainer.classList.remove('d-flex');
 
-    switch (newState) {
-        case getMenuState():
-            // Show menu
-            if (elements.menu) {
-                elements.menu.classList.remove('d-none');
-                elements.menu.classList.add('d-flex');
-            }
-            
-            // Update active language button
-            const languageButtons = [
-                elements.btnEnglish, 
-                elements.btnSpanish, 
-                elements.btnGerman, 
-                elements.btnItalian, 
-                elements.btnFrench
-            ];
-            
-            languageButtons.forEach(button => {
-                if (button) button.classList.remove('active');
-            });
+    if (newState === getMenuState()) {
+        // Show menu
+        if (elements.menu) {
+            elements.menu.classList.remove('d-none');
+            elements.menu.classList.add('d-flex');
+        }
+        
+        // Update active language button
+        const languageButtons = [
+            elements.btnEnglish, 
+            elements.btnSpanish, 
+            elements.btnGerman, 
+            elements.btnItalian, 
+            elements.btnFrench
+        ];
+        
+        languageButtons.forEach(button => {
+            if (button) button.classList.remove('active');
+        });
 
-            const currentLanguage = getLanguage();
-            console.log("Language is " + currentLanguage);
-            
-            // Set active state for current language button
-            const languageButtonMap = {
-                'en': elements.btnEnglish,
-                'es': elements.btnSpanish,
-                'de': elements.btnGerman,
-                'it': elements.btnItalian,
-                'fr': elements.btnFrench
-            };
-            
-            if (languageButtonMap[currentLanguage]) {
-                languageButtonMap[currentLanguage].classList.add('active');
-            }
+        const currentLanguage = getLanguage();
+        console.log("Language is " + currentLanguage);
+        
+        // Set active state for current language button
+        const languageButtonMap = {
+            'en': elements.btnEnglish,
+            'es': elements.btnSpanish,
+            'de': elements.btnGerman,
+            'it': elements.btnItalian,
+            'fr': elements.btnFrench
+        };
+        
+        if (languageButtonMap[currentLanguage]) {
+            languageButtonMap[currentLanguage].classList.add('active');
+        }
 
-            if (getGameInProgress() && elements.copyButtonSavePopup && elements.closeButtonSavePopup) {
-                elements.copyButtonSavePopup.innerHTML = `${localize('copyButton', currentLanguage)}`;
-                elements.closeButtonSavePopup.innerHTML = `${localize('closeButton', currentLanguage)}`;
-            }
-            break;
-            
-        case getGameVisiblePaused():
-        case getGameVisibleActive():
-            // Show game container
-            if (elements.gameContainer) {
-                elements.gameContainer.classList.remove('d-none');
-                elements.gameContainer.classList.add('d-flex');
-            }
-            
-            // Update UI based on game state
-            if (newState === getGameVisiblePaused()) {
-                // Paused state UI updates
-                if (elements.pauseGame) {
-                    elements.pauseGame.innerHTML = `<i class="fas fa-play"></i>`;
-                }
-            } else {
-                // Active state UI updates
-                if (elements.pauseGame) {
-                    elements.pauseGame.innerHTML = `<i class="fas fa-pause"></i>`;
-                }
-            }
-            break;
+        if (getGameInProgress() && elements.copyButtonSavePopup && elements.closeButtonSavePopup) {
+            elements.copyButtonSavePopup.innerHTML = `${localize('copyButton', currentLanguage)}`;
+            elements.closeButtonSavePopup.innerHTML = `${localize('closeButton', currentLanguage)}`;
+        }
+    } else if (newState === getGameActive()) {
+        // Show game container
+        if (elements.gameContainer) {
+            elements.gameContainer.classList.remove('d-none');
+            elements.gameContainer.classList.add('d-flex');
+        }
     }
 }

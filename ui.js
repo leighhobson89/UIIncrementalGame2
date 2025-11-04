@@ -1,4 +1,18 @@
-import { gameState, getLanguage, setElements, getElements, setBeginGameStatus, getGameInProgress, setGameInProgress, getGameVisiblePaused, getBeginGameStatus, getGameVisibleActive, getMenuState, getLanguageSelected, setLanguageSelected, setLanguage } from './constantsAndGlobalVars.js';
+import { 
+    gameState, 
+    getLanguage, 
+    setElements, 
+    getElements, 
+    setBeginGameStatus, 
+    getGameInProgress, 
+    setGameInProgress, 
+    getBeginGameStatus, 
+    getMenuState, 
+    getLanguageSelected, 
+    setLanguageSelected, 
+    setLanguage, 
+    getGameActive
+} from './constantsAndGlobalVars.js';
 import { setGameState, startGame, gameLoop } from './game.js';
 import { initLocalization, localize } from './localization.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
@@ -13,27 +27,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize themes
     initThemes();
 
-    // Play/Pause button functionality
+    // Remove pause button if it exists
     const pauseGameBtn = document.getElementById('pauseGame');
-    if (pauseGameBtn) {
-        pauseGameBtn.addEventListener('click', () => {
-            const isPaused = pauseGameBtn.classList.toggle('paused');
-            const playIcon = pauseGameBtn.querySelector('.fa-play');
-            const pauseIcon = pauseGameBtn.querySelector('.fa-pause');
-            
-            if (isPaused) {
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'inline-block';
-                // Pause game logic here
-            } else {
-                playIcon.style.display = 'inline-block';
-                pauseIcon.style.display = 'none';
-                // Resume game logic here
-            }
-            
-            // Toggle the 'active' class for visual feedback
-            pauseGameBtn.classList.toggle('active', isPaused);
-        });
+    if (pauseGameBtn && pauseGameBtn.parentNode) {
+        pauseGameBtn.parentNode.removeChild(pauseGameBtn);
     }
 
     // Menu event listeners
@@ -49,46 +46,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (elements.saveGameButton) {
                 disableActivateButton(elements.saveGameButton, 'active', 'btn-primary');
             }
-            setGameState(getGameVisiblePaused());
+            setGameState(getGameActive());
             startGame();
+            window.gameLoopRunning = true;
         });
     }
 
-    // Pause/Resume button in game
-    if (elements.pauseGame) {
-        elements.pauseGame.addEventListener('click', () => {
-            if (gameState === getGameVisiblePaused()) {
-                if (getBeginGameStatus()) {
-                    setBeginGameStatus(false);
-                }
-                setGameState(getGameVisibleActive());
-            } else if (gameState === getGameVisibleActive()) {
-                setGameState(getGameVisiblePaused());
-            }
-        });
+    // Remove pause/resume button if it exists
+    if (elements.pauseResumeGameButton && elements.pauseResumeGameButton.parentNode) {
+        elements.pauseResumeGameButton.parentNode.removeChild(elements.pauseResumeGameButton);
     }
 
-    // Legacy pause/resume button (for old UI)
-    if (elements.pauseResumeGameButton) {
-        elements.pauseResumeGameButton.addEventListener('click', () => {
-            if (gameState === getGameVisiblePaused()) {
-                if (getBeginGameStatus()) {
-                    setBeginGameStatus(false);
-                }
-                setGameState(getGameVisibleActive());
-            } else if (gameState === getGameVisibleActive()) {
-                setGameState(getGameVisiblePaused());
-            }
-        });
-    }
-
-    // Resume game from menu
+    // Resume game from menu - go directly to active game
     if (elements.resumeGameMenuButton) {
         elements.resumeGameMenuButton.addEventListener('click', () => {
-            if (gameState === getMenuState()) {
-                setGameState(getGameVisiblePaused());
+            setGameState(getGameActive());
+            if (!window.gameLoopRunning) {
+                gameLoop();
+                window.gameLoopRunning = true;
             }
-            gameLoop();
         });
     }
 
@@ -168,6 +144,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Set initial game state and language
     setGameState(getMenuState());
     handleLanguageChange(getLanguageSelected());
+    
+    // Track if game loop is running
+    window.gameLoopRunning = false;
 });
 
 async function setElementsLanguageText() {

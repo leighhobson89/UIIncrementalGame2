@@ -1,51 +1,86 @@
-//DEBUG
-export let debugFlag = false;
-export let debugOptionFlag = false;
-export let stateLoading = false;
+const _MENU_STATE = 'menuState';
+const _GAME_ACTIVE = 'gameActive';
+const CLICK_RATE_WINDOW = 1000;
 
-//ELEMENTS
+export let gameState;
+
+let lastClickTime = 0;
+
+let score = 0;
+let scoreIncrementValue = 1;
+let clickTimestamps = [];
 let elements;
 let localization = {};
 let language = 'en';
 let languageSelected = 'en';
 let oldLanguage = 'en';
 
-//CONSTANTS
-export let gameState;
-export const MENU_STATE = 'menuState';
-export const GAME_VISIBLE_PAUSED = 'gameVisiblePaused';
-export const GAME_VISIBLE_ACTIVE = 'gameVisibleActive';
-export const NUMBER_OF_ENEMY_SQUARES = 10;
-export const INITIAL_SPEED_PLAYER = 4;
-export const INITIAL_SPEED_MOVING_ENEMY = 4;
-export const MAX_ATTEMPTS_TO_DRAW_ENEMIES = 1000;
-
-export const playerObject = {
-    x: 100,
-    y: 100,
-    width: 50,
-    height: 50,
-    dx: getInitialSpeedPlayer(),
-    dy: getInitialSpeedPlayer()
-};
-
-//GLOBAL VARIABLES
-let score = 0;
-let scoreIncrementValue = 1;
-
-//FLAGS
-let audioMuted;
-let languageChangedFlag;
+// Flags and toggles
+let audioMuted = false;
+let languageChangedFlag = false;
 let beginGameState = true;
 let gameInProgress = false;
-
 let autoSaveOn = false;
-export let pauseAutoSaveCountdown = true;
 
-// Score related methods
+// =============================================
+// GETTERS
+// =============================================
+
+export function getMenuState() {
+    return _MENU_STATE;
+}
+
+export function getGameActive() {
+    return _GAME_ACTIVE;
+}
+
 export function getScore() {
     return score;
 }
+
+export function getScoreIncrementValue() {
+    return scoreIncrementValue;
+}
+
+export function getLanguage() {
+    return language;
+}
+
+export function getOldLanguage() {
+    return oldLanguage;
+}
+
+export function getLanguageSelected() {
+    return languageSelected;
+}
+
+export function getAudioMuted() {
+    return audioMuted;
+}
+
+export function getLanguageChangedFlag() {
+    return languageChangedFlag;
+}
+
+export function getBeginGameStatus() {
+    return beginGameState;
+}
+
+export function getGameInProgress() {
+    return gameInProgress;
+}
+
+export function getLocalization() {
+    return localization;
+}
+
+export function getElements() {
+    return elements;
+}
+
+// =============================================
+// SETTERS
+// =============================================
 
 export function setScore(value) {
     score = value;
@@ -57,12 +92,58 @@ export function setScore(value) {
     }
 }
 
-export function getScoreIncrementValue() {
-    return scoreIncrementValue;
-}
-
 export function setScoreIncrementValue(value) {
     scoreIncrementValue = value;
+}
+
+export function setLanguage(value) {
+    language = value;
+}
+
+export function setOldLanguage(value) {
+    oldLanguage = value;
+}
+
+export function setLanguageSelected(value) {
+    languageSelected = value;
+}
+
+export function setAudioMuted(value) {
+    audioMuted = value;
+}
+
+export function setLanguageChangedFlag(value) {
+    languageChangedFlag = value;
+}
+
+export function setBeginGameStatus(value) {
+    beginGameState = value;
+}
+
+export function setGameInProgress(value) {
+    gameInProgress = value;
+}
+
+export function setLocalization(value) {
+    localization = value;
+}
+
+export function trackManualClick() {
+    const now = Date.now();
+    clickTimestamps = clickTimestamps.filter(timestamp => now - timestamp < CLICK_RATE_WINDOW);
+    clickTimestamps.push(now);
+    lastClickTime = now;
+    
+    // Calculate clicks per second (over the last second)
+    const recentClicks = clickTimestamps.filter(ts => now - ts <= 1000);
+    return recentClicks.length * scoreIncrementValue; // Return points per second from manual clicks
+}
+
+export function getManualClickRate() {
+    const now = Date.now();
+    // Only count clicks within the last second for current rate
+    const recentClicks = clickTimestamps.filter(ts => now - ts <= 1000);
+    return recentClicks.length * scoreIncrementValue; // Points per second from manual clicks
 }
 
 export function updateScoreDisplay() {
@@ -117,28 +198,12 @@ export function setElements() {
     };
 }
 
-export function getPlayerObject() {
-    return playerObject;
-}
-
 export function setGameStateVariable(value) {
     gameState = value;
 }
 
 export function getGameStateVariable() {
     return gameState;
-}
-
-export function getElements() {
-    return elements;
-}
-
-export function getLanguageChangedFlag() {
-    return languageChangedFlag;
-}
-
-export function setLanguageChangedFlag(value) {
-    languageChangedFlag = value;
 }
 
 export function resetAllVariables() {
@@ -176,89 +241,5 @@ export function restoreGameStatus(gameState) {
             reject(error);
         }
     });
-}
-
-export function setLocalization(value) {
-    localization = value;
-}
-
-export function getLocalization() {
-    return localization;
-}
-
-export function setLanguage(value) {
-    language = value;
-}
-
-export function getLanguage() {
-    return language;
-}
-
-export function setOldLanguage(value) {
-    oldLanguage = value;
-}
-
-export function getOldLanguage() {
-    return oldLanguage;
-}
-
-export function setAudioMuted(value) {
-    audioMuted = value;
-}
-
-export function getAudioMuted() {
-    return audioMuted;
-}
-
-export function getMenuState() {
-    return MENU_STATE;
-}
-
-export function getGameVisiblePaused() {
-    return GAME_VISIBLE_PAUSED;
-}
-
-export function getGameVisibleActive() {
-    return GAME_VISIBLE_ACTIVE;
-}
-
-export function getNumberOfEnemySquares() {
-    return NUMBER_OF_ENEMY_SQUARES;
-}
-
-export function getInitialSpeedPlayer() {
-    return INITIAL_SPEED_PLAYER;
-}
-
-export function getInitialSpeedMovingEnemy() {
-    return INITIAL_SPEED_MOVING_ENEMY;
-}
-
-export function getMaxAttemptsToDrawEnemies() {
-    return MAX_ATTEMPTS_TO_DRAW_ENEMIES;
-}
-
-export function getLanguageSelected() {
-    return languageSelected;
-}
-
-export function setLanguageSelected(value) {
-    languageSelected = value;
-}
-
-export function getBeginGameStatus() {
-    return beginGameState;
-}
-
-export function setBeginGameStatus(value) {
-    beginGameState = value;
-}
-
-export function getGameInProgress() {
-    return gameInProgress;
-}
-
-export function setGameInProgress(value) {
-    gameInProgress = value;
 }
 

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -49,16 +50,74 @@
     </div>
   </div>
 
-    <!-- Canvas Container -->
-    <div id="canvasContainer" class="d-none">
-        <!-- Button Row -->
-        <div id="buttonRow" class="d-flex justify-content-center mb-3">
-            <button id="returnToMenu" class="btn btn-secondary mr-2">Return to Menu</button>
-            <button id="resumeGame" class="btn btn-primary">Pause</button>
+    <!-- Game UI Container -->
+    <div id="gameContainer" class="d-none game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <div class="game-stats">
+                <div class="stat">
+                    <span class="stat-label">Points:</span>
+                    <span id="points" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Points Per Second:</span>
+                    <span id="pointsPerSecond" class="stat-value">0</span>
+                </div>
+            </div>
+            <div class="game-controls">
+                <div class="theme-selector-inline">
+                    <select id="themeSelectGame" class="theme-select" title="Select theme">
+                        <option value="ocean" selected>🌊</option>
+                        <option value="forest">🌲</option>
+                        <option value="beach">🏖️</option>
+                        <option value="glacier">❄️</option>
+                        <option value="shadow">🌑</option>
+                    </select>
+                </div>
+                <button id="returnToMenu" class="icon-button" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button id="pauseGame" class="icon-button play-button" aria-label="Pause">
+                    <i class="fas fa-play"></i>
+                    <i class="fas fa-pause" style="display: none;"></i>
+                </button>
+            </div>
         </div>
-        <!-- Canvas Row -->
-        <div class="d-flex justify-content-center">
-            <canvas id="canvas"></canvas>
+
+        <!-- Main Game Area -->
+        <div class="game-content">
+            <!-- Main Clicker -->
+            <div class="clicker-container">
+                <button id="mainClicker" class="clicker-btn">
+                    <span class="clicker-emoji">🪙</span>
+                    <span class="clicker-label">Click Me!</span>
+                </button>
+            </div>
+
+            <!-- Upgrades -->
+            <div class="upgrades-container">
+                <h3>Upgrades</h3>
+                <div class="upgrade-list">
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <h4>Auto-Clicker</h4>
+                            <p>Generates 1 point per second</p>
+                        </div>
+                        <button class="btn btn-primary upgrade-btn" data-cost="10">
+                            Buy (10 points)
+                        </button>
+                    </div>
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <h4>Better Clicks</h4>
+                            <p>+1 point per click</p>
+                        </div>
+                        <button class="btn btn-primary upgrade-btn" data-cost="50">
+                            Buy (50 points)
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

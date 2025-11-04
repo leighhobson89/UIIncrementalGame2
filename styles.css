@@ -1,9 +1,184 @@
+/* Theme Variables */
+:root {
+    /* Ocean Theme (Default) */
+    --theme-primary: #1a1a2e;
+    --theme-secondary: #16213e;
+    --theme-accent: #4cc9f0;
+    --theme-text: #ffffff;
+    --theme-button-bg: #4361ee;
+    --theme-button-hover: #3a56d4;
+    --theme-stat-bg: rgba(0, 0, 0, 0.3);
+    --theme-upgrade-bg: rgba(255, 255, 255, 0.05);
+    --theme-upgrade-hover: rgba(255, 255, 255, 0.1);
+    --theme-border: rgba(76, 201, 240, 0.2);
+    --theme-shadow: rgba(67, 97, 238, 0.3);
+}
+
+/* Forest Theme */
+[data-theme="forest"] {
+    --theme-primary: #1a3b27;
+    --theme-secondary: #2a5c3f;
+    --theme-accent: #74c69d;
+    --theme-text: #f8f9fa;
+    --theme-button-bg: #1b4332;
+    --theme-button-hover: #0d2818;
+    --theme-stat-bg: rgba(0, 0, 0, 0.3);
+    --theme-upgrade-bg: rgba(45, 106, 79, 0.15);
+    --theme-upgrade-hover: rgba(45, 106, 79, 0.25);
+    --theme-border: rgba(116, 198, 157, 0.3);
+    --theme-shadow: rgba(27, 67, 50, 0.4);
+}
+
+/* Beach Theme */
+[data-theme="beach"] {
+    --theme-primary: #1e3d59;
+    --theme-secondary: #2a4d6e;
+    --theme-accent: #ffc13b;
+    --theme-text: #2d3436;
+    --theme-button-bg: #ff9e1b;
+    --theme-button-hover: #ff7d00;
+    --theme-stat-bg: rgba(255, 193, 59, 0.15);
+    --theme-upgrade-bg: rgba(255, 158, 27, 0.1);
+    --theme-upgrade-hover: rgba(255, 158, 27, 0.2);
+    --theme-border: rgba(255, 158, 27, 0.3);
+    --theme-shadow: rgba(255, 158, 27, 0.3);
+}
+
+/* Glacier Theme */
+[data-theme="glacier"] {
+    --theme-primary: #f0fdfd;
+    --theme-secondary: #d8f4f8;
+    --theme-accent: #0077b6;
+    --theme-text: #023e8a;
+    --theme-button-bg: #0096c7;
+    --theme-button-hover: #0077b6;
+    --theme-stat-bg: rgba(200, 230, 240, 0.7);
+    --theme-upgrade-bg: rgba(173, 232, 244, 0.3);
+    --theme-upgrade-hover: rgba(144, 224, 239, 0.5);
+    --theme-border: rgba(0, 150, 199, 0.4);
+    --theme-shadow: rgba(0, 150, 199, 0.2);
+}
+
+/* Shadow Theme */
+[data-theme="shadow"] {
+    --theme-primary: #0f0f0f;
+    --theme-secondary: #1a1a1a;
+    --theme-accent: #7b2cbf;
+    --theme-text: #e0e0e0;
+    --theme-button-bg: #3a0ca3;
+    --theme-button-hover: #480ca8;
+    --theme-stat-bg: rgba(30, 30, 30, 0.6);
+    --theme-upgrade-bg: rgba(123, 44, 191, 0.1);
+    --theme-upgrade-hover: rgba(123, 44, 191, 0.2);
+    --theme-border: rgba(123, 44, 191, 0.3);
+    --theme-shadow: rgba(58, 12, 163, 0.3);
+}
+
+/* Theme Selector */
+.theme-selector-inline {
+    display: inline-block;
+    margin-right: 0.5rem;
+}
+
+.theme-select {
+    padding: 0.35rem 1.5rem 0.35rem 0.5rem;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    height: 32px;
+    width: 50px;
+    text-align: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5em top 50%;
+    background-size: 0.5em auto;
+}
+
+.theme-select:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Base button styles */
+.icon-button {
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    height: 32px;
+    width: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+}
+
+/* Hover states */
+.theme-select:hover,
+.icon-button:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(0, 0, 0, 0.4);
+    transform: translateY(-1px);
+}
+
+/* Play button specific styles */
+.icon-button.play-button {
+    background-color: #4caf50; /* Green for play */
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.icon-button.play-button.paused {
+    background-color: #ffc107; /* Yellow for pause */
+}
+
+.icon-button.play-button i.fa-play,
+.icon-button.play-button.paused i.fa-pause {
+    display: inline-block;
+}
+
+.icon-button.play-button i.fa-pause,
+.icon-button.play-button.paused i.fa-play {
+    display: none;
+}
+
+.theme-select option {
+    background-color: var(--theme-primary);
+    color: var(--theme-text);
+    padding: 0.5rem;
+}
+
+/* Hide the dropdown arrow in some browsers */
+.theme-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7em top 50%;
+    background-size: 0.65em auto;
+}
+
 body {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background-color: black;
-    color: white;
+    background-color: var(--theme-primary);
+    color: var(--theme-text);
+    transition: background-color 0.3s ease;
 }
 
 #menu {
@@ -13,11 +188,12 @@ body {
     justify-content: center;
     height: 100vh;
     width: 100vw;
-    background-color: #333;
-    color: #fff;
+    background-color: var(--theme-primary);
+    color: var(--theme-text);
     text-align: center;
     top: 0;
     left: 0;
+    transition: background-color 0.3s ease;
 }
 
 button {
@@ -25,7 +201,16 @@ button {
 }
 
 .btn-primary {
+    background-color: var(--theme-button-bg);
+    border-color: var(--theme-button-bg);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--theme-button-hover);
+    border-color: var(--theme-button-hover);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
 }
 
 .btn-primary:hover {
@@ -111,16 +296,6 @@ button.disabled {
     justify-content: center;
 }
 
-#canvasContainer {
-    display: none;
-    width: 100vw;
-    height: 100vh;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: black;
-}
-
 #buttonRow {
     width: 80%;
     display: flex;
@@ -136,12 +311,6 @@ button.disabled {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-canvas {
-    width: 80%;
-    height: auto;
-    border: 1px solid white;
 }
 
 .disabled {
@@ -208,5 +377,239 @@ canvas {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 998;
+}
+
+/* Game Container Styles */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
+    color: var(--theme-text);
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* Game Header */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.game-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat {
+    background: var(--theme-stat-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    min-width: 150px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #a0a0a0;
+    margin-bottom: 0.2rem;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--theme-accent);
+}
+
+.game-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 25px;
+    backdrop-filter: blur(5px);
+}
+
+/* Game Content */
+.game-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+}
+
+/* Clicker Button */
+.clicker-container {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.clicker-btn {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--theme-button-bg), var(--theme-button-hover));
+    border: 3px solid var(--theme-border);
+    color: var(--theme-text);
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 20px var(--theme-shadow);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.clicker-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.clicker-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.clicker-emoji {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.clicker-btn:active .clicker-emoji {
+    transform: scale(0.9);
+}
+
+.clicker-label {
+    font-size: 1.2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Upgrades Section */
+.upgrades-container {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.upgrades-container h3 {
+    margin-top: 0;
+    color: #4cc9f0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.upgrade-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.upgrade-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--theme-upgrade-bg);
+    padding: 1rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.upgrade-item:hover {
+    background: var(--theme-upgrade-hover);
+    transform: translateX(5px);
+    border-color: var(--theme-accent);
+}
+
+.upgrade-info h4 {
+    margin: 0 0 0.3rem 0;
+    color: #fff;
+}
+
+.upgrade-info p {
+    margin: 0;
+    color: #a0a0a0;
+    font-size: 0.9rem;
+}
+
+.upgrade-btn {
+    white-space: nowrap;
+    background: var(--theme-button-bg);
+    border: 1px solid var(--theme-border);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    color: var(--theme-text);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px var(--theme-shadow);
+}
+
+.upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+}
+
+.upgrade-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .game-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .stat {
+        min-width: auto;
+        padding: 0.5rem;
+        flex: 1;
+        text-align: center;
+    }
+    
+    .game-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .clicker-btn {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .upgrade-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .upgrade-btn {
+        width: 100%;
+    }
 }
 

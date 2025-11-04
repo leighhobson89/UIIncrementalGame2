@@ -43,28 +43,44 @@ export let pauseAutoSaveCountdown = true;
 //GETTER SETTER METHODS
 export function setElements() {
     elements = {
+        // Menu elements
         menu: document.getElementById('menu'),
         menuTitle: document.getElementById('menuTitle'),
-        newGameMenuButton:  document.getElementById('newGame'),
+        newGameMenuButton: document.getElementById('newGame'),
         resumeGameMenuButton: document.getElementById('resumeFromMenu'),
         loadGameButton: document.getElementById('loadGame'),
         saveGameButton: document.getElementById('saveGame'),
+        
+        // Save/Load popup elements
         saveLoadPopup: document.getElementById('loadSaveGameStringPopup'),
         loadSaveGameStringTextArea: document.getElementById('loadSaveGameStringTextArea'),
         loadStringButton: document.getElementById('loadStringButton'),
         textAreaLabel: document.getElementById('textAreaLabel'),
+        copyButtonSavePopup: document.getElementById('copyButtonSavePopup'),
+        closeButtonSavePopup: document.getElementById('closeButtonSavePopup'),
+        
+        // Game UI elements
+        gameContainer: document.getElementById('gameContainer'),
+        pointsDisplay: document.getElementById('points'),
+        pointsPerSecondDisplay: document.getElementById('pointsPerSecond'),
+        mainClicker: document.getElementById('mainClicker'),
+        pauseGame: document.getElementById('pauseGame'),
+        
+        // Old canvas elements (kept for compatibility)
         returnToMenuButton: document.getElementById('returnToMenu'),
         pauseResumeGameButton: document.getElementById('resumeGame'),
         canvas: document.getElementById('canvas'),
         canvasContainer: document.getElementById('canvasContainer'),
         buttonRow: document.getElementById('buttonRow'),
+        
+        // Language buttons
         btnEnglish: document.getElementById('btnEnglish'),
         btnSpanish: document.getElementById('btnSpanish'),
         btnFrench: document.getElementById('btnFrench'),
         btnGerman: document.getElementById('btnGerman'),
         btnItalian: document.getElementById('btnItalian'),
-        copyButtonSavePopup: document.getElementById('copyButtonSavePopup'),
-        closeButtonSavePopup: document.getElementById('closeButtonSavePopup'),
+        
+        // Other UI elements
         overlay: document.getElementById('overlay')
     };
 }

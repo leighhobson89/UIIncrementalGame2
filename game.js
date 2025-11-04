@@ -10,10 +10,7 @@ import {
     getScore,
     setScore,
     getScoreIncrementValue,
-    setScoreIncrementValue,
-    updateScoreDisplay,
-    trackManualClick,
-    getManualClickRate
+    trackManualClick
 } from './constantsAndGlobalVars.js';
 import { initUpgrades, betterClicks, autoClicker } from './upgrades.js';
 
@@ -36,7 +33,7 @@ export function startGame() {
             setScore(currentScore + increment);
             
             // Track the click and get current click rate
-            const manualPPS = trackManualClick();
+            trackManualClick();
             
             // Add click animation
             mainClicker.classList.add('clicked');

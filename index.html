@@ -11,38 +11,38 @@
 <body>
     <!-- Menu Container -->
     <div id="menu" class="d-flex flex-column align-items-center justify-content-center d-none">
-        <h1 id="menuTitle" class="mb-4">Game Title Placeholder</h1>
+        <h1 id="menuTitle" class="mb-4" data-i18n="gameTitle">Game Title Placeholder</h1>
         <div id="languageContainer" class="d-flex justify-content-between my-2">
             <div class="col">
-                <button id="btnEnglish" class="btn btn-success mx-2">English</button>
+                <button id="btnEnglish" class="btn btn-success mx-2" data-i18n="english">English</button>
             </div>
             <div class="col">
-                <button id="btnSpanish" class="btn btn-success mx-2">Español</button>
+                <button id="btnSpanish" class="btn btn-success mx-2" data-i18n="spanish">Español</button>
             </div>
             <div class="col">
-                <button id="btnGerman" class="btn btn-success mx-2">Deutsch</button>
+                <button id="btnGerman" class="btn btn-success mx-2" data-i18n="german">Deutsch</button>
             </div>
             <div class="col">
-                <button id="btnItalian" class="btn btn-success mx-2">Italiano</button>
+                <button id="btnItalian" class="btn btn-success mx-2" data-i18n="italian">Italiano</button>
             </div>
             <div class="col">
-                <button id="btnFrench" class="btn btn-success mx-2">Français</button>
+                <button id="btnFrench" class="btn btn-success mx-2" data-i18n="french">Français</button>
             </div>
         </div>
-        <button id="newGame" class="btn btn-primary mb-2">New Game Placeholder</button>
-        <button id="resumeFromMenu" class="btn disabled mb-2">Resume Game Placeholder</button>
-        <button id="loadGame" class="btn btn-primary mb-2">Load Game Placeholder</button>
-        <button id="saveGame" class="btn disabled">Save Game Placeholder</button>
+        <button id="newGame" class="btn btn-primary mb-2" data-i18n="newGame">New Game Placeholder</button>
+        <button id="resumeFromMenu" class="btn disabled mb-2" data-i18n="resumeGame">Resume Game Placeholder</button>
+        <button id="loadGame" class="btn btn-primary mb-2" data-i18n="loadGame">Load Game Placeholder</button>
+        <button id="saveGame" class="btn disabled" data-i18n="saveGame">Save Game Placeholder</button>
     </div>
 
     <!--Save Load Game Input Field-->
 <div id="loadSaveGameStringPopup" class="save-load-popup-container bg-dark p-4 rounded shadow-lg d-none">
     <div class="save-load-header-container d-flex justify-content-between align-items-center mb-3">
-      <div class="save-load-header">Copy String To A Text File:</div>
+      <div class="save-load-header" data-i18n="copyStringToFile">Copy String To A Text File:</div>
       <div class="save-load-buttons-container">
-        <button id="loadStringButton" class="save-load-buttons btn btn-success btn-sm flex-grow-1 mr-4">Load</button>
-        <button id="copyButtonSavePopup" class="save-load-buttons btn btn-success btn-sm flex-grow-1 mr-4">Copy</button>
-        <button id="closeButtonSavePopup" class="save-load-buttons btn btn-danger btn-sm flex-grow-0">Close</button>
+        <button id="loadStringButton" class="save-load-buttons btn btn-success btn-sm flex-grow-1 mr-4" data-i18n="load">Load</button>
+        <button id="copyButtonSavePopup" class="save-load-buttons btn btn-success btn-sm flex-grow-1 mr-4" data-i18n="copy">Copy</button>
+        <button id="closeButtonSavePopup" class="save-load-buttons btn btn-danger btn-sm flex-grow-0" data-i18n="close">Close</button>
       </div>
     </div>
     <div class="save-load-input-container">
@@ -56,17 +56,17 @@
         <div class="game-header">
             <div class="game-stats">
                 <div class="stat">
-                    <span class="stat-label">Points:</span>
+                    <span class="stat-label" data-i18n="points">Points:</span>
                     <span id="points" class="stat-value">0</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-label">Points Per Second:</span>
+                    <span class="stat-label" data-i18n="pointsPerSecond">Points Per Second:</span>
                     <span id="pointsPerSecond" class="stat-value">0</span>
                 </div>
             </div>
             <div class="game-controls">
                 <div class="theme-selector-inline">
-                    <select id="themeSelectGame" class="theme-select" title="Select theme">
+                    <select id="themeSelectGame" class="theme-select" data-i18n-title="selectTheme" title="Select theme">
                         <option value="ocean" selected>🌊</option>
                         <option value="forest">🌲</option>
                         <option value="beach">🏖️</option>
@@ -90,30 +90,30 @@
             <div class="clicker-container">
                 <button id="mainClicker" class="clicker-btn">
                     <img src="assets2/images/coin.png" alt="Coin" class="clicker-emoji" style="width: 64px; height: 64px;">
-                    <span class="clicker-label">Click Me!</span>
+                    <span class="clicker-label" data-i18n="clickMe">Click Me!</span>
                 </button>
             </div>
 
             <!-- Upgrades -->
             <div class="upgrades-container">
-                <h3>Upgrades</h3>
+                <h3 data-i18n="upgrades">Upgrades</h3>
                 <div class="upgrade-list">
                     <div class="upgrade-item">
                         <div class="upgrade-info">
-                            <h4>Auto-Clicker</h4>
-                            <p>Generates 1 point per second</p>
+                            <h4 data-i18n="autoClicker">Auto-Clicker</h4>
+                            <p data-i18n="autoClickerDesc">Generates 1 point per second</p>
                         </div>
                         <button id="autoClickerBtn" class="btn btn-primary upgrade-btn" data-cost="10">
-                            Buy (10 points)
+                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">10 points</span>)
                         </button>
                     </div>
                     <div class="upgrade-item">
                         <div class="upgrade-info">
-                            <h4>Better Clicks</h4>
-                            <p>+1 point per click</p>
+                            <h4 data-i18n="betterClicks">Better Clicks</h4>
+                            <p data-i18n="betterClicksDesc">+1 point per click</p>
                         </div>
                         <button id="betterClicksBtn" class="btn btn-primary upgrade-btn" data-cost="50">
-                            Buy (50 points)
+                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">50 points</span>)
                         </button>
                     </div>
                 </div>

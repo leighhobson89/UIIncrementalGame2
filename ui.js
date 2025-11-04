@@ -11,10 +11,12 @@ import {
     getLanguageSelected, 
     setLanguageSelected, 
     setLanguage, 
-    getGameActive
+    getGameActive,
+    setLanguageChangedFlag,
+    getLanguageChangedFlag
 } from './constantsAndGlobalVars.js';
 import { setGameState, startGame, gameLoop } from './game.js';
-import { initLocalization, localize } from './localization.js';
+import { initLocalization, localize, updateAllElements, changeLanguage } from './localization.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
 import { initThemes } from './themes.js';
 
@@ -26,6 +28,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize themes
     initThemes();
+    
+    // Initialize localization
+    await initLocalization(getLanguageSelected() || 'en');
 
     // Remove pause button if it exists
     const pauseGameBtn = document.getElementById('pauseGame');
@@ -93,11 +98,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     Object.entries(languageButtons).forEach(([lang, button]) => {
         if (button) {
             button.addEventListener('click', () => {
-                handleLanguageChange(lang);
+                changeLanguage(lang);
                 setGameState(getMenuState());
             });
         }
     });
+    
+    // Set active language button
+    const currentLang = getLanguageSelected() || 'en';
+    if (languageButtons[currentLang]) {
+        languageButtons[currentLang].classList.add('active');
+    }
 
     // Save game button
     if (elements.saveGameButton) {
@@ -159,10 +170,8 @@ async function setElementsLanguageText() {
     getElements().loadStringButton.innerHTML = `${localize('loadButton', getLanguage())}`;
 }
 
-export async function handleLanguageChange(languageCode) {
-    setLanguageSelected(languageCode);
-    await setupLanguageAndLocalization();
-    setElementsLanguageText();
+export function handleLanguageChange(languageCode) {
+    changeLanguage(languageCode);
 }
 
 async function setupLanguageAndLocalization() {

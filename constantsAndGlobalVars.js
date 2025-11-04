@@ -30,6 +30,8 @@ export const playerObject = {
 };
 
 //GLOBAL VARIABLES
+let score = 0;
+let scoreIncrementValue = 1;
 
 //FLAGS
 let audioMuted;
@@ -39,6 +41,31 @@ let gameInProgress = false;
 
 let autoSaveOn = false;
 export let pauseAutoSaveCountdown = true;
+
+// Score related methods
+export function getScore() {
+    return score;
+}
+
+export function setScore(value) {
+    score = value;
+    updateScoreDisplay();
+}
+
+export function getScoreIncrementValue() {
+    return scoreIncrementValue;
+}
+
+export function setScoreIncrementValue(value) {
+    scoreIncrementValue = value;
+}
+
+function updateScoreDisplay() {
+    const scoreElement = document.getElementById('points');
+    if (scoreElement) {
+        scoreElement.textContent = Math.floor(score);
+    }
+}
 
 //GETTER SETTER METHODS
 export function setElements() {

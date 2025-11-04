@@ -1,10 +1,38 @@
 import { localize } from './localization.js';
-import { setGameStateVariable, getBeginGameStatus, getMenuState, getGameVisiblePaused, getGameVisibleActive, getElements, getLanguage, getGameInProgress, gameState } from './constantsAndGlobalVars.js';
+import { 
+    setGameStateVariable, 
+    getBeginGameStatus, 
+    getMenuState, 
+    getGameVisiblePaused, 
+    getGameVisibleActive, 
+    getElements, 
+    getLanguage, 
+    getGameInProgress, 
+    gameState,
+    getScore,
+    setScore,
+    getScoreIncrementValue
+} from './constantsAndGlobalVars.js';
 
 //--------------------------------------------------------------------------------------------------------
 
 export function startGame() {
-
+    // Set up main clicker button
+    const mainClicker = document.getElementById('mainClicker');
+    if (mainClicker) {
+        mainClicker.addEventListener('click', () => {
+            const currentScore = getScore();
+            const increment = getScoreIncrementValue();
+            setScore(currentScore + increment);
+            
+            // Add click animation
+            mainClicker.classList.add('clicked');
+            setTimeout(() => {
+                mainClicker.classList.remove('clicked');
+            }, 100);
+        });
+    }
+    
     gameLoop();
 }
 

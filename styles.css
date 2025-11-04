@@ -90,7 +90,7 @@
     cursor: pointer;
     outline: none;
     transition: all 0.3s ease;
-    height: 32px;
+    height: 36px;
     width: 80px;
     text-align: center;
     -webkit-appearance: none;
@@ -124,6 +124,48 @@
     align-items: center;
     justify-content: center;
     margin: 0 2px;
+}
+
+/* Clicker Button */
+.clicker-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s ease;
+    transform: scale(1);
+}
+
+.clicker-btn:active {
+    transform: scale(0.95);
+}
+
+.clicker-btn.clicked {
+    animation: clickPulse 0.15s ease-out;
+}
+
+@keyframes clickPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+.clicker-emoji {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.clicker-btn:hover .clicker-emoji {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.clicker-label {
+    display: block;
+    font-size: 1.2rem;
+    color: var(--theme-text);
+    margin-top: 0.5rem;
 }
 
 /* Hover states */

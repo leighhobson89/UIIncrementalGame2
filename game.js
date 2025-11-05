@@ -25,6 +25,98 @@ import {
 } from './upgrades.js';
 import { audioManager } from './AudioManager.js';
 
+// Module-scoped references for main click handler to avoid duplicate bindings
+let clickHandler = null;
+let mainClicker = null;
+
+// Create a single click handler function
+function createClickHandler() {
+    return function(event) {
+        const currentScore = getScore();
+        const increment = getScoreIncrementValue();
+        setScore(currentScore + increment);
+        
+        // Track the click and get current click rate
+        trackManualClick();
+        
+        // Play coin jingle sound
+        audioManager.playFx('coinJingle');
+        
+        // Add click animation
+        this.classList.add('clicked');
+        setTimeout(() => {
+            this.classList.remove('clicked');
+        }, 100);
+
+        // Create multiple coins based on the score increment (max 8 per click)
+        const coinCount = Math.min(8, Math.max(1, Math.floor(getScoreIncrementValue())));
+        const coinOverlay = document.getElementById('coinOverlay');
+        
+        // Floating money now spawns on a timer, not on click
+        
+        for (let i = 0; i < coinCount; i++) {
+            const coin = document.createElement('img');
+            coin.src = 'assets/images/coin.png';
+            coin.className = 'coin-animation';
+            
+            // Position the coin at the click location (relative to viewport)
+            // Add some randomness to the position
+            const offsetX = (Math.random() - 0.5) * 40;
+            const offsetY = (Math.random() - 0.5) * 40;
+            coin.style.left = `${event.clientX + offsetX}px`;
+            coin.style.top = `${event.clientY + offsetY}px`;
+            
+            // Randomly choose left or right direction with some variation
+            const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+            coin.style.animationName = `coinFly${direction}`;
+            
+            // Randomize animation duration slightly for more natural look
+            const duration = 1 + Math.random() * 0.5; // 1s to 1.5s
+            coin.style.animationDuration = `${duration}s`;
+            
+            // Add the coin to the overlay
+            coinOverlay.appendChild(coin);
+            
+            // Remove the coin after animation completes
+            setTimeout(() => {
+                if (coin.parentNode === coinOverlay) {
+                    coinOverlay.removeChild(coin);
+                }
+            }, duration * 1000);
+        }
+    };
+}
+
+// Set up the click handler with proper cleanup
+function setupClickHandler() {
+    // Clean up any existing handler first
+    cleanupClickHandler();
+    
+    // Get the clicker element
+    mainClicker = document.getElementById('mainClicker');
+    if (!mainClicker) return;
+    
+    // Create and store the new click handler
+    clickHandler = createClickHandler();
+    
+    // Add the event listener
+    mainClicker.addEventListener('click', clickHandler);
+}
+
+// Clean up the click handler
+function cleanupClickHandler() {
+    if (mainClicker && clickHandler) {
+        // Remove the event listener
+        mainClicker.removeEventListener('click', clickHandler);
+    }
+    // Clean up references regardless
+    clickHandler = null;
+    mainClicker = null;
+}
+
+// Expose cleanup for external calls if needed
+window.cleanupClickHandler = cleanupClickHandler;
+
 // Floating money animation with random path
 function createFloatingMoney() {
     const overlay = document.getElementById('bonusOverlay');
@@ -179,101 +271,8 @@ export function startGame() {
     document.getElementById('betterClicksMultiplierBtn')?.addEventListener('click', () => betterClicksMultiplier.purchase());
     document.getElementById('autoClickerMultiplierBtn')?.addEventListener('click', () => autoClickerMultiplier.purchase());
     
-    // Store the click handler reference and main clicker element at module level
-let clickHandler = null;
-let mainClicker = null;
-
-// Create a single click handler function
-function createClickHandler() {
-    return function(event) {
-        const currentScore = getScore();
-        const increment = getScoreIncrementValue();
-        setScore(currentScore + increment);
-        
-        // Track the click and get current click rate
-        trackManualClick();
-        
-        // Play coin jingle sound
-        audioManager.playFx('coinJingle');
-        
-        // Add click animation
-        this.classList.add('clicked');
-        setTimeout(() => {
-            this.classList.remove('clicked');
-        }, 100);
-
-        // Create multiple coins based on the score increment (max 8 per click)
-        const coinCount = Math.min(8, Math.max(1, Math.floor(getScoreIncrementValue())));
-        const coinOverlay = document.getElementById('coinOverlay');
-        
-        // Floating money now spawns on a timer, not on click
-        
-        for (let i = 0; i < coinCount; i++) {
-            const coin = document.createElement('img');
-            coin.src = 'assets/images/coin.png';
-            coin.className = 'coin-animation';
-            
-            // Position the coin at the click location (relative to viewport)
-            // Add some randomness to the position
-            const offsetX = (Math.random() - 0.5) * 40;
-            const offsetY = (Math.random() - 0.5) * 40;
-            coin.style.left = `${event.clientX + offsetX}px`;
-            coin.style.top = `${event.clientY + offsetY}px`;
-            
-            // Randomly choose left or right direction with some variation
-            const direction = Math.random() > 0.5 ? 'Right' : 'Left';
-            coin.style.animationName = `coinFly${direction}`;
-            
-            // Randomize animation duration slightly for more natural look
-            const duration = 1 + Math.random() * 0.5; // 1s to 1.5s
-            coin.style.animationDuration = `${duration}s`;
-            
-            // Add the coin to the overlay
-            coinOverlay.appendChild(coin);
-            
-            // Remove the coin after animation completes
-            setTimeout(() => {
-                if (coin.parentNode === coinOverlay) {
-                    coinOverlay.removeChild(coin);
-                }
-            }, duration * 1000);
-        }
-    };
-}
-
-// Set up the click handler with proper cleanup
-function setupClickHandler() {
-    // Clean up any existing handler first
-    cleanupClickHandler();
-    
-    // Get the clicker element
-    mainClicker = document.getElementById('mainClicker');
-    if (!mainClicker) return;
-    
-    // Create and store the new click handler
-    clickHandler = createClickHandler();
-    
-    // Add the event listener
-    mainClicker.addEventListener('click', clickHandler);
-}
-
-// Clean up the click handler
-function cleanupClickHandler() {
-    if (mainClicker && clickHandler) {
-        // Remove the event listener
-        mainClicker.removeEventListener('click', clickHandler);
-        
-        // Clean up references
-        clickHandler = null;
-        mainClicker = null;
-    }
-}
-
-// Export the cleanup function for use in reset
-window.cleanupClickHandler = cleanupClickHandler;
-
-// Set up the initial click handler
-setupClickHandler();
+    // Set up the main click handler once per start, with cleanup to prevent duplicates
+    setupClickHandler();
     
     // Initialize bonus spawn countdown
     resetBonusSpawnTimer();

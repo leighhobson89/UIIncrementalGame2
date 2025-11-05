@@ -8,6 +8,7 @@ import {
 import { updateScoreDisplay, getManualClickRate } from './game.js';
 import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
+import { audioManager } from './AudioManager.js';
 
 /**
  * Auto-clicker implementation with delta time
@@ -168,6 +169,11 @@ export default class AutoClicker {
             
             console.log(`Auto-clicker purchased! Added ${multiplier} auto-clickers. New total: ${this.count}`);
             this.updateCachedValues();
+            
+            // Play upgrade sound on successful purchase
+            if (audioManager && !audioManager.muted) {
+                audioManager.playFx('upgrade');
+            }
             return true;
         }
         return false;
@@ -197,10 +203,12 @@ export default class AutoClicker {
         const name = localize('autoClicker', getLanguage());
         
         // Get localized description
+        const totalPpsInt = Math.round(this.cachedTotalPPS);
+        const basePointsInt = Math.round(this.count * this.baseRate);
         const description = localize('autoClickerDesc', getLanguage(), 
-            this.cachedTotalPPS.toFixed(1),  // {0} - Total points per second
-            this.count * this.baseRate,      // {1} - Base points (count * base rate)
-            multiplier                       // {2} - Current purchase multiplier
+            totalPpsInt,          // {0} - Total points per second (integer)
+            basePointsInt,        // {1} - Base points (integer)
+            multiplier            // {2} - Current purchase multiplier
         );
         
         // Format numbers

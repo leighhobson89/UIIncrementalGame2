@@ -497,6 +497,7 @@ button.disabled {
 
 /* Game Content */
 .game-content {
+    position: relative; /* Make this a positioning context for the upgrades container */
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -558,12 +559,15 @@ button.disabled {
 
 /* Upgrades Section */
 .upgrades-container {
-    width: 100%;
-    max-width: 600px;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 450px; /* Further increased width for better content fit */
     background: rgba(0, 0, 0, 0.2);
     border-radius: 15px;
-    padding: 1.5rem;
-    margin-top: 2rem;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
 }
 
 .upgrades-container h3 {
@@ -598,8 +602,13 @@ button.disabled {
 }
 
 .upgrade-info h4 {
-    margin: 0 0 0.3rem 0;
-    color: #fff;
+    margin: 0 0 0.5rem 0;
+    color: var(--theme-accent);
+    transition: color 0.2s ease;
+}
+
+.upgrade-info h4.price-unaffordable {
+    color: #ff6b6b;
 }
 
 .upgrade-info p {

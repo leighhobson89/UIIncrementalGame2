@@ -1,3 +1,6 @@
+import { formatNumber } from './utils/numberFormatter.js';
+import { updateScoreDisplay } from './game.js';
+
 const _MENU_STATE = 'menuState';
 const _GAME_ACTIVE = 'gameActive';
 const CLICK_RATE_WINDOW = 1000;
@@ -78,6 +81,36 @@ export function getElements() {
     return elements;
 }
 
+export function getClickTimestamps() {
+    return [...clickTimestamps]; // Return a copy to prevent direct modification
+}
+
+export function setClickTimestamps(newTimestamps) {
+    if (Array.isArray(newTimestamps)) {
+        clickTimestamps = [...newTimestamps]; // Store a copy to prevent external modifications
+    } else {
+        console.warn('setClickTimestamps: Expected an array of timestamps');
+        clickTimestamps = [];
+    }
+}
+
+export function getClickRateWindow() {
+    return CLICK_RATE_WINDOW;
+}
+
+export function getLastClickTime() {
+    return lastClickTime;
+}
+
+export function setLastClickTime(timestamp) {
+    if (typeof timestamp === 'number' && !isNaN(timestamp)) {
+        lastClickTime = timestamp;
+    } else {
+        console.warn('setLastClickTime: Expected a valid timestamp number');
+        lastClickTime = 0;
+    }
+}
+
 // =============================================
 // SETTERS
 // =============================================
@@ -128,32 +161,6 @@ export function setLocalization(value) {
     localization = value;
 }
 
-export function trackManualClick() {
-    const now = Date.now();
-    clickTimestamps = clickTimestamps.filter(timestamp => now - timestamp < CLICK_RATE_WINDOW);
-    clickTimestamps.push(now);
-    lastClickTime = now;
-    
-    // Calculate clicks per second (over the last second)
-    const recentClicks = clickTimestamps.filter(ts => now - ts <= 1000);
-    return recentClicks.length * scoreIncrementValue; // Return points per second from manual clicks
-}
-
-export function getManualClickRate() {
-    const now = Date.now();
-    // Only count clicks within the last second for current rate
-    const recentClicks = clickTimestamps.filter(ts => now - ts <= 1000);
-    return recentClicks.length * scoreIncrementValue; // Points per second from manual clicks
-}
-
-export function updateScoreDisplay() {
-    const scoreElement = document.getElementById('points');
-    if (scoreElement) {
-        scoreElement.textContent = Math.floor(score);
-    }
-}
-
-//GETTER SETTER METHODS
 export function setElements() {
     elements = {
         // Menu elements

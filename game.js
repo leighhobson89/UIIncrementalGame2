@@ -10,8 +10,13 @@ import {
     getScore,
     setScore,
     getScoreIncrementValue,
-    trackManualClick
+    getClickTimestamps,
+    setClickTimestamps,
+    getClickRateWindow,
+    getLastClickTime,
+    setLastClickTime
 } from './constantsAndGlobalVars.js';
+import { testNumberFormatter, formatNumber } from './utils/numberFormatter.js'; //call in console
 import { initUpgrades, betterClicks, autoClicker } from './upgrades.js';
 
 // Game timing
@@ -50,6 +55,40 @@ function updateButtonStates() {
     // Update button states for all upgrades
     if (betterClicks) betterClicks.updateButtonState();
     if (autoClicker) autoClicker.updateButtonState();
+}
+
+export function trackManualClick() {
+    const now = Date.now();
+    const windowMs = getClickRateWindow();
+    
+    // Get current timestamps and filter out old ones
+    const currentTimestamps = getClickTimestamps()
+        .filter(timestamp => now - timestamp < windowMs);
+    
+    // Add the new click timestamp
+    const updatedTimestamps = [...currentTimestamps, now];
+    setClickTimestamps(updatedTimestamps);
+    
+    // Update the last click time
+    setLastClickTime(now);
+    
+    // Calculate clicks per second (over the last second)
+    const recentClicks = updatedTimestamps.filter(ts => now - ts <= 1000);
+    return recentClicks.length * getScoreIncrementValue(); // Return points per second from manual clicks
+}
+
+export function getManualClickRate() {
+    const now = Date.now();
+    // Only count clicks within the last second for current rate
+    const recentClicks = getClickTimestamps().filter(ts => now - ts <= 1000);
+    return recentClicks.length * getScoreIncrementValue(); // Points per second from manual clicks
+}
+
+export function updateScoreDisplay() {
+    const scoreElement = document.getElementById('points');
+    if (scoreElement) {
+        scoreElement.textContent = formatNumber(Math.floor(getScore()), 10000);
+    }
 }
 
 export function gameLoop(timestamp) {

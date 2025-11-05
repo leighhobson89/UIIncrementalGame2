@@ -1,26 +1,45 @@
-import { 
-    gameState, 
+import {  
     getLanguage, 
     setElements, 
     getElements, 
     setBeginGameStatus, 
     getGameInProgress, 
-    setGameInProgress, 
-    getBeginGameStatus, 
+    setGameInProgress,
     getMenuState, 
     getLanguageSelected, 
-    setLanguageSelected, 
     setLanguage, 
     getGameActive,
-    setLanguageChangedFlag,
-    getLanguageChangedFlag,
-    resetGame
+    resetGame,
+    getScore
 } from './constantsAndGlobalVars.js';
 import { setGameState, startGame, gameLoop } from './game.js';
-import { initLocalization, localize, updateAllElements, changeLanguage } from './localization.js';
+import { initLocalization, localize, changeLanguage } from './localization.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
 import { initThemes } from './themes.js';
 
+/**
+ * Update price colors based on affordability
+ * @param {Array} upgrades - Array of upgrade objects with currentCost property
+ */
+export function updatePriceColors(upgrades) {
+    const currentScore = getScore();
+    
+    upgrades.forEach(upgrade => {
+        if (upgrade.button) {
+            const upgradeItem = upgrade.button.closest('.upgrade-item');
+            if (upgradeItem) {
+                const headerElement = upgradeItem.querySelector('.upgrade-info h4');
+                if (headerElement) {
+                    if (currentScore < upgrade.currentCost) {
+                        headerElement.classList.add('price-unaffordable');
+                    } else {
+                        headerElement.classList.remove('price-unaffordable');
+                    }
+                }
+            }
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize elements

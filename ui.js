@@ -18,7 +18,7 @@ import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from '.
 import { initThemes } from './themes.js';
 
 /**
- * Update price colors based on affordability
+ * Update price colors and button states based on affordability
  * @param {Array} upgrades - Array of upgrade objects with currentCost property
  */
 export function updatePriceColors(upgrades) {
@@ -26,15 +26,18 @@ export function updatePriceColors(upgrades) {
     
     upgrades.forEach(upgrade => {
         if (upgrade.button) {
+            const canAfford = currentScore >= upgrade.currentCost;
+            
+            // Update button disabled state
+            upgrade.button.disabled = !canAfford;
+            upgrade.button.classList.toggle('disabled', !canAfford);
+            
+            // Update price color in header
             const upgradeItem = upgrade.button.closest('.upgrade-item');
             if (upgradeItem) {
                 const headerElement = upgradeItem.querySelector('.upgrade-info h4');
                 if (headerElement) {
-                    if (currentScore < upgrade.currentCost) {
-                        headerElement.classList.add('price-unaffordable');
-                    } else {
-                        headerElement.classList.remove('price-unaffordable');
-                    }
+                    headerElement.classList.toggle('price-unaffordable', !canAfford);
                 }
             }
         }

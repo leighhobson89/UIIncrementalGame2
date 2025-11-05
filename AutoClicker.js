@@ -1,4 +1,10 @@
-import { getScore, setScore, getLanguage, getAutoClickerUpgradeRate } from './constantsAndGlobalVars.js';
+import { 
+    getScore, 
+    setScore, 
+    getLanguage, 
+    getAutoClickerUpgradeRate,
+    getAutoClickerMultiplierRate
+} from './constantsAndGlobalVars.js';
 import { updateScoreDisplay, getManualClickRate } from './game.js';
 import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
@@ -76,7 +82,8 @@ export default class AutoClicker {
         // Process accumulated time in fixed steps for accuracy
         while (this.accumulatedTime >= maxFrameTime) {
             // Calculate points for this frame
-            const pointsThisFrame = pointsPerSecond * maxFrameTime;
+            const multiplier = getAutoClickerMultiplierRate();
+            const pointsThisFrame = pointsPerSecond * multiplier * maxFrameTime;
             
             // Update score
             if (pointsThisFrame > 0) {
@@ -156,10 +163,16 @@ export default class AutoClicker {
         const name = localize('autoClicker', getLanguage());
         
         // Calculate points per second for the description
-        const pointsPerSecond = this.count * this.baseRate;
+        const multiplier = getAutoClickerMultiplierRate();
+        const basePoints = this.count * this.baseRate;
+        const pointsPerSecond = basePoints * multiplier;
         
         // Get localized description with dynamic value
-        const description = localize('autoClickerDesc', getLanguage(), pointsPerSecond);
+        const description = localize('autoClickerDesc', getLanguage(), 
+            pointsPerSecond,  // {0} - Total points per second
+            basePoints,      // {1} - Base points before multiplier
+            multiplier       // {2} - Multiplier value
+        );
         
         // Format numbers
         const countText = formatNumber(this.count);

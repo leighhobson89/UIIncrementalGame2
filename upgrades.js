@@ -1,4 +1,13 @@
-import { getScoreIncrementValue, setScoreIncrementValue } from './constantsAndGlobalVars.js';
+import { 
+    getScoreIncrementValue, 
+    setScoreIncrementValue,
+    getAutoClickerUpgradeRate,
+    setAutoClickerUpgradeRate,
+    getBetterClicksMultiplierRate,
+    setBetterClicksMultiplierRate,
+    getAutoClickerMultiplierRate,
+    setAutoClickerMultiplierRate
+} from './constantsAndGlobalVars.js';
 import { updatePriceColors } from './ui.js';
 import AutoClicker from './AutoClicker.js';
 import Upgrade from './Upgrade.js';
@@ -10,23 +19,42 @@ export const betterClicks = new Upgrade(
     1.13,   // cost multiplier
     'Better Clicks',
     (upgrade) => {
-        const increment = getScoreIncrementValue() + 1;
-        setScoreIncrementValue(increment);
-        
-        // Update description to show new click value
-        const upgradeInfo = upgrade.button.closest('.upgrade-item')?.querySelector('.upgrade-info p');
-        if (upgradeInfo) {
-            upgradeInfo.textContent = `+${increment} points per click`;
-        }
+        const currentValue = getScoreIncrementValue();
+        const increment = getBetterClicksMultiplierRate();
+        setScoreIncrementValue(currentValue + increment);
+    }
+);
+
+// Create better clicks multiplier upgrade
+export const betterClicksMultiplier = new Upgrade(
+    'betterClicksMultiplier',
+    50,     // base cost
+    1.15,   // cost multiplier
+    'Better Clicks Multiplier',
+    () => {
+        const currentRate = getBetterClicksMultiplierRate();
+        setBetterClicksMultiplierRate(currentRate + 1);
     }
 );
 
 // Create auto-clicker instance
 export const autoClicker = new AutoClicker();
 
+// Create auto-clicker multiplier upgrade
+export const autoClickerMultiplier = new Upgrade(
+    'autoClickerMultiplier',
+    75,     // base cost
+    1.2,    // cost multiplier
+    'Auto-Clicker Multiplier',
+    () => {
+        const currentRate = getAutoClickerMultiplierRate();
+        setAutoClickerMultiplierRate(currentRate + 1);
+    }
+);
+
 // Function to update price colors for all upgrades
 function updateAllPriceColors() {
-    updatePriceColors([betterClicks, autoClicker]);
+    updatePriceColors([betterClicks, betterClicksMultiplier, autoClicker, autoClickerMultiplier]);
 }
 
 // Override the updateButtonState method to include price color updates
@@ -54,6 +82,10 @@ export function getPointsPerSecond() {
 
 // Initialize all upgrades
 export function initUpgrades() {
+    betterClicks.init();
+    betterClicksMultiplier.init();
+    autoClicker.init();
+    autoClickerMultiplier.init();
     betterClicks.init();
     autoClicker.init();
     updateAllPriceColors(); // Initial price color update

@@ -1,4 +1,12 @@
-import { getScore, setScore, getLanguage, getScoreIncrementValue, getBetterClicksUpgradeRate } from './constantsAndGlobalVars.js';
+import { 
+    getScore, 
+    setScore, 
+    getLanguage, 
+    getScoreIncrementValue, 
+    getBetterClicksUpgradeRate,
+    getBetterClicksMultiplierRate,
+    getAutoClickerMultiplierRate
+} from './constantsAndGlobalVars.js';
 import { updateScoreDisplay } from './game.js';
 import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
@@ -59,19 +67,25 @@ export default class Upgrade {
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
         
-        // Get localized name and description
-        const nameKey = this.id === 'betterClicks' ? 'betterClicks' : 'autoClicker';
-        const name = localize(nameKey, getLanguage());
-        
-        // Get the appropriate value for the description
+        // Get the correct name key and value based on upgrade type
+        let nameKey = this.id;
         let value = 1;
-        if (nameKey === 'betterClicks') {
+        
+        // Set the appropriate value for each upgrade type
+        if (this.id === 'betterClicks') {
             value = getScoreIncrementValue();
-        } else if (nameKey === 'autoClicker') {
-            value = 1; // This will be updated when we implement auto-clicker upgrades
+        } else if (this.id === 'betterClicksMultiplier') {
+            value = getBetterClicksMultiplierRate();
+            nameKey = 'betterClicksMultiplier';
+        } else if (this.id === 'autoClickerMultiplier') {
+            value = getAutoClickerMultiplierRate();
+            nameKey = 'autoClickerMultiplier';
+        } else if (this.id === 'autoClicker') {
+            value = 1; // Auto-clicker value is handled in its own class
         }
         
-        // Get localized description with dynamic value
+        // Get localized name and description with dynamic value
+        const name = localize(nameKey, getLanguage());
         const description = localize(`${nameKey}Desc`, getLanguage(), value);
         
         // Format numbers
@@ -80,8 +94,10 @@ export default class Upgrade {
         
         // Update button text based on upgrade type
         if (this.id === 'betterClicks') {
-            const upgradeRate = getBetterClicksUpgradeRate();
-            this.button.textContent = `+ ${upgradeRate}`;
+            const multiplier = getBetterClicksMultiplierRate();
+            this.button.textContent = `+ ${multiplier}`;
+        } else if (this.id === 'betterClicksMultiplier' || this.id === 'autoClickerMultiplier') {
+            this.button.textContent = `+ ${value}`;
         } else {
             this.button.textContent = `${name} (${countText})`;
         }

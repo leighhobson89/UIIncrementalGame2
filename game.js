@@ -17,7 +17,13 @@ import {
     setLastClickTime
 } from './constantsAndGlobalVars.js';
 import { testNumberFormatter, formatNumber } from './utils/numberFormatter.js'; //call in console
-import { initUpgrades, betterClicks, autoClicker } from './upgrades.js';
+import { 
+    initUpgrades, 
+    betterClicks, 
+    autoClicker, 
+    betterClicksMultiplier, 
+    autoClickerMultiplier 
+} from './upgrades.js';
 
 // Game timing
 let lastTime = 0;
@@ -28,6 +34,10 @@ const fixedTimeStep = 1000 / 60; // 60 FPS
 export function startGame() {
     // Initialize all upgrades
     initUpgrades();
+    
+    // Initialize new upgrade buttons
+    document.getElementById('betterClicksMultiplierBtn')?.addEventListener('click', () => betterClicksMultiplier.purchase());
+    document.getElementById('autoClickerMultiplierBtn')?.addEventListener('click', () => autoClickerMultiplier.purchase());
     
     // Store the click handler reference and main clicker element at module level
 let clickHandler = null;

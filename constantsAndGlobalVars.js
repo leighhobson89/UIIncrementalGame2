@@ -14,6 +14,8 @@ let scoreIncrementValue = 1;
 let clickTimestamps = [];
 let betterClicksUpgradeRate = 1;
 let autoClickerUpgradeRate = 1;
+let betterClicksMultiplierRate = 1;
+let autoClickerMultiplierRate = 1;
 let elements;
 let localization = {};
 let language = 'en';
@@ -323,6 +325,26 @@ export function getAutoClickerUpgradeRate() {
 export function setAutoClickerUpgradeRate(value) {
     if (typeof value === 'number' && value >= 0) {
         autoClickerUpgradeRate = value;
+    }
+}
+
+export function getBetterClicksMultiplierRate() {
+    return betterClicksMultiplierRate;
+}
+
+export function setBetterClicksMultiplierRate(value) {
+    if (typeof value === 'number' && value >= 0) {
+        betterClicksMultiplierRate = value;
+    }
+}
+
+export function getAutoClickerMultiplierRate() {
+    return autoClickerMultiplierRate;
+}
+
+export function setAutoClickerMultiplierRate(value) {
+    if (typeof value === 'number' && value >= 0) {
+        autoClickerMultiplierRate = value;
     }
 }
 

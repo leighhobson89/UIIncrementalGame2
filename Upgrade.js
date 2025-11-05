@@ -6,6 +6,7 @@ import {
     getBetterClicksMultiplierRate,
     getAutoClickerMultiplierRate
 } from './constantsAndGlobalVars.js';
+import { audioManager } from './AudioManager.js';
 import { updateScoreDisplay } from './game.js';
 import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
@@ -43,17 +44,23 @@ export default class Upgrade {
         this.initialized = true;
     }
 
+    canAfford() {
+        return getScore() >= this.currentCost;
+    }
+
     purchase() {
-        const currentScore = getScore();
-        if (currentScore >= this.currentCost) {
+        if (this.canAfford()) {
+            const currentScore = getScore();
             setScore(currentScore - this.currentCost);
             this.count++;
             this.currentCost = Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.count));
-            
             if (typeof this.onPurchase === 'function') {
                 this.onPurchase(this);
             }
+            this.updateButtonState();
             
+            // Play upgrade sound
+            audioManager.playFx('upgrade');
             return true;
         }
         return false;

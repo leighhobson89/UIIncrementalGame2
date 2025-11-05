@@ -129,7 +129,7 @@ input, textarea, [contenteditable] {
     border-radius: 20px;
     border: 2px solid rgba(255, 255, 255, 0.2);
     background-color: rgba(0, 0, 0, 0.3);
-    color: white;
+    color: var(--theme-accent);
     font-size: 1rem;
     cursor: pointer;
     outline: none;
@@ -210,6 +210,19 @@ input, textarea, [contenteditable] {
 .icon-button.play-button i.fa-pause,
 .icon-button.play-button.paused i.fa-play {
     display: none;
+}
+
+/* Muted state for sound button */
+.icon-button.muted i {
+    color: #ff4d4d; /* Red color when muted */
+    transition: color 0.3s ease;
+}
+
+/* Icon button hover state */
+.icon-button:hover {
+    color: var(--theme-text);
+    border-color: var(--theme-accent);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .theme-select option {

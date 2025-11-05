@@ -12,6 +12,7 @@ import {
     resetGame,
     getScore
 } from './constantsAndGlobalVars.js';
+import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
 import { initLocalization, localize, changeLanguage } from './localization.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
@@ -44,10 +45,51 @@ export function updatePriceColors(upgrades) {
     });
 }
 
+// Sound toggle state
+let isSoundEnabled = true;
+const toggleSoundBtn = document.getElementById('toggleSound');
+
+// Toggle sound function
+function toggleSound() {
+    isSoundEnabled = !isSoundEnabled;
+    audioManager.muted = !isSoundEnabled;
+    
+    // Update button icon and class
+    const icon = toggleSoundBtn.querySelector('i');
+    icon.className = isSoundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+    toggleSoundBtn.classList.toggle('muted', !isSoundEnabled);
+    
+    // Save preference to localStorage
+    localStorage.setItem('soundEnabled', isSoundEnabled);
+}
+
+// Initialize sound toggle from localStorage
+function initSoundToggle() {
+    const savedSoundPref = localStorage.getItem('soundEnabled');
+    if (savedSoundPref !== null) {
+        isSoundEnabled = savedSoundPref === 'true';
+        audioManager.muted = !isSoundEnabled;
+        
+        // Update button icon and class based on saved preference
+        const icon = toggleSoundBtn.querySelector('i');
+        icon.className = isSoundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+        toggleSoundBtn.classList.toggle('muted', !isSoundEnabled);
+    } else {
+        // Default to enabled if no preference is saved
+        isSoundEnabled = true;
+        audioManager.muted = false;
+        toggleSoundBtn.classList.remove('muted');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize elements
     setElements();
     const elements = getElements();
+    
+    // Initialize sound toggle
+    initSoundToggle();
+    toggleSoundBtn.addEventListener('click', toggleSound);
     
     // Initialize themes
     initThemes();

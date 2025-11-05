@@ -13,7 +13,6 @@ import {
     getClickTimestamps,
     setClickTimestamps,
     getClickRateWindow,
-    getLastClickTime,
     setLastClickTime
 } from './constantsAndGlobalVars.js';
 import { testNumberFormatter, formatNumber } from './utils/numberFormatter.js'; //call in console
@@ -24,6 +23,7 @@ import {
     betterClicksMultiplier, 
     autoClickerMultiplier 
 } from './upgrades.js';
+import { audioManager } from './AudioManager.js';
 
 // Game timing
 let lastTime = 0;
@@ -53,6 +53,9 @@ function createClickHandler() {
         // Track the click and get current click rate
         trackManualClick();
         
+        // Play coin jingle sound
+        audioManager.playFx('coinJingle');
+        
         // Add click animation
         this.classList.add('clicked');
         setTimeout(() => {
@@ -65,7 +68,7 @@ function createClickHandler() {
         
         for (let i = 0; i < coinCount; i++) {
             const coin = document.createElement('img');
-            coin.src = 'assets2/images/coin.png';
+            coin.src = 'assets/images/coin.png';
             coin.className = 'coin-animation';
             
             // Position the coin at the click location (relative to viewport)

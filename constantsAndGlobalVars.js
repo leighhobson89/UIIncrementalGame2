@@ -214,6 +214,11 @@ export function getGameStateVariable() {
 }
 
 export function resetGame() {
+    // Clean up existing click handler first
+    if (typeof window.cleanupClickHandler === 'function') {
+        window.cleanupClickHandler();
+    }
+    
     // Reset global variables
     resetAllVariables();
     
@@ -225,8 +230,24 @@ export function resetGame() {
         window.autoClicker.reset();
     }
     
-    // Update UI
+    // Set up a fresh click handler
+    const mainClicker = document.getElementById('mainClicker');
+    if (mainClicker) {
+        // Remove all existing click handlers by cloning and replacing the element
+        const newClicker = mainClicker.cloneNode(true);
+        mainClicker.parentNode.replaceChild(newClicker, mainClicker);
+        
+        // Set up the new click handler
+        if (typeof setupClickHandler === 'function') {
+            setupClickHandler();
+        }
+    }
+    
+    // Update UI and button states
     updateScoreDisplay();
+    if (typeof updateButtonStates === 'function') {
+        updateButtonStates();
+    }
     
     console.log('Game reset complete');
 }

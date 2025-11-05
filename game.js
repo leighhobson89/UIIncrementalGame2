@@ -29,24 +29,61 @@ export function startGame() {
     // Initialize all upgrades
     initUpgrades();
     
-    // Set up main clicker button
-    const mainClicker = document.getElementById('mainClicker');
-    if (mainClicker) {
-        mainClicker.addEventListener('click', () => {
-            const currentScore = getScore();
-            const increment = getScoreIncrementValue();
-            setScore(currentScore + increment);
-            
-            // Track the click and get current click rate
-            trackManualClick();
-            
-            // Add click animation
-            mainClicker.classList.add('clicked');
-            setTimeout(() => {
-                mainClicker.classList.remove('clicked');
-            }, 100);
-        });
+    // Store the click handler reference and main clicker element at module level
+let clickHandler = null;
+let mainClicker = null;
+
+// Create a single click handler function
+function createClickHandler() {
+    return function() {
+        const currentScore = getScore();
+        const increment = getScoreIncrementValue();
+        setScore(currentScore + increment);
+        
+        // Track the click and get current click rate
+        trackManualClick();
+        
+        // Add click animation
+        this.classList.add('clicked');
+        setTimeout(() => {
+            this.classList.remove('clicked');
+        }, 100);
+    };
+}
+
+// Set up the click handler with proper cleanup
+function setupClickHandler() {
+    // Clean up any existing handler first
+    cleanupClickHandler();
+    
+    // Get the clicker element
+    mainClicker = document.getElementById('mainClicker');
+    if (!mainClicker) return;
+    
+    // Create and store the new click handler
+    clickHandler = createClickHandler();
+    
+    // Add the event listener
+    mainClicker.addEventListener('click', clickHandler);
+}
+
+// Clean up the click handler
+function cleanupClickHandler() {
+    if (mainClicker && clickHandler) {
+        // Remove the event listener
+        mainClicker.removeEventListener('click', clickHandler);
+        
+        // Clean up references
+        clickHandler = null;
+        mainClicker = null;
     }
+}
+
+// Export the cleanup function for use in reset
+window.cleanupClickHandler = cleanupClickHandler;
+
+// Set up the initial click handler
+setupClickHandler();
     
     gameLoop();
 }

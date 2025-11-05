@@ -45,7 +45,7 @@ let mainClicker = null;
 
 // Create a single click handler function
 function createClickHandler() {
-    return function() {
+    return function(event) {
         const currentScore = getScore();
         const increment = getScoreIncrementValue();
         setScore(currentScore + increment);
@@ -58,6 +58,41 @@ function createClickHandler() {
         setTimeout(() => {
             this.classList.remove('clicked');
         }, 100);
+
+        // Create multiple coins based on the score increment (max 8 per click)
+        const coinCount = Math.min(8, Math.max(1, Math.floor(getScoreIncrementValue())));
+        const coinOverlay = document.getElementById('coinOverlay');
+        
+        for (let i = 0; i < coinCount; i++) {
+            const coin = document.createElement('img');
+            coin.src = 'assets2/images/coin.png';
+            coin.className = 'coin-animation';
+            
+            // Position the coin at the click location (relative to viewport)
+            // Add some randomness to the position
+            const offsetX = (Math.random() - 0.5) * 40;
+            const offsetY = (Math.random() - 0.5) * 40;
+            coin.style.left = `${event.clientX + offsetX}px`;
+            coin.style.top = `${event.clientY + offsetY}px`;
+            
+            // Randomly choose left or right direction with some variation
+            const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+            coin.style.animationName = `coinFly${direction}`;
+            
+            // Randomize animation duration slightly for more natural look
+            const duration = 1 + Math.random() * 0.5; // 1s to 1.5s
+            coin.style.animationDuration = `${duration}s`;
+            
+            // Add the coin to the overlay
+            coinOverlay.appendChild(coin);
+            
+            // Remove the coin after animation completes
+            setTimeout(() => {
+                if (coin.parentNode === coinOverlay) {
+                    coinOverlay.removeChild(coin);
+                }
+            }, duration * 1000);
+        }
     };
 }
 

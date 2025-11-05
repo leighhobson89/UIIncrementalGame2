@@ -212,6 +212,73 @@ input, textarea, [contenteditable] {
     display: none;
 }
 
+/* Bonus Overlay */
+#bonusOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* let clicks pass through by default */
+    z-index: 1000;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.floating-money {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    background-image: url('../assets/images/dollar_banknote.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    will-change: transform, opacity;
+    opacity: 0;
+    transition: opacity 0.5s ease-out, transform 0.2s ease;
+    animation: pulse 2s infinite ease-in-out;
+    cursor: pointer;
+    pointer-events: auto; /* clickable even though parent ignores events */
+    z-index: 1001;
+}
+
+.floating-money:hover {
+    transform: scale(1.1) !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.8); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(0.8); }
+}
+
+/* Floating bonus text (+points) */
+.bonus-float {
+    position: fixed;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 20px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    pointer-events: none;
+    transform: translate(-50%, 0);
+    opacity: 1;
+    animation: bonusFloatUp 1.1s ease-out forwards;
+    z-index: 1002;
+}
+
+@keyframes bonusFloatUp {
+    0% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -48px);
+        opacity: 0;
+    }
+}
+
 /* Muted state for sound button */
 .icon-button.muted i {
     color: #ff4d4d; /* Red color when muted */

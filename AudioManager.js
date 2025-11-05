@@ -2,6 +2,7 @@ class AudioManager {
     constructor() {
         this.sounds = new Map([
             ['coinJingle', 'assets/sounds/jingle.mp3'],
+            ['buxCollect', 'assets/sounds/buxCollect.mp3'],
             ['upgrade', 'assets/sounds/upgrade.mp3']
         ]);
         

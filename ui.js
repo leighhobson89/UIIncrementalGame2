@@ -13,7 +13,8 @@ import {
     setLanguage, 
     getGameActive,
     setLanguageChangedFlag,
-    getLanguageChangedFlag
+    getLanguageChangedFlag,
+    resetGame
 } from './constantsAndGlobalVars.js';
 import { setGameState, startGame, gameLoop } from './game.js';
 import { initLocalization, localize, updateAllElements, changeLanguage } from './localization.js';
@@ -41,6 +42,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Menu event listeners
     if (elements.newGameMenuButton) {
         elements.newGameMenuButton.addEventListener('click', () => {
+            // Reset the game state before starting
+            resetGame();
+            
             setBeginGameStatus(true);
             if (!getGameInProgress()) {
                 setGameInProgress(true);

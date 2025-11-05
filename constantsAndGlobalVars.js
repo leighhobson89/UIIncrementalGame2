@@ -206,10 +206,39 @@ export function getGameStateVariable() {
     return gameState;
 }
 
-export function resetAllVariables() {
-    // GLOBAL VARIABLES
+export function resetGame() {
+    // Reset global variables
+    resetAllVariables();
+    
+    // Reset upgrades if they exist
+    if (window.betterClicks && typeof window.betterClicks.reset === 'function') {
+        window.betterClicks.reset();
+    }
+    if (window.autoClicker && typeof window.autoClicker.reset === 'function') {
+        window.autoClicker.reset();
+    }
+    
+    // Update UI
+    updateScoreDisplay();
+    
+    console.log('Game reset complete');
+}
 
-    // FLAGS
+export function resetAllVariables() {
+    // Reset score and increment value
+    score = 0;
+    scoreIncrementValue = 1;
+    
+    // Reset click tracking
+    clickTimestamps = [];
+    lastClickTime = 0;
+    
+    // Reset game state flags
+    gameInProgress = true;
+    beginGameState = true;
+    
+    // Update the score display
+    updateScoreDisplay();
 }
 
 export function captureGameStatusForSaving() {

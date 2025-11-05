@@ -68,6 +68,12 @@ class Upgrade {
         this.button.classList.toggle('disabled', !canAfford);
         this.button.textContent = `${this.description} (${this.count}) - ${this.currentCost} points`;
     }
+    
+    reset() {
+        this.count = 0;
+        this.currentCost = this.baseCost;
+        this.updateButtonState();
+    }
 }
 
 // Create better clicks upgrade
@@ -197,6 +203,18 @@ class AutoClicker {
             ppsElement.textContent = displayText;
         }
     }
+    
+    reset() {
+        this.count = 0;
+        this.currentCost = this.baseCost;
+        this.accumulatedTime = 0;
+        this.lastUpdateTime = 0;
+        this.lastPointsAdded = 0;
+        this.lastPointsTime = 0;
+        this.pointsPerSecond = 0;
+        this.updateButtonState();
+        this.updatePPSDisplay();
+    }
 
     purchase() {
         const currentScore = getScore();
@@ -225,6 +243,12 @@ class AutoClicker {
 
 // Create auto-clicker instance
 const autoClicker = new AutoClicker();
+
+// Expose instances globally for reset functionality
+if (typeof window !== 'undefined') {
+    window.betterClicks = betterClicks;
+    window.autoClicker = autoClicker;
+}
 
 // Function to update all autoclicker timers (called from game loop)
 function updateAutoclickers(deltaTime) {

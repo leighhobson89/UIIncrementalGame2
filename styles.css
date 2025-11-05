@@ -572,7 +572,7 @@ button.disabled {
 
 .upgrades-container h3 {
     margin-top: 0;
-    color: #4cc9f0;
+    color: var(--theme-accent);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;

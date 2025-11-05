@@ -35,6 +35,8 @@ export const autoClickerMultiplier = new Upgrade(
     () => {
         const currentRate = getAutoClickerMultiplierRate();
         setAutoClickerMultiplierRate(currentRate + 1);
+        // After changing multiplier, refresh autoclicker button state using its custom logic
+        try { autoClicker.updateButtonState(); } catch {}
     }
 );
 
@@ -52,7 +54,8 @@ export const betterClicksMultiplier = new Upgrade(
 
 // Function to update price colors for all upgrades
 function updateAllPriceColors() {
-    updatePriceColors([betterClicks, betterClicksMultiplier, autoClicker, autoClickerMultiplier]);
+    // Exclude autoClicker because its affordability uses batch cost logic
+    updatePriceColors([betterClicks, betterClicksMultiplier, autoClickerMultiplier]);
 }
 
 // Override the updateButtonState method to include price color updates
@@ -96,7 +99,5 @@ export function initUpgrades() {
     betterClicksMultiplier.init();
     autoClicker.init();
     autoClickerMultiplier.init();
-    betterClicks.init();
-    autoClicker.init();
     updateAllPriceColors(); // Initial price color update
 }

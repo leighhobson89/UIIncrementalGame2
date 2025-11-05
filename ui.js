@@ -194,22 +194,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 setGameState(getGameActive());
                 startGame();
-            
-            setBeginGameStatus(true);
-            if (!getGameInProgress()) {
-                setGameInProgress(true);
-            }
-            if (elements.resumeGameMenuButton) {
-                disableActivateButton(elements.resumeGameMenuButton, 'active', 'btn-primary');
-            }
-            if (elements.saveGameButton) {
-                disableActivateButton(elements.saveGameButton, 'active', 'btn-primary');
-            }
-            setGameState(getGameActive());
-            startGame();
-            window.gameLoopRunning = true;
-        });
-    }
+                window.gameLoopRunning = true;
+            });
+        }
 
     // Remove pause/resume button if it exists
     if (elements.pauseResumeGameButton && elements.pauseResumeGameButton.parentNode) {

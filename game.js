@@ -276,10 +276,6 @@ export function startGame() {
     // Initialize all upgrades
     initUpgrades();
     
-    // Initialize new upgrade buttons
-    document.getElementById('betterClicksMultiplierBtn')?.addEventListener('click', () => betterClicksMultiplier.purchase());
-    document.getElementById('autoClickerMultiplierBtn')?.addEventListener('click', () => autoClickerMultiplier.purchase());
-    
     // Set up the main click handler once per start, with cleanup to prevent duplicates
     setupClickHandler();
     

@@ -21,6 +21,7 @@ export default class AutoClicker {
         this.description = 'Auto-Clicker';
         this.count = 0;
         this.currentCost = this.baseCost;
+        this.purchasesMade = 0; // advances cost progression once per purchase click
         this.initialized = false;
         this.button = null;
         
@@ -137,6 +138,7 @@ export default class AutoClicker {
     reset() {
         this.count = 0;
         this.currentCost = this.baseCost;
+        this.purchasesMade = 0;
         this.accumulatedTime = 0;
         this.lastUpdateTime = 0;
         this.lastPointsAdded = 0;
@@ -164,8 +166,9 @@ export default class AutoClicker {
             // Add the multiplier number of auto-clickers
             this.count += multiplier;
             
-            // Update the cost for the next purchase
-            this.currentCost = Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.count));
+            // Advance cost by a single step regardless of batch size
+            this.purchasesMade += 1;
+            this.currentCost = Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.purchasesMade));
             
             console.log(`Auto-clicker purchased! Added ${multiplier} auto-clickers. New total: ${this.count}`);
             this.updateCachedValues();
@@ -179,14 +182,11 @@ export default class AutoClicker {
         return false;
     }
     
-    // Calculate the total cost for purchasing 'count' auto-clickers
+    // Calculate the total cost for purchasing 'count' auto-clickers in one click
+    // Cost scales once per purchase (not per unit in the batch)
     calculatePurchaseCost(count) {
-        // Calculate the sum of costs for each auto-clicker in the batch
-        let totalCost = 0;
-        for (let i = 0; i < count; i++) {
-            totalCost += Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.count + i));
-        }
-        return totalCost;
+        const batchSize = Math.max(1, count | 0);
+        return Math.floor(this.currentCost * batchSize);
     }
 
     updateButtonState() {
@@ -226,6 +226,8 @@ export default class AutoClicker {
             
             if (headerElement) {
                 headerElement.textContent = `${name} - ${costText}`;
+                // Toggle red price color when unaffordable
+                headerElement.classList.toggle('price-unaffordable', !canAfford);
             }
             if (descriptionElement) {
                 descriptionElement.textContent = description;

@@ -28,7 +28,7 @@ export const betterClicks = new Upgrade(
 // Create better clicks multiplier upgrade
 export const betterClicksMultiplier = new Upgrade(
     'betterClicksMultiplier',
-    50,     // base cost
+    100,    // base cost (doubled from 50)
     1.15,   // cost multiplier
     'Better Clicks Multiplier',
     () => {
@@ -43,7 +43,7 @@ export const autoClicker = new AutoClicker();
 // Create auto-clicker multiplier upgrade
 export const autoClickerMultiplier = new Upgrade(
     'autoClickerMultiplier',
-    75,     // base cost
+    150,    // base cost (doubled from 75)
     1.2,    // cost multiplier
     'Auto-Clicker Multiplier',
     () => {

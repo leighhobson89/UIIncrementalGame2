@@ -15,7 +15,7 @@
     "clickMe": "Click Me!",
     "upgrades": "Upgrades",
     "autoClicker": "Auto-Clicker",
-    "autoClickerDesc": "Generates {0} points per second ({1} × {2} multiplier)",
+    "autoClickerDesc": "Generates {0} points per second",
     "betterClicks": "Better Clicks",
     "betterClicksDesc": "+{0} points per click",
     "betterClicksMultiplier": "Better Clicks Multiplier",

@@ -97,7 +97,7 @@ export default class Upgrade {
             const multiplier = getBetterClicksMultiplierRate();
             this.button.textContent = `+ ${multiplier}`;
         } else if (this.id === 'betterClicksMultiplier' || this.id === 'autoClickerMultiplier') {
-            this.button.textContent = `+ ${value}`;
+            this.button.textContent = `× ${value}`;
         } else {
             this.button.textContent = `${name} (${countText})`;
         }

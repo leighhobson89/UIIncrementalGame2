@@ -4,9 +4,11 @@ import {
     getScoreIncrementValue, 
     setScoreIncrementValue, 
     updateScoreDisplay,
-    getManualClickRate 
+    getManualClickRate,
+    getLanguage
 } from './constantsAndGlobalVars.js';
 import TimerManager from './timerManager.js';
+import { localize } from './localization.js';
 
 // Create a single TimerManager instance for all timers
 const timerManager = new TimerManager();
@@ -66,7 +68,15 @@ class Upgrade {
         const canAfford = getScore() >= this.currentCost;
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
-        this.button.textContent = `${this.description} (${this.count}) - ${this.currentCost} points`;
+        
+        // Get localized description
+        const descriptionKey = this.id === 'betterClicks' ? 'betterClicks' : 'autoClicker';
+        const description = localize(descriptionKey, getLanguage());
+        
+        // Get localized points text
+        const pointsText = localize('points', getLanguage());
+        
+        this.button.textContent = `${description} (${this.count}) - ${this.currentCost} ${pointsText}`;
     }
     
     reset() {
@@ -235,7 +245,13 @@ class AutoClicker {
         const currentScore = getScore();
         const canAfford = currentScore >= this.currentCost;
         
-        this.button.textContent = `${this.description} (${this.count}) - ${this.currentCost} points`;
+        // Get localized description
+        const description = localize('autoClicker', getLanguage());
+        
+        // Get localized points text
+        const pointsText = localize('points', getLanguage());
+        
+        this.button.textContent = `${description} (${this.count}) - ${this.currentCost} ${pointsText}`;
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
     }

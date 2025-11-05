@@ -289,7 +289,72 @@ input, textarea, [contenteditable] {
 .icon-button:hover {
     color: var(--theme-text);
     border-color: var(--theme-accent);
-    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Language flag buttons */
+.lang-flag {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid var(--theme-border);
+    padding: 0;
+    outline: none;
+    cursor: pointer;
+    display: inline-block;
+    transition: transform 0.1s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lang-flag:hover { 
+    border-color: var(--theme-accent);
+    transform: scale(1.05);
+}
+
+.lang-flag.active, .lang-flag:focus {
+    border-color: var(--theme-accent);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+}
+
+/* Per-language background images */
+.flag-en { background-image: url('assets/images/en.png'); }
+.flag-es { background-image: url('assets/images/es.png'); }
+.flag-de { background-image: url('assets/images/de.png'); }
+.flag-it { background-image: url('assets/images/it.png'); }
+.flag-fr { background-image: url('assets/images/fr.png'); }
+
+/* Menu action buttons (New/Resume/Load/Save) */
+.menu-btn {
+    background-color: transparent;
+    color: var(--theme-text);
+    border: 1px solid var(--theme-accent);
+    border-radius: 9999px;
+    padding: 0.5rem 1.1rem;
+    min-width: 160px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.08s ease, box-shadow 0.2s ease;
+}
+
+.menu-btn:hover:not(:disabled):not(.disabled) {
+    border-color: var(--theme-accent-hover);
+    background-color: rgba(74, 144, 226, 0.10); /* subtle like top bar outline hover */
+    transform: translateY(-1px);
+}
+
+.menu-btn:active:not(:disabled):not(.disabled) {
+    transform: translateY(0);
+}
+
+/* Respect existing disabled logic (attribute or class) */
+.menu-btn:disabled,
+.menu-btn.disabled {
+    background-color: var(--theme-bg-light) !important;
+    color: var(--theme-text-muted) !important;
+    border-color: var(--theme-border) !important;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .theme-select option {

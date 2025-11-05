@@ -96,10 +96,10 @@ export default class Upgrade {
         let description;
         if (this.id === 'betterClicksMultiplier') {
             const multiplier = getBetterClicksMultiplierRate();
-            description = localize(`${nameKey}Desc`, getLanguage()).replace('value shown', multiplier);
+            description = localize(`${nameKey}Desc`, getLanguage(), multiplier);
         } else if (this.id === 'autoClickerMultiplier') {
             const multiplier = getAutoClickerMultiplierRate();
-            description = localize(`${nameKey}Desc`, getLanguage()).replace('value shown', multiplier);
+            description = localize(`${nameKey}Desc`, getLanguage(), multiplier);
         } else {
             description = localize(`${nameKey}Desc`, getLanguage(), value);
         }

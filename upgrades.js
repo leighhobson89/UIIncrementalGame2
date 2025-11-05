@@ -78,6 +78,18 @@ export function getPointsPerSecond() {
     return autoClicker.pointsPerSecond;
 }
 
+// Export a function to refresh all upgrade UI texts (useful after language changes)
+export function refreshUpgradeUI() {
+    try {
+        betterClicks.updateButtonState();
+        betterClicksMultiplier.updateButtonState();
+        autoClicker.updateButtonState();
+        autoClickerMultiplier.updateButtonState();
+    } catch (e) {
+        console.warn('refreshUpgradeUI: could not update all upgrades', e);
+    }
+}
+
 // Initialize all upgrades
 export function initUpgrades() {
     betterClicks.init();

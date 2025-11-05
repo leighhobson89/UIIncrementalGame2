@@ -6,6 +6,7 @@ import {
     setLanguageChangedFlag,
     getLanguageChangedFlag
 } from './constantsAndGlobalVars.js';
+import { getBetterClicksMultiplierRate, getAutoClickerMultiplierRate } from './constantsAndGlobalVars.js';
 
 let localizationData = {};
 
@@ -67,7 +68,20 @@ export function updateAllElements(language) {
     const elements = document.querySelectorAll('[data-i18n]');
     elements.forEach(element => {
         const key = element.getAttribute('data-i18n');
-        const translation = localize(key, language);
+        // Inject dynamic values for specific keys that require placeholders
+        let translation;
+        if (key === 'betterClicksMultiplierDesc') {
+            translation = localize(key, language, getBetterClicksMultiplierRate());
+        } else if (key === 'autoClickerMultiplierDesc') {
+            translation = localize(key, language, getAutoClickerMultiplierRate());
+        } else if (key === 'betterClicksDesc') {
+            // better clicks uses increment value
+            // Value is substituted elsewhere too, but keep consistent on language refresh
+            // avoid importing setter chain; fallback to existing content if needed
+            translation = localize(key, language, 1);
+        } else {
+            translation = localize(key, language);
+        }
         if (translation !== undefined && translation !== null) {
             element.textContent = translation;
         }

@@ -17,6 +17,7 @@ import { setGameState, startGame, gameLoop } from './game.js';
 import { initLocalization, localize, changeLanguage } from './localization.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
 import { initThemes } from './themes.js';
+import { refreshUpgradeUI } from './upgrades.js';
 
 /**
  * Update price colors and button states based on affordability
@@ -252,6 +253,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (button) {
             button.addEventListener('click', () => {
                 changeLanguage(lang);
+                // Re-apply dynamic upgrade texts so placeholders like {0} are replaced
+                refreshUpgradeUI();
                 setGameState(getMenuState());
             });
         }

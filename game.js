@@ -48,6 +48,15 @@ function createClickHandler() {
             this.classList.remove('clicked');
         }, 100);
 
+        // Show floating +increment text at click position
+        const fx = document.createElement('div');
+        fx.className = 'bonus-float';
+        fx.textContent = `+${increment}`;
+        fx.style.left = `${event.clientX}px`;
+        fx.style.top = `${event.clientY - 10}px`;
+        document.body.appendChild(fx);
+        setTimeout(() => fx.remove(), 1200);
+
         // Create multiple coins based on the score increment (max 8 per click)
         const coinCount = Math.min(8, Math.max(1, Math.floor(getScoreIncrementValue())));
         const coinOverlay = document.getElementById('coinOverlay');

@@ -284,7 +284,9 @@ export function startGame() {
 function updateButtonStates() {
     // Update button states for all upgrades
     if (betterClicks) betterClicks.updateButtonState();
+    if (betterClicksMultiplier) betterClicksMultiplier.updateButtonState();
     if (autoClicker) autoClicker.updateButtonState();
+    if (autoClickerMultiplier) autoClickerMultiplier.updateButtonState();
 }
 
 export function trackManualClick() {

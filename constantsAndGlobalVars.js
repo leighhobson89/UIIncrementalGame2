@@ -274,28 +274,78 @@ export function resetAllVariables() {
 }
 
 export function captureGameStatusForSaving() {
-    let gameState = {};
-
-    // Game variables
-
-    // Flags
-
-    // UI elements
-
-    gameState.language = getLanguage();
-
-    return gameState;
+    const state = {
+        version: 1,
+        // Core values
+        language: getLanguage(),
+        score: getScore(),
+        scoreIncrementValue: getScoreIncrementValue(),
+        betterClicksMultiplierRate: getBetterClicksMultiplierRate(),
+        autoClickerMultiplierRate: getAutoClickerMultiplierRate(),
+        // Upgrades (optional chaining in case instances not yet initialized)
+        upgrades: {
+            betterClicks: {
+                count: (window.betterClicks && typeof window.betterClicks.count === 'number') ? window.betterClicks.count : 0
+            },
+            autoClicker: {
+                count: (window.autoClicker && typeof window.autoClicker.count === 'number') ? window.autoClicker.count : 0
+            }
+        },
+        // Preferences
+        theme: localStorage.getItem('theme') || null,
+        soundEnabled: localStorage.getItem('soundEnabled') !== 'false'
+    };
+    return state;
 }
 export function restoreGameStatus(gameState) {
     return new Promise((resolve, reject) => {
         try {
-            // Game variables
+            if (!gameState || typeof gameState !== 'object') {
+                throw new Error('Invalid game state');
+            }
 
-            // Flags
+            // Language
+            if (gameState.language) setLanguage(gameState.language);
 
-            // UI elements
+            // Core numbers
+            if (typeof gameState.score === 'number') setScore(gameState.score);
+            if (typeof gameState.scoreIncrementValue === 'number') setScoreIncrementValue(gameState.scoreIncrementValue);
+            if (typeof gameState.betterClicksMultiplierRate === 'number') setBetterClicksMultiplierRate(gameState.betterClicksMultiplierRate);
+            if (typeof gameState.autoClickerMultiplierRate === 'number') setAutoClickerMultiplierRate(gameState.autoClickerMultiplierRate);
 
-            setLanguage(gameState.language);
+            // Theme and sound preferences
+            if (gameState.theme) {
+                localStorage.setItem('theme', gameState.theme);
+            }
+            if (typeof gameState.soundEnabled === 'boolean') {
+                localStorage.setItem('soundEnabled', String(gameState.soundEnabled));
+            }
+
+            // Upgrades (requires instances to exist)
+            const applyUpgrade = (inst, count) => {
+                if (inst && typeof count === 'number') {
+                    inst.count = Math.max(0, Math.floor(count));
+                    if (typeof inst.baseCost === 'number' && typeof inst.costMultiplier === 'number') {
+                        inst.currentCost = Math.floor(inst.baseCost * Math.pow(inst.costMultiplier, inst.count));
+                    }
+                    if (typeof inst.updateCachedValues === 'function') inst.updateCachedValues();
+                    if (typeof inst.updateButtonState === 'function') inst.updateButtonState();
+                    if (typeof inst.updatePPSDisplay === 'function') inst.updatePPSDisplay();
+                }
+            };
+
+            if (gameState.upgrades) {
+                const bcCount = gameState.upgrades?.betterClicks?.count;
+                const acCount = gameState.upgrades?.autoClicker?.count;
+                applyUpgrade(window.betterClicks, bcCount);
+                applyUpgrade(window.autoClicker, acCount);
+            }
+
+            // Ensure UI reflects restored values
+            updateScoreDisplay();
+            if (typeof updateButtonStates === 'function') {
+                setTimeout(updateButtonStates, 0);
+            }
 
             resolve();
         } catch (error) {

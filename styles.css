@@ -574,15 +574,17 @@ button.disabled {
     transform: translate(-50%, -50%);
     width: 70%;
     max-width: 750px;
-    background-color: #1e1e1e;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 100%);
+    border: 1px solid var(--theme-border);
+    border-radius: 14px;
+    box-shadow: 0 12px 28px var(--theme-shadow);
     overflow: hidden;
     z-index: 2000;
     display: flex;
     flex-direction: column;
     height: 50%;
+    color: var(--theme-text);
+    backdrop-filter: blur(4px);
 }
 
 .save-load-header-container {
@@ -591,30 +593,70 @@ button.disabled {
     align-items: center;
     margin-bottom: 10px;
     width: 100%;
+    background: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid var(--theme-border);
+    padding: 0.75rem 1rem;
 }
 
 .save-load-header {
-    color: white;
+    color: var(--theme-accent);
     width: 60%;
+    font-weight: 700;
 }
 
 .save-load-buttons-container {
     display: flex;
-    width: 80%;
+    width: auto;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .save-load-buttons {
-    border-radius: 10px !important;
+    border-radius: 9999px !important; /* pill */
+    background-color: transparent !important;
+    color: var(--theme-text) !important;
+    border: 1px solid var(--theme-accent) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important;
+    padding: 0.35rem 0.9rem !important;
+}
+
+.save-load-buttons:hover {
+    border-color: var(--theme-accent) !important;
+    background-color: rgba(74, 144, 226, 0.10) !important; /* subtle */
+    transform: translateY(-1px);
+}
+
+.save-load-buttons:active {
+    transform: translateY(0);
 }
 
 .save-load-input-container {
     flex: 1;
     display: flex;
+    padding: 0 1rem 1rem 1rem;
 }
 
 .save-load-input-field {
     width: 100%;
+    height: 100%;
+    min-height: 220px;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--theme-text);
+    border: 1px solid var(--theme-border);
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    resize: vertical;
+}
+
+.save-load-input-field::placeholder {
+    color: #9fa6b2;
+}
+
+.save-load-input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+    border-color: var(--theme-accent);
 }
 
 .overlay {

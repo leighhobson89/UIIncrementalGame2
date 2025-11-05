@@ -1,6 +1,7 @@
 import {captureGameStatusForSaving, restoreGameStatus, getElements, getLanguage, setLanguageChangedFlag, getLanguageChangedFlag} from './constantsAndGlobalVars.js';
 import {localize} from './localization.js';
 import { handleLanguageChange } from './ui.js';
+import { refreshUpgradeUI, initUpgrades } from './upgrades.js';
 
 export function saveGame(isManualSave) {
     const gameState = captureGameStatusForSaving();
@@ -58,7 +59,7 @@ export function copySaveStringToClipBoard() {
     try {
         navigator.clipboard.writeText(textArea.value)
             .then(() => {
-                alert('Text copied to clipboard!');
+                // No confirmation dialog needed for copy
             })
             .catch(err => {
                 alert(err);
@@ -129,10 +130,34 @@ function handleFileSelectAndInitialiseLoadedGame(event, stringLoad, string) {
 
                 getElements().overlay.classList.add('d-none');
 
-                initialiseLoadedGame(gameState).then(() => {
+                initialiseLoadedGame(gameState).then(async () => {
                     setLanguageChangedFlag(true);
                     checkForLanguageChange();
-                    alert('Game loaded successfully!');
+                    // If user hasn't started a game yet, ensure upgrades are initialized
+                    try {
+                        initUpgrades();
+                    } catch {}
+                    // Re-apply state now that upgrades exist (ensures counts/costs apply to UI)
+                    try {
+                        await restoreGameStatus(gameState);
+                    } catch {}
+                    // Ensure upgrade buttons/descriptions reflect restored multipliers and values
+                    refreshUpgradeUI();
+                    // Auto-close the load dialog and overlay, and enable Resume/Save buttons
+                    const els = getElements();
+                    if (els.overlay) els.overlay.classList.add('d-none');
+                    if (els.saveLoadPopup) els.saveLoadPopup.classList.add('d-none');
+                    if (els.resumeGameMenuButton) {
+                        els.resumeGameMenuButton.classList.remove('disabled');
+                        els.resumeGameMenuButton.classList.add('btn-primary');
+                    }
+                    if (els.saveGameButton) {
+                        els.saveGameButton.classList.remove('disabled');
+                        els.saveGameButton.classList.add('btn-primary');
+                    }
+                    // Show themed load success dialog
+                    showSuccessDialog('Load Successful', 'Game loaded successfully');
+                    // Game state is now properly initialized
                     resolve();
                 }).catch(error => {
                     console.error('Error initializing game:', error);
@@ -196,4 +221,23 @@ export function checkForLanguageChange() {
         handleLanguageChange(getLanguage());
     }
     setLanguageChangedFlag(false);
+}
+
+function showSuccessDialog(title, message) {
+    const overlay = document.getElementById('overlay');
+    const popup = document.getElementById('successPopup');
+    const header = document.getElementById('successHeader');
+    const msg = document.getElementById('successMessage');
+    const closeBtn = document.getElementById('successCloseButton');
+    if (!popup || !header || !msg || !closeBtn) return;
+    header.textContent = title || 'Success';
+    msg.textContent = message || '';
+    if (overlay) overlay.classList.remove('d-none');
+    popup.classList.remove('d-none');
+    const close = () => {
+        popup.classList.add('d-none');
+        if (overlay) overlay.classList.add('d-none');
+        closeBtn.removeEventListener('click', close);
+    };
+    closeBtn.addEventListener('click', close);
 }

@@ -12,6 +12,8 @@ let lastClickTime = 0;
 let score = 0;
 let scoreIncrementValue = 1;
 let clickTimestamps = [];
+let betterClicksUpgradeRate = 1;
+let autoClickerUpgradeRate = 1;
 let elements;
 let localization = {};
 let language = 'en';
@@ -298,5 +300,29 @@ export function restoreGameStatus(gameState) {
             reject(error);
         }
     });
+}
+
+// =============================================
+// Upgrade Rate Getters/Setters
+// =============================================
+
+export function getBetterClicksUpgradeRate() {
+    return betterClicksUpgradeRate;
+}
+
+export function setBetterClicksUpgradeRate(value) {
+    if (typeof value === 'number' && value >= 0) {
+        betterClicksUpgradeRate = value;
+    }
+}
+
+export function getAutoClickerUpgradeRate() {
+    return autoClickerUpgradeRate;
+}
+
+export function setAutoClickerUpgradeRate(value) {
+    if (typeof value === 'number' && value >= 0) {
+        autoClickerUpgradeRate = value;
+    }
 }
 

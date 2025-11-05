@@ -1,4 +1,4 @@
-import { getScore, setScore, getLanguage } from './constantsAndGlobalVars.js';
+import { getScore, setScore, getLanguage, getAutoClickerUpgradeRate } from './constantsAndGlobalVars.js';
 import { updateScoreDisplay, getManualClickRate } from './game.js';
 import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
@@ -154,14 +154,20 @@ export default class AutoClicker {
         
         // Get localized name and description
         const name = localize('autoClicker', getLanguage());
-        const description = localize('autoClickerDesc', getLanguage());
+        
+        // Calculate points per second for the description
+        const pointsPerSecond = this.count * this.baseRate;
+        
+        // Get localized description with dynamic value
+        const description = localize('autoClickerDesc', getLanguage(), pointsPerSecond);
         
         // Format numbers
         const countText = formatNumber(this.count);
         const costText = formatNumber(this.currentCost);
         
-        // Update button text with just name and count
-        this.button.textContent = `${name} (${countText})`;
+        // Update button text to show rate per second
+        const upgradeRate = getAutoClickerUpgradeRate();
+        this.button.textContent = `+ ${upgradeRate}/s`;
         
         // Update header to include cost and keep description clean
         const upgradeItem = this.button.closest('.upgrade-item');

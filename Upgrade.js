@@ -1,4 +1,4 @@
-import { getScore, setScore, getLanguage } from './constantsAndGlobalVars.js';
+import { getScore, setScore, getLanguage, getScoreIncrementValue, getBetterClicksUpgradeRate } from './constantsAndGlobalVars.js';
 import { updateScoreDisplay } from './game.js';
 import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
@@ -62,14 +62,29 @@ export default class Upgrade {
         // Get localized name and description
         const nameKey = this.id === 'betterClicks' ? 'betterClicks' : 'autoClicker';
         const name = localize(nameKey, getLanguage());
-        const description = localize(`${nameKey}Desc`, getLanguage());
+        
+        // Get the appropriate value for the description
+        let value = 1;
+        if (nameKey === 'betterClicks') {
+            value = getScoreIncrementValue();
+        } else if (nameKey === 'autoClicker') {
+            value = 1; // This will be updated when we implement auto-clicker upgrades
+        }
+        
+        // Get localized description with dynamic value
+        const description = localize(`${nameKey}Desc`, getLanguage(), value);
         
         // Format numbers
         const countText = formatNumber(this.count);
         const costText = formatNumber(this.currentCost);
         
-        // Update button text with just name and count
-        this.button.textContent = `${name} (${countText})`;
+        // Update button text based on upgrade type
+        if (this.id === 'betterClicks') {
+            const upgradeRate = getBetterClicksUpgradeRate();
+            this.button.textContent = `+ ${upgradeRate}`;
+        } else {
+            this.button.textContent = `${name} (${countText})`;
+        }
         
         // Update header to include cost and keep description clean
         const upgradeItem = this.button.closest('.upgrade-item');

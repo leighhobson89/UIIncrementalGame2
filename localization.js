@@ -98,7 +98,14 @@ export function changeLanguage(language) {
     updateAllElements(language);
 }
 
-function localize(key, language = 'en') {
+/**
+ * Localize a string with optional placeholder values
+ * @param {string} key - The localization key
+ * @param {string} [language='en'] - The language code
+ * @param {...*} values - Values to replace {0}, {1}, etc. placeholders
+ * @returns {string} The localized string with placeholders replaced
+ */
+function localize(key, language = 'en', ...values) {
     const localization = getLocalization();
     if (!localization) {
         console.warn('Localization data not loaded yet');
@@ -127,11 +134,18 @@ function localize(key, language = 'en') {
     // Handle template literals if present
     if (typeof localizedString === 'string' && localizedString.includes('${')) {
         try {
-            return interpolateTemplateLiteral(localizedString);
+            localizedString = interpolateTemplateLiteral(localizedString);
         } catch (e) {
             console.error(`Error evaluating template literal in localized string for key '${key}':`, e);
-            return localizedString;
         }
+    }
+    
+    // Replace {0}, {1}, etc. with provided values
+    if (values && values.length > 0) {
+        return localizedString.replace(/\{(\d+)\}/g, (match, index) => {
+            const valueIndex = parseInt(index, 10);
+            return valueIndex < values.length ? values[valueIndex] : match;
+        });
     }
     
     return localizedString;

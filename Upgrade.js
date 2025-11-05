@@ -3,7 +3,6 @@ import {
     setScore, 
     getLanguage, 
     getScoreIncrementValue, 
-    getBetterClicksUpgradeRate,
     getBetterClicksMultiplierRate,
     getAutoClickerMultiplierRate
 } from './constantsAndGlobalVars.js';

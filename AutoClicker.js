@@ -30,6 +30,11 @@ export default class AutoClicker {
         this.lastPointsTime = 0;
         this.pointsPerSecond = 0;
         
+        // Store total points per second and base points for the description
+        this.cachedTotalPPS = 0;
+        this.cachedBasePoints = 0;
+        this.currentMultiplier = 1;
+        
         // Timing configuration (in seconds)
         this.baseRate = 1.0;           // Points per second per autoclicker
         this.minUpdateInterval = 0.02;  // 50 updates per second max (20ms)
@@ -68,7 +73,8 @@ export default class AutoClicker {
         this.accumulatedTime += deltaSeconds;
         
         // Calculate points per second based on count
-        let pointsPerSecond = this.baseRate * this.count;
+        // Each auto-clicker generates baseRate points per second
+        const pointsPerSecond = this.baseRate * this.count;
         
         // Determine maximum time between updates
         let maxFrameTime = this.minUpdateInterval;
@@ -82,8 +88,8 @@ export default class AutoClicker {
         // Process accumulated time in fixed steps for accuracy
         while (this.accumulatedTime >= maxFrameTime) {
             // Calculate points for this frame
-            const multiplier = getAutoClickerMultiplierRate();
-            const pointsThisFrame = pointsPerSecond * multiplier * maxFrameTime;
+            // The multiplier is only applied at purchase time, not here
+            const pointsThisFrame = pointsPerSecond * maxFrameTime;
             
             // Update score
             if (pointsThisFrame > 0) {
@@ -139,47 +145,70 @@ export default class AutoClicker {
         this.updatePPSDisplay();
     }
 
+    updateCachedValues() {
+        this.currentMultiplier = getAutoClickerMultiplierRate();
+        this.cachedBasePoints = this.count * this.baseRate;
+        // Total PPS is just base points, as multiplier only affects new purchases
+        this.cachedTotalPPS = this.cachedBasePoints;
+    }
+    
     purchase() {
         const currentScore = getScore();
-        if (currentScore >= this.currentCost) {
-            setScore(currentScore - this.currentCost);
-            this.count++;
+        const multiplier = Math.max(1, getAutoClickerMultiplierRate());
+        const purchaseCost = this.calculatePurchaseCost(multiplier);
+        
+        if (currentScore >= purchaseCost) {
+            setScore(currentScore - purchaseCost);
+            
+            // Add the multiplier number of auto-clickers
+            this.count += multiplier;
+            
+            // Update the cost for the next purchase
             this.currentCost = Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.count));
-            console.log(`Auto-clicker purchased! Total: ${this.count}`);
-            // No need to update timer with delta time approach
+            
+            console.log(`Auto-clicker purchased! Added ${multiplier} auto-clickers. New total: ${this.count}`);
+            this.updateCachedValues();
             return true;
         }
         return false;
+    }
+    
+    // Calculate the total cost for purchasing 'count' auto-clickers
+    calculatePurchaseCost(count) {
+        // Calculate the sum of costs for each auto-clicker in the batch
+        let totalCost = 0;
+        for (let i = 0; i < count; i++) {
+            totalCost += Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.count + i));
+        }
+        return totalCost;
     }
 
     updateButtonState() {
         if (!this.button) return;
         
-        const canAfford = getScore() >= this.currentCost;
+        const multiplier = Math.max(1, getAutoClickerMultiplierRate());
+        const purchaseCost = this.calculatePurchaseCost(multiplier);
+        const canAfford = getScore() >= purchaseCost;
+        
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
         
         // Get localized name and description
         const name = localize('autoClicker', getLanguage());
         
-        // Calculate points per second for the description
-        const multiplier = getAutoClickerMultiplierRate();
-        const basePoints = this.count * this.baseRate;
-        const pointsPerSecond = basePoints * multiplier;
-        
-        // Get localized description with dynamic value
+        // Get localized description
         const description = localize('autoClickerDesc', getLanguage(), 
-            pointsPerSecond,  // {0} - Total points per second
-            basePoints,      // {1} - Base points before multiplier
-            multiplier       // {2} - Multiplier value
+            this.cachedTotalPPS.toFixed(1),  // {0} - Total points per second
+            this.count * this.baseRate,      // {1} - Base points (count * base rate)
+            multiplier                       // {2} - Current purchase multiplier
         );
         
         // Format numbers
         const countText = formatNumber(this.count);
-        const costText = formatNumber(this.currentCost);
+        const costText = formatNumber(purchaseCost);
         
-        // Update button text to show the current multiplier rate
-        this.button.textContent = `+ ${multiplier}/s`;
+        // Update button text to show only the multiplier value with /s
+        this.button.textContent = `+${multiplier}/s`;
         
         // Update header to include cost and keep description clean
         const upgradeItem = this.button.closest('.upgrade-item');

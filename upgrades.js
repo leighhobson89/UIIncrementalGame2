@@ -1,8 +1,6 @@
 import { 
     getScoreIncrementValue, 
     setScoreIncrementValue,
-    getAutoClickerUpgradeRate,
-    setAutoClickerUpgradeRate,
     getBetterClicksMultiplierRate,
     setBetterClicksMultiplierRate,
     getAutoClickerMultiplierRate,
@@ -18,22 +16,10 @@ export const betterClicks = new Upgrade(
     10,     // base cost
     1.13,   // cost multiplier
     'Better Clicks',
-    (upgrade) => {
+    () => {
         const currentValue = getScoreIncrementValue();
         const increment = getBetterClicksMultiplierRate();
         setScoreIncrementValue(currentValue + increment);
-    }
-);
-
-// Create better clicks multiplier upgrade
-export const betterClicksMultiplier = new Upgrade(
-    'betterClicksMultiplier',
-    100,    // base cost (doubled from 50)
-    1.15,   // cost multiplier
-    'Better Clicks Multiplier',
-    () => {
-        const currentRate = getBetterClicksMultiplierRate();
-        setBetterClicksMultiplierRate(currentRate + 1);
     }
 );
 
@@ -43,12 +29,24 @@ export const autoClicker = new AutoClicker();
 // Create auto-clicker multiplier upgrade
 export const autoClickerMultiplier = new Upgrade(
     'autoClickerMultiplier',
-    150,    // base cost (doubled from 75)
+    100,    // base cost
     1.2,    // cost multiplier
     'Auto-Clicker Multiplier',
     () => {
         const currentRate = getAutoClickerMultiplierRate();
         setAutoClickerMultiplierRate(currentRate + 1);
+    }
+);
+
+// Create better clicks multiplier upgrade
+export const betterClicksMultiplier = new Upgrade(
+    'betterClicksMultiplier',
+    150,    // base cost
+    1.15,   // cost multiplier
+    'Better Clicks Multiplier',
+    () => {
+        const currentRate = getBetterClicksMultiplierRate();
+        setBetterClicksMultiplierRate(currentRate + 1);
     }
 );
 

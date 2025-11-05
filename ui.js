@@ -46,7 +46,7 @@ export function updatePriceColors(upgrades) {
 }
 
 // Sound toggle state
-let isSoundEnabled = true;
+let isSoundEnabled = localStorage.getItem('soundEnabled') !== 'false';
 const toggleSoundBtn = document.getElementById('toggleSound');
 
 // Toggle sound function
@@ -61,6 +61,11 @@ function toggleSound() {
     
     // Save preference to localStorage
     localStorage.setItem('soundEnabled', isSoundEnabled);
+    
+    // Play a sound when unmuting to help with autoplay policies
+    if (isSoundEnabled) {
+        audioManager.playFx('coinJingle').catch(console.error);
+    }
 }
 
 // Initialize sound toggle from localStorage
@@ -82,32 +87,112 @@ function initSoundToggle() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize elements
-    setElements();
-    const elements = getElements();
-    
-    // Initialize sound toggle
-    initSoundToggle();
-    toggleSoundBtn.addEventListener('click', toggleSound);
-    
-    // Initialize themes
-    initThemes();
-    
-    // Initialize localization
-    await initLocalization(getLanguageSelected() || 'en');
-
-    // Remove pause button if it exists
-    const pauseGameBtn = document.getElementById('pauseGame');
-    if (pauseGameBtn && pauseGameBtn.parentNode) {
-        pauseGameBtn.parentNode.removeChild(pauseGameBtn);
+// Add loading screen styles
+const style = document.createElement('style');
+style.textContent = `
+    #loadingScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--theme-bg, #1a1a1a);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: var(--theme-text, #ffffff);
+        font-size: 1.5rem;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
     }
+    #loadingScreen h2 {
+        margin-bottom: 1rem;
+        color: var(--theme-accent, #4a90e2);
+    }
+    #loadingScreen p {
+        margin-top: 1rem;
+        font-size: 1rem;
+        opacity: 0.8;
+    }
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--theme-accent, #4a90e2);
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 1rem;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
 
-    // Menu event listeners
-    if (elements.newGameMenuButton) {
-        elements.newGameMenuButton.addEventListener('click', () => {
-            // Reset the game state before starting
-            resetGame();
+// Create loading screen
+const loadingScreen = document.createElement('div');
+loadingScreen.id = 'loadingScreen';
+loadingScreen.innerHTML = `
+    <div class="loading-spinner"></div>
+    <h2>Loading Game</h2>
+    <p>Preparing your experience...</p>
+`;
+document.body.appendChild(loadingScreen);
+
+// Update loading message
+function updateLoadingMessage(message) {
+    const messageEl = loadingScreen.querySelector('p');
+    if (messageEl) messageEl.textContent = message;
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Initialize elements
+        setElements();
+        const elements = getElements();
+        
+        // Initialize sound toggle
+        initSoundToggle();
+        toggleSoundBtn.addEventListener('click', toggleSound);
+        
+        // Initialize themes
+        initThemes();
+        
+        updateLoadingMessage('Loading game resources...');
+        
+        // Initialize localization
+        await initLocalization(getLanguageSelected() || 'en');
+        
+        // Preload audio
+        updateLoadingMessage('Loading audio...');
+        const audioResults = await audioManager.preloadAll();
+        console.log('Audio preload results:', audioResults);
+        
+        // Remove pause button if it exists
+        const pauseGameBtn = document.getElementById('pauseGame');
+        if (pauseGameBtn && pauseGameBtn.parentNode) {
+            pauseGameBtn.parentNode.removeChild(pauseGameBtn);
+        }
+
+        // Menu event listeners
+        if (elements.newGameMenuButton) {
+            elements.newGameMenuButton.addEventListener('click', () => {
+                // Reset the game state before starting
+                resetGame();
+                
+                setBeginGameStatus(true);
+                if (!getGameInProgress()) {
+                    setGameInProgress(true);
+                }
+                if (elements.resumeGameMenuButton) {
+                    disableActivateButton(elements.resumeGameMenuButton, 'active', 'btn-primary');
+                }
+                if (elements.saveGameButton) {
+                    disableActivateButton(elements.saveGameButton, 'active', 'btn-primary');
+                }
+                setGameState(getGameActive());
+                startGame();
             
             setBeginGameStatus(true);
             if (!getGameInProgress()) {
@@ -220,12 +305,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Set initial game state and language
-    setGameState(getMenuState());
-    handleLanguageChange(getLanguageSelected());
-    
-    // Track if game loop is running
-    window.gameLoopRunning = false;
+        // Set initial game state and language
+        setGameState(getMenuState());
+        handleLanguageChange(getLanguageSelected());
+        
+        // Track if game loop is running
+        window.gameLoopRunning = false;
+        
+        // Hide loading screen with fade out
+        setTimeout(() => {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+                loadingScreen.remove();
+                // Try to play a sound to unlock audio context (helps with autoplay policies)
+                audioManager.playFx('coinJingle').catch(() => {});
+            }, 500);
+        }, 500);
+        
+    } catch (error) {
+        console.error('Initialization error:', error);
+        updateLoadingMessage('Error loading game. Please refresh the page.');
+        loadingScreen.querySelector('h2').textContent = 'Error';
+        loadingScreen.querySelector('.loading-spinner').style.display = 'none';
+    }
 });
 
 async function setElementsLanguageText() {

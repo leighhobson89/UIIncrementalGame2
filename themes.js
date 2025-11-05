@@ -1,17 +1,20 @@
 // Theme management
 export function initThemes() {
-    // Always set Ocean as the default theme on page load
+    // Determine theme from storage or fallback to default
     const defaultTheme = 'ocean';
-    localStorage.setItem('theme', defaultTheme);
-    
-    // Apply the default theme
-    applyTheme(defaultTheme);
+    const savedTheme = localStorage.getItem('theme');
+    const currentTheme = savedTheme || defaultTheme;
+    if (!savedTheme) {
+        localStorage.setItem('theme', currentTheme);
+    }
+    // Apply the saved or default theme
+    applyTheme(currentTheme);
 
     // Set up theme selectors
     const themeSelects = document.querySelectorAll('.theme-select');
     themeSelects.forEach(select => {
         // Set the current theme in the select
-        select.value = defaultTheme;
+        select.value = currentTheme;
         
         // Add change event listener
         select.addEventListener('change', (e) => {

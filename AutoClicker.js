@@ -178,9 +178,8 @@ export default class AutoClicker {
         const countText = formatNumber(this.count);
         const costText = formatNumber(this.currentCost);
         
-        // Update button text to show rate per second
-        const upgradeRate = getAutoClickerUpgradeRate();
-        this.button.textContent = `+ ${upgradeRate}/s`;
+        // Update button text to show the current multiplier rate
+        this.button.textContent = `+ ${multiplier}/s`;
         
         // Update header to include cost and keep description clean
         const upgradeItem = this.button.closest('.upgrade-item');

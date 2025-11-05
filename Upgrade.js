@@ -83,9 +83,19 @@ export default class Upgrade {
             value = 1; // Auto-clicker value is handled in its own class
         }
         
-        // Get localized name and description with dynamic value
+        // Get localized name and description
         const name = localize(nameKey, getLanguage());
-        const description = localize(`${nameKey}Desc`, getLanguage(), value);
+        // For multiplier upgrades, include the current multiplier rate in the description
+        let description;
+        if (this.id === 'betterClicksMultiplier') {
+            const multiplier = getBetterClicksMultiplierRate();
+            description = localize(`${nameKey}Desc`, getLanguage()).replace('value shown', multiplier);
+        } else if (this.id === 'autoClickerMultiplier') {
+            const multiplier = getAutoClickerMultiplierRate();
+            description = localize(`${nameKey}Desc`, getLanguage()).replace('value shown', multiplier);
+        } else {
+            description = localize(`${nameKey}Desc`, getLanguage(), value);
+        }
         
         // Format numbers
         const countText = formatNumber(this.count);

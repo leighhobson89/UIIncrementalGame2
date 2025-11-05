@@ -14,6 +14,39 @@ input, textarea, [contenteditable] {
     user-select: text;
 }
 
+/* Menu background overlay */
+#menu {
+    position: relative;
+}
+
+#menuBgOverlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* very low, behind content */
+    pointer-events: none; /* don't block interactions */
+}
+
+#menuBgOverlay .menu-bg-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 80%;
+    height: 80%;
+    transform: translate(-50%, -50%);
+    background-image: url('assets/images/coinLarge.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.1;
+}
+
+.menu-content {
+    position: relative;
+    z-index: 1; /* above the overlay */
+}
+
 /* Theme Variables */
 :root {
     /* Ocean Theme (Default) */
@@ -289,6 +322,18 @@ input, textarea, [contenteditable] {
 .icon-button:hover {
     color: var(--theme-text);
     border-color: var(--theme-accent);
+}
+
+/* Remove default focus ring/white border on buttons */
+button:focus,
+button:focus-visible,
+.btn:focus,
+.btn:focus-visible,
+.menu-btn:focus,
+.icon-button:focus,
+.lang-flag:focus {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Language flag buttons */

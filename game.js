@@ -346,7 +346,7 @@ export function gameLoop(timestamp) {
             const secLeft = Math.max(0, Math.ceil(bonusSpawnRemainingMs / 1000));
             if (secLeft !== bonusLastLoggedSecond) {
                 bonusLastLoggedSecond = secLeft;
-                console.log(`[bonus] countdown: ${secLeft}s`);
+                //console.log(`[bonus] countdown: ${secLeft}s`);
             }
             if (bonusSpawnRemainingMs <= 0) {
                 createFloatingMoney();

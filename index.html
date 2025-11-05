@@ -13,6 +13,11 @@
 <body>
     <!-- Menu Container -->
     <div id="menu" class="d-flex flex-column align-items-center justify-content-center d-none">
+        <!-- Menu background overlay -->
+        <div id="menuBgOverlay" aria-hidden="true">
+            <div class="menu-bg-image"></div>
+        </div>
+        <div class="menu-content d-flex flex-column align-items-center justify-content-center">
         <h1 id="menuTitle" class="mb-4" data-i18n="gameTitle">Game Title Placeholder</h1>
         <div id="languageContainer" class="d-flex justify-content-between my-2">
             <div class="col d-flex justify-content-center">
@@ -35,6 +40,7 @@
         <button id="resumeFromMenu" class="btn menu-btn disabled mb-2" data-i18n="resumeGame">Resume Game Placeholder</button>
         <button id="loadGame" class="btn btn-primary menu-btn mb-2" data-i18n="loadGame">Load Game Placeholder</button>
         <button id="saveGame" class="btn menu-btn disabled" data-i18n="saveGame">Save Game Placeholder</button>
+        </div>
     </div>
 
     <!--Save Load Game Input Field-->

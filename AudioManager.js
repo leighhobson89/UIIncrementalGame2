@@ -6,6 +6,7 @@ class AudioManager {
             ['upgrade', 'assets/sounds/upgrade.mp3']
         ]);
         
+        // Map<string, { pool: HTMLAudioElement[], nextIndex: number }>
         this.audioCache = new Map();
         this.muted = localStorage.getItem('soundEnabled') === 'false';
         this.volume = 0.5; // Default volume (0.0 to 1.0)
@@ -15,7 +16,8 @@ class AudioManager {
     
     // Check if a sound is loaded and ready to play
     isSoundLoaded(name) {
-        return this.audioCache.has(name) && this.audioCache.get(name).readyState >= 2; // 2 = HAVE_CURRENT_DATA
+        const entry = this.audioCache.get(name);
+        return !!(entry && Array.isArray(entry.pool) && entry.pool.length && entry.pool[0].readyState >= 2);
     }
     
     // Preload all sounds
@@ -59,36 +61,42 @@ class AudioManager {
                 return;
             }
 
-            const audio = new Audio();
-            audio.src = this.sounds.get(name);
-            audio.preload = 'auto';
-            
+            // Create a small pool to avoid cloneNode latency after state switches
+            const POOL_SIZE = 4;
+            const pool = Array.from({ length: POOL_SIZE }, () => {
+                const a = new Audio();
+                a.src = this.sounds.get(name);
+                a.preload = 'auto';
+                return a;
+            });
+
+            const first = pool[0];
             const onLoad = () => {
                 cleanup();
-                this.audioCache.set(name, audio);
+                this.audioCache.set(name, { pool, nextIndex: 0 });
                 this.loadingPromises.delete(name);
                 console.log(`Sound '${name}' loaded successfully`);
                 resolve(true);
             };
-            
+
             const onError = (error) => {
                 cleanup();
                 console.error(`Failed to load sound '${name}':`, error);
                 this.loadingPromises.delete(name);
                 resolve(false);
             };
-            
+
             const cleanup = () => {
-                audio.removeEventListener('canplaythrough', onLoad);
-                audio.removeEventListener('error', onError);
+                first.removeEventListener('canplaythrough', onLoad);
+                first.removeEventListener('error', onError);
             };
-            
-            audio.addEventListener('canplaythrough', onLoad, { once: true });
-            audio.addEventListener('error', onError, { once: true });
-            
-            // Start loading
+
+            first.addEventListener('canplaythrough', onLoad, { once: true });
+            first.addEventListener('error', onError, { once: true });
+
+            // Kick off loading for all items (browsers may coalesce requests)
             try {
-                audio.load();
+                pool.forEach(a => a.load());
             } catch (error) {
                 console.error(`Error loading sound '${name}':`, error);
                 cleanup();
@@ -130,9 +138,27 @@ class AudioManager {
             }
         }
 
-        // Get the audio element
-        const audio = this.audioCache.get(name).cloneNode();
-        
+        // Get an audio element from the pool (re-usable, already buffered)
+        const entry = this.audioCache.get(name);
+        let audio;
+        if (entry && entry.pool && entry.pool.length) {
+            // Round-robin selection
+            const idx = entry.nextIndex % entry.pool.length;
+            entry.nextIndex = (entry.nextIndex + 1) % entry.pool.length;
+            audio = entry.pool[idx];
+            // If it's currently playing, try to find a paused one; otherwise create a temp instance
+            if (!audio.paused) {
+                const paused = entry.pool.find(a => a.paused);
+                audio = paused || new Audio(this.sounds.get(name));
+                if (paused === undefined) {
+                    audio.preload = 'auto';
+                }
+            }
+        } else {
+            audio = new Audio(this.sounds.get(name));
+            audio.preload = 'auto';
+        }
+
         // Apply options
         audio.volume = options.volume !== undefined 
             ? Math.min(1, Math.max(0, options.volume * this.volume))
@@ -140,6 +166,8 @@ class AudioManager {
 
         // Play the sound
         try {
+            // Ensure restart from beginning for pooled elements
+            audio.currentTime = 0;
             const playPromise = audio.play();
             
             if (playPromise !== undefined) {
@@ -152,10 +180,12 @@ class AudioManager {
                 });
             }
             
-            // Clean up after playback
-            audio.addEventListener('ended', () => {
-                audio.remove();
-            }, { once: true });
+            // For temporary (non-pooled) elements, clean up after playback
+            if (!entry || !entry.pool.includes(audio)) {
+                audio.addEventListener('ended', () => {
+                    audio.remove();
+                }, { once: true });
+            }
             
             return audio;
             

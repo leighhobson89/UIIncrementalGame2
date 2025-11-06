@@ -79,12 +79,20 @@
         <div class="game-header">
             <div class="game-stats">
                 <div class="stat">
-                    <span class="stat-label" data-i18n="points">Points:</span>
+                    <span class="coin-icon"></span>
                     <span id="points" class="stat-value">0</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-label" data-i18n="pointsPerSecond">Points Per Second:</span>
-                    <span id="pointsPerSecond" class="stat-value">0</span>
+                    <span class="coin-icon small"></span>
+                    <span id="pointsPerSecond" class="stat-value">0<span class="per-second">/sec</span></span>
+                </div>
+                <div class="stat">
+                    <span class="note-icon"></span>
+                    <span id="notes" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="note-icon small"></span>
+                    <span id="notesPerSecond" class="stat-value">0<span class="per-second">/sec</span></span>
                 </div>
             </div>
             <div class="game-controls">
@@ -112,6 +120,22 @@
 
         <!-- Main Game Area -->
         <div class="game-content">
+            <!-- AutoClickers (left side) -->
+            <div class="autoclickers-container">
+                <h3 data-i18n="autoClickers">AutoClickers</h3>
+                <div class="upgrade-list">
+                    <div class="upgrade-item">
+                        <div class="upgrade-info">
+                            <h4 data-i18n="autoClicker">Coin Makers</h4>
+                            <p data-i18n="autoClickerDesc">Generates 1 coin per second</p>
+                        </div>
+                        <button id="autoClickerBtn" class="btn btn-primary upgrade-btn" data-cost="10">
+                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">10 coins</span>)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Main Clicker -->
             <div class="clicker-container">
                 <button id="mainClicker" class="clicker-btn">
@@ -120,35 +144,26 @@
                 </button>
             </div>
 
-            <!-- Upgrades -->
+            <!-- Upgrades (right side) -->
             <div class="upgrades-container">
                 <h3 data-i18n="upgrades">Upgrades</h3>
                 <div class="upgrade-list">
                     <div class="upgrade-item">
                         <div class="upgrade-info">
-                            <h4 data-i18n="autoClicker">Auto-Clicker</h4>
-                            <p data-i18n="autoClickerDesc">Generates 1 point per second</p>
-                        </div>
-                        <button id="autoClickerBtn" class="btn btn-primary upgrade-btn" data-cost="10">
-                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">10 points</span>)
-                        </button>
-                    </div>
-                    <div class="upgrade-item">
-                        <div class="upgrade-info">
                             <h4 data-i18n="betterClicks">Better Clicks</h4>
-                            <p data-i18n="betterClicksDesc">+1 point per click</p>
+                            <p data-i18n="betterClicksDesc">+1 coin per click</p>
                         </div>
                         <button id="betterClicksBtn" class="btn btn-primary upgrade-btn" data-cost="50">
-                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">50 points</span>)
+                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">50 coins</span>)
                         </button>
                     </div>
                     <div class="upgrade-item">
                         <div class="upgrade-info">
-                            <h4 data-i18n="autoClickerMultiplier">Auto-Clicker Multiplier</h4>
-                            <p data-i18n="autoClickerMultiplierDesc">Multiplies Auto-Clickers by 1</p>
+                            <h4 data-i18n="autoClickerMultiplier">Coin Maker Machine</h4>
+                            <p data-i18n="autoClickerMultiplierDesc">Machines</p>
                         </div>
                         <button id="autoClickerMultiplierBtn" class="btn btn-primary upgrade-btn" data-cost="150">
-                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">150 points</span>)
+                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">150 coins</span>)
                         </button>
                     </div>
                     <div class="upgrade-item">
@@ -157,7 +172,7 @@
                             <p data-i18n="betterClicksMultiplierDesc">Multiplies Better Clicks by 1</p>
                         </div>
                         <button id="betterClicksMultiplierBtn" class="btn btn-primary upgrade-btn" data-cost="100">
-                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">100 points</span>)
+                            <span data-i18n="buy">Buy</span> (<span data-i18n="points">100 coins</span>)
                         </button>
                     </div>
                 </div>

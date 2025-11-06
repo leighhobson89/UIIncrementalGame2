@@ -9,6 +9,7 @@ import {
 import { updatePriceColors } from './ui.js';
 import AutoClicker from './AutoClicker.js';
 import Upgrade from './Upgrade.js';
+import { pointsResource } from './resources/PointsResource.js';
 
 // Create better clicks upgrade
 export const betterClicks = new Upgrade(
@@ -23,8 +24,8 @@ export const betterClicks = new Upgrade(
     }
 );
 
-// Create auto-clicker instance
-export const autoClicker = new AutoClicker();
+// Create auto-clicker instance bound to Points resource
+export const autoClicker = new AutoClicker(pointsResource);
 
 // Create auto-clicker multiplier upgrade
 export const autoClickerMultiplier = new Upgrade(

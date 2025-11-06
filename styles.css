@@ -217,6 +217,88 @@ input, textarea, [contenteditable] {
     margin-top: 0.5rem;
 }
 
+.clicker-label.stat {
+    display: flex;
+    align-items: center;
+    margin: 0 1rem;
+    font-size: 1.2rem;
+    color: var(--theme-text);
+    gap: 0.5rem;
+}
+
+.coin-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-image: url('assets/images/coin.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.coin-icon.small {
+    width: 20px;
+    height: 20px;
+    opacity: 0.9;
+}
+
+.game-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-right: auto;
+    padding: 0.5rem;
+}
+
+/* Coin icon styles */
+.coin-icon {
+    filter: drop-shadow(0 0 2px var(--theme-accent));
+}
+
+.note-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-image: url('assets/images/dollar_banknote.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 0 2px var(--theme-accent));
+}
+
+.note-icon.small {
+    width: 20px;
+    height: 20px;
+    opacity: 0.9;
+}
+
+/* Stat container */
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Stat value and per-second text */
+.stat-value {
+    font-weight: bold;
+    min-width: 60px;
+    text-align: right;
+    color: var(--theme-accent);
+    text-shadow: 0 0 3px var(--theme-shadow);
+}
+
+.per-second,
+.per-minute {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-left: 2px;
+    color: var(--theme-accent);
+    text-shadow: 0 0 3px var(--theme-shadow);
+    opacity: 0.8;
+}
+
 /* Hover states */
 .theme-select:hover,
 .icon-button:hover {
@@ -264,7 +346,7 @@ input, textarea, [contenteditable] {
     position: absolute;
     width: 64px;
     height: 64px;
-    background-image: url('../assets/images/dollar_banknote.png');
+    background-image: url('../assets/images/coin.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -800,6 +882,27 @@ button.disabled {
     padding: 1rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 10;
+}
+
+/* AutoClickers Section (left side, mirrors upgrades) */
+.autoclickers-container {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 450px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.autoclickers-container h3 {
+    margin-top: 0;
+    color: var(--theme-accent);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .upgrades-container h3 {

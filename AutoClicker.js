@@ -1,11 +1,9 @@
 import { 
-    getScore, 
-    setScore, 
     getLanguage, 
     getAutoClickerUpgradeRate,
     getAutoClickerMultiplierRate
 } from './constantsAndGlobalVars.js';
-import { updateScoreDisplay, getManualClickRate } from './game.js';
+import { updateScoreDisplay } from './game.js';
 import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
 import { audioManager } from './AudioManager.js';
@@ -14,16 +12,17 @@ import { audioManager } from './AudioManager.js';
  * Auto-clicker implementation with delta time
  */
 export default class AutoClicker {
-    constructor() {
+    constructor(resource) {
         this.id = 'autoClicker';
         this.baseCost = 15;
         this.costMultiplier = 1.13;
-        this.description = 'Auto-Clicker';
+        this.description = 'Coin Makers';
         this.count = 0;
         this.currentCost = this.baseCost;
         this.purchasesMade = 0; // advances cost progression once per purchase click
         this.initialized = false;
         this.button = null;
+        this.resource = resource; // Resource this autoclicker generates
         
         // Delta time tracking
         this.accumulatedTime = 0;
@@ -38,9 +37,9 @@ export default class AutoClicker {
         this.currentMultiplier = 1;
         
         // Timing configuration (in seconds)
-        this.baseRate = 1.0;           // Points per second per autoclicker
+        this.baseRate = 1.0;           // Coins per second per coin maker
         this.minUpdateInterval = 0.02;  // 50 updates per second max (20ms)
-        this.batchThreshold = 50;       // Start batching after 50 autoclickers
+        this.batchThreshold = 50;       // Start batching after 50 coin makers
     }
 
     init() {
@@ -95,10 +94,13 @@ export default class AutoClicker {
             
             // Update score
             if (pointsThisFrame > 0) {
-                const currentScore = getScore();
-                setScore(currentScore + pointsThisFrame);
+                // Add to resource
+                this.resource.add(pointsThisFrame);
                 this.lastPointsAdded += pointsThisFrame;
-                updateScoreDisplay();
+                // Update score display for points resource to keep current UI behavior
+                if (this.resource?.id === 'points') {
+                    updateScoreDisplay();
+                }
             }
             
             this.accumulatedTime -= maxFrameTime;
@@ -116,22 +118,35 @@ export default class AutoClicker {
     
     // Update the points per second display
     updatePPSDisplay() {
-        const ppsElement = document.getElementById('pointsPerSecond');
+        const rateElementId = this.resource?.displayRateElementId || 'pointsPerSecond';
+        const ppsElement = document.getElementById(rateElementId);
         if (ppsElement) {
-            // Get manual click rate from global state
-            const manualRate = getManualClickRate();
-            const totalRate = this.pointsPerSecond + manualRate;
+            // Additional rate from resource (e.g., manual clicks for points)
+            const additionalRate = typeof this.resource?.getAdditionalRatePerSecond === 'function'
+                ? this.resource.getAdditionalRatePerSecond()
+                : 0;
+            const totalRate = this.pointsPerSecond + additionalRate;
             
-            // Format the numbers
+            // Format the number
             const formattedTotal = formatNumber(totalRate);
-            let displayText = `${formattedTotal}/sec`;
             
-            if (this.pointsPerSecond > 0 && manualRate > 0) {
-                const formattedAuto = formatNumber(this.pointsPerSecond);
-                const formattedManual = formatNumber(manualRate);
-                displayText += ` (${formattedAuto} auto + ${formattedManual} click)`;
+            // Update only the numeric part of the content
+            const perSecondSpan = ppsElement.querySelector('.per-second');
+            if (perSecondSpan) {
+                ppsElement.textContent = formattedTotal;
+                ppsElement.appendChild(perSecondSpan);
+            } else {
+                ppsElement.textContent = formattedTotal;
             }
-            ppsElement.textContent = displayText;
+            
+            // Show detailed breakdown in tooltip if there are multiple sources of income
+            if (this.pointsPerSecond > 0 && additionalRate > 0) {
+                const formattedAuto = formatNumber(this.pointsPerSecond);
+                const formattedAdditional = formatNumber(additionalRate);
+                ppsElement.title = `${formattedAuto} from Coin Makers + ${formattedAdditional} from clicks`;
+            } else {
+                ppsElement.removeAttribute('title');
+            }
         }
     }
     
@@ -156,12 +171,12 @@ export default class AutoClicker {
     }
     
     purchase() {
-        const currentScore = getScore();
+        const currentScore = this.resource.get();
         const multiplier = Math.max(1, getAutoClickerMultiplierRate());
         const purchaseCost = this.calculatePurchaseCost(multiplier);
         
         if (currentScore >= purchaseCost) {
-            setScore(currentScore - purchaseCost);
+            this.resource.set(currentScore - purchaseCost);
             
             // Add the multiplier number of auto-clickers
             this.count += multiplier;
@@ -194,7 +209,7 @@ export default class AutoClicker {
         
         const multiplier = Math.max(1, getAutoClickerMultiplierRate());
         const purchaseCost = this.calculatePurchaseCost(multiplier);
-        const canAfford = getScore() >= purchaseCost;
+        const canAfford = this.resource.get() >= purchaseCost;
         
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);

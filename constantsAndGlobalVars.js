@@ -16,6 +16,16 @@ let betterClicksUpgradeRate = 1;
 let autoClickerUpgradeRate = 1;
 let betterClicksMultiplierRate = 1;
 let autoClickerMultiplierRate = 1;
+
+// Note-related variables
+let notes = 0;
+let notesIncrementValue = 1;
+let noteClickTimestamps = [];
+let betterNotesUpgradeRate = 1;
+let autoNotesUpgradeRate = 1;
+let betterNotesMultiplierRate = 1;
+let autoNotesMultiplierRate = 1;
+
 let elements;
 let localization = {};
 let language = 'en';
@@ -45,8 +55,16 @@ export function getScore() {
     return score;
 }
 
+export function getNotes() {
+    return notes;
+}
+
 export function getScoreIncrementValue() {
     return scoreIncrementValue;
+}
+
+export function getNotesIncrementValue() {
+    return notesIncrementValue;
 }
 
 export function getLanguage() {
@@ -89,12 +107,25 @@ export function getClickTimestamps() {
     return [...clickTimestamps]; // Return a copy to prevent direct modification
 }
 
+export function getNoteClickTimestamps() {
+    return [...noteClickTimestamps]; // Return a copy to prevent direct modification
+}
+
 export function setClickTimestamps(newTimestamps) {
     if (Array.isArray(newTimestamps)) {
         clickTimestamps = [...newTimestamps]; // Store a copy to prevent external modifications
     } else {
         console.warn('setClickTimestamps: Expected an array of timestamps');
         clickTimestamps = [];
+    }
+}
+
+export function setNoteClickTimestamps(newTimestamps) {
+    if (Array.isArray(newTimestamps)) {
+        noteClickTimestamps = [...newTimestamps];
+    } else {
+        console.warn('setNoteClickTimestamps: Expected an array of timestamps');
+        noteClickTimestamps = [];
     }
 }
 
@@ -120,17 +151,29 @@ export function setLastClickTime(timestamp) {
 // =============================================
 
 export function setScore(value) {
-    score = value;
-    updateScoreDisplay();
-    
-    // Update button states when score changes
-    if (typeof updateButtonStates === 'function') {
-        setTimeout(updateButtonStates, 0);
+    if (typeof value === 'number' && !isNaN(value)) {
+        score = Math.max(0, value);
+        updateScoreDisplay();
+    } else {
+        console.warn('setScore: Expected a number');
+    }
+}
+
+export function setNotes(value) {
+    if (typeof value === 'number' && !isNaN(value)) {
+        notes = Math.max(0, value);
+        updateScoreDisplay();
+    } else {
+        console.warn('setNotes: Expected a number');
     }
 }
 
 export function setScoreIncrementValue(value) {
     scoreIncrementValue = value;
+}
+
+export function setNotesIncrementValue(value) {
+    notesIncrementValue = value;
 }
 
 export function setLanguage(value) {
@@ -265,9 +308,24 @@ export function resetAllVariables() {
     clickTimestamps = [];
     lastClickTime = 0;
     
+    // Reset note-related variables
+    notes = 0;
+    notesIncrementValue = 1;
+    noteClickTimestamps = [];
+    
     // Reset game state flags
     gameInProgress = true;
     beginGameState = true;
+    
+    // Reset all upgrade rates
+    betterClicksUpgradeRate = 1;
+    autoClickerUpgradeRate = 1;
+    betterClicksMultiplierRate = 1;
+    autoClickerMultiplierRate = 1;
+    betterNotesUpgradeRate = 1;
+    autoNotesUpgradeRate = 1;
+    betterNotesMultiplierRate = 1;
+    autoNotesMultiplierRate = 1;
     
     // Update the score display
     updateScoreDisplay();
@@ -355,7 +413,7 @@ export function restoreGameStatus(gameState) {
 }
 
 // =============================================
-// Upgrade Rate Getters/Setters
+// Coin Upgrade Rate Getters/Setters
 // =============================================
 
 export function getBetterClicksUpgradeRate() {

@@ -9,7 +9,7 @@ import {
 import { updatePriceColors } from './ui.js';
 import AutoClicker from './AutoClicker.js';
 import Upgrade from './Upgrade.js';
-import { pointsResource } from './resources/PointsResource.js';
+import { coinResource } from './resources/CoinResource.js';
 
 // Create better clicks upgrade
 export const betterClicks = new Upgrade(
@@ -25,7 +25,7 @@ export const betterClicks = new Upgrade(
 );
 
 // Create auto-clicker instance bound to Points resource
-export const autoClicker = new AutoClicker(pointsResource);
+export const autoClicker = new AutoClicker(coinResource);
 
 // Create auto-clicker multiplier upgrade
 export const autoClickerMultiplier = new Upgrade(
@@ -77,9 +77,9 @@ export function updateAutoclickers(deltaTime) {
     autoClicker.update(deltaTime);
 }
 
-// Export a function to get current PPS
-export function getPointsPerSecond() {
-    return autoClicker.pointsPerSecond;
+// Export a function to get current CPS (Coins Per Second)
+export function getCoinsPerSecond() {
+    return autoClicker.coinsPerSecond;
 }
 
 // Export a function to refresh all upgrade UI texts (useful after language changes)

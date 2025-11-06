@@ -27,13 +27,13 @@ export default class AutoClicker {
         // Delta time tracking
         this.accumulatedTime = 0;
         this.lastUpdateTime = 0;
-        this.lastPointsAdded = 0;
-        this.lastPointsTime = 0;
-        this.pointsPerSecond = 0;
+        this.lastCoinsAdded = 0;
+        this.lastCoinsTime = 0;
+        this.coinsPerSecond = 0;
         
-        // Store total points per second and base points for the description
-        this.cachedTotalPPS = 0;
-        this.cachedBasePoints = 0;
+        // Store total coins per second and base coins for the description
+        this.cachedTotalCPS = 0;
+        this.cachedBaseCoins = 0;
         this.currentMultiplier = 1;
         
         // Timing configuration (in seconds)
@@ -64,8 +64,8 @@ export default class AutoClicker {
 
     update(deltaTime) {
         if (this.count <= 0) {
-            this.pointsPerSecond = 0;
-            this.updatePPSDisplay();
+            this.coinsPerSecond = 0;
+            this.updateCPSDisplay();
             return;
         }
         
@@ -73,9 +73,9 @@ export default class AutoClicker {
         const deltaSeconds = deltaTime / 1000;
         this.accumulatedTime += deltaSeconds;
         
-        // Calculate points per second based on count
-        // Each auto-clicker generates baseRate points per second
-        const pointsPerSecond = this.baseRate * this.count;
+        // Calculate coins per second based on count
+        // Each auto-clicker generates baseRate coins per second
+        const coinsPerSecond = this.baseRate * this.count;
         
         // Determine maximum time between updates
         let maxFrameTime = this.minUpdateInterval;
@@ -88,17 +88,17 @@ export default class AutoClicker {
         
         // Process accumulated time in fixed steps for accuracy
         while (this.accumulatedTime >= maxFrameTime) {
-            // Calculate points for this frame
+            // Calculate coins for this frame
             // The multiplier is only applied at purchase time, not here
-            const pointsThisFrame = pointsPerSecond * maxFrameTime;
+            const coinsThisFrame = coinsPerSecond * maxFrameTime;
             
-            // Update score
-            if (pointsThisFrame > 0) {
+            // Update coins
+            if (coinsThisFrame > 0) {
                 // Add to resource
-                this.resource.add(pointsThisFrame);
-                this.lastPointsAdded += pointsThisFrame;
-                // Update score display for points resource to keep current UI behavior
-                if (this.resource?.id === 'points') {
+                this.resource.add(coinsThisFrame);
+                this.lastCoinsAdded += coinsThisFrame;
+                // Update score display for coins resource to keep current UI behavior
+                if (this.resource?.id === 'coins') {
                     updateScoreDisplay();
                 }
             }
@@ -106,46 +106,40 @@ export default class AutoClicker {
             this.accumulatedTime -= maxFrameTime;
         }
         
-        // Update PPS every second
+        // Update CPS (Coins Per Second) every second
         const now = Date.now();
-        if (now - this.lastPointsTime >= 1000) {
-            this.pointsPerSecond = this.lastPointsAdded / ((now - this.lastPointsTime) / 1000);
-            this.lastPointsAdded = 0;
-            this.lastPointsTime = now;
-            this.updatePPSDisplay();
+        if (now - this.lastCoinsTime >= 1000) {
+            this.coinsPerSecond = this.lastCoinsAdded / ((now - this.lastCoinsTime) / 1000);
+            this.lastCoinsAdded = 0;
+            this.lastCoinsTime = now;
+            this.updateCPSDisplay();
         }
     }
     
-    // Update the points per second display
-    updatePPSDisplay() {
+    // Update the coins per second display
+    updateCPSDisplay() {
         const rateElementId = this.resource?.displayRateElementId || 'pointsPerSecond';
-        const ppsElement = document.getElementById(rateElementId);
-        if (ppsElement) {
-            // Additional rate from resource (e.g., manual clicks for points)
+        const cpsElement = document.getElementById(rateElementId);
+        if (cpsElement) {
+            // Additional rate from resource (e.g., manual clicks for coins)
             const additionalRate = typeof this.resource?.getAdditionalRatePerSecond === 'function'
                 ? this.resource.getAdditionalRatePerSecond()
                 : 0;
-            const totalRate = this.pointsPerSecond + additionalRate;
+            const totalRate = this.coinsPerSecond + additionalRate;
             
             // Format the number
             const formattedTotal = formatNumber(totalRate);
             
-            // Update only the numeric part of the content
-            const perSecondSpan = ppsElement.querySelector('.per-second');
-            if (perSecondSpan) {
-                ppsElement.textContent = formattedTotal;
-                ppsElement.appendChild(perSecondSpan);
-            } else {
-                ppsElement.textContent = formattedTotal;
-            }
+            // Update the display
+            cpsElement.textContent = `${formattedTotal}/sec`;
             
             // Show detailed breakdown in tooltip if there are multiple sources of income
-            if (this.pointsPerSecond > 0 && additionalRate > 0) {
-                const formattedAuto = formatNumber(this.pointsPerSecond);
+            if (this.coinsPerSecond > 0 && additionalRate > 0) {
+                const formattedAuto = formatNumber(this.coinsPerSecond);
                 const formattedAdditional = formatNumber(additionalRate);
-                ppsElement.title = `${formattedAuto} from Coin Makers + ${formattedAdditional} from clicks`;
+                cpsElement.title = `${formattedAuto} from Coin Makers + ${formattedAdditional} from clicks`;
             } else {
-                ppsElement.removeAttribute('title');
+                cpsElement.title = '';
             }
         }
     }
@@ -156,18 +150,18 @@ export default class AutoClicker {
         this.purchasesMade = 0;
         this.accumulatedTime = 0;
         this.lastUpdateTime = 0;
-        this.lastPointsAdded = 0;
-        this.lastPointsTime = 0;
-        this.pointsPerSecond = 0;
+        this.lastCoinsAdded = 0;
+        this.lastCoinsTime = 0;
+        this.coinsPerSecond = 0;
         this.updateButtonState();
-        this.updatePPSDisplay();
+        this.updateCPSDisplay();
     }
 
     updateCachedValues() {
         this.currentMultiplier = getAutoClickerMultiplierRate();
-        this.cachedBasePoints = this.count * this.baseRate;
-        // Total PPS is just base points, as multiplier only affects new purchases
-        this.cachedTotalPPS = this.cachedBasePoints;
+        this.cachedBaseCoins = this.count * this.baseRate;
+        // Total CPS is just base coins, as multiplier only affects new purchases
+        this.cachedTotalCPS = this.cachedBaseCoins;
     }
     
     purchase() {
@@ -218,11 +212,11 @@ export default class AutoClicker {
         const name = localize('autoClicker', getLanguage());
         
         // Get localized description
-        const totalPpsInt = Math.round(this.cachedTotalPPS);
-        const basePointsInt = Math.round(this.count * this.baseRate);
+        const totalCpsInt = Math.round(this.cachedTotalCPS);
+        const baseCoinsInt = Math.round(this.count * this.baseRate);
         const description = localize('autoClickerDesc', getLanguage(), 
-            totalPpsInt,          // {0} - Total points per second (integer)
-            basePointsInt,        // {1} - Base points (integer)
+            totalCpsInt,          // {0} - Total coins per second (integer)
+            baseCoinsInt,        // {1} - Base coins (integer)
             multiplier            // {2} - Current purchase multiplier
         );
         

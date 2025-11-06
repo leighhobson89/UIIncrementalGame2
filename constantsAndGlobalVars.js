@@ -1,4 +1,3 @@
-import { formatNumber } from './utils/numberFormatter.js';
 import { updateScoreDisplay } from './game.js';
 
 const _MENU_STATE = 'menuState';

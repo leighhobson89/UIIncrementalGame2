@@ -483,11 +483,6 @@ export function setGameState(newState) {
             
             // Ensure the click handler is set up when the game becomes active
             setupClickHandler();
-            
-            // If this is a fresh game start (not a load), reset the game state
-            if (!getGameInProgress()) {
-                resetGame();
-            }
         }
     }
 }

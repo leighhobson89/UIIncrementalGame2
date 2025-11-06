@@ -32,7 +32,6 @@ export const betterClicks = new Upgrade(
 // Create coin auto-clicker instance
 export const autoClicker = new AutoClicker(coinResource, {
     id: 'autoClicker',
-    displayName: 'Coin Makers',
     nameKey: 'autoClicker',
     descriptionKey: 'autoClickerDesc',
 });
@@ -40,7 +39,6 @@ export const autoClicker = new AutoClicker(coinResource, {
 // Create note auto-clicker instance
 export const noteAutoClicker = new AutoClicker(noteResource, {
     id: 'noteAutoClicker',
-    displayName: 'Note Makers',
     nameKey: 'noteAutoClicker',
     descriptionKey: 'noteAutoClickerDesc',
     multiplierGetter: getAutoNotesMultiplierRate,

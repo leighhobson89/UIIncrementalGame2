@@ -9,8 +9,8 @@ export let gameState;
 
 let lastClickTime = 0;
 
-let score = 0;
-let scoreIncrementValue = 1;
+let coins = 0;
+let coinsIncrementValue = 1;
 let clickTimestamps = [];
 let betterClicksUpgradeRate = 1;
 let autoClickerUpgradeRate = 1;
@@ -51,16 +51,16 @@ export function getGameActive() {
     return _GAME_ACTIVE;
 }
 
-export function getScore() {
-    return score;
+export function getCoins() {
+    return coins;
 }
 
 export function getNotes() {
     return notes;
 }
 
-export function getScoreIncrementValue() {
-    return scoreIncrementValue;
+export function getCoinsIncrementValue() {
+    return coinsIncrementValue;
 }
 
 export function getNotesIncrementValue() {
@@ -150,12 +150,12 @@ export function setLastClickTime(timestamp) {
 // SETTERS
 // =============================================
 
-export function setScore(value) {
+export function setCoins(value) {
     if (typeof value === 'number' && !isNaN(value)) {
-        score = Math.max(0, value);
+        coins = Math.max(0, value);
         updateScoreDisplay();
     } else {
-        console.warn('setScore: Expected a number');
+        console.warn('setCoins: Expected a number');
     }
 }
 
@@ -168,8 +168,8 @@ export function setNotes(value) {
     }
 }
 
-export function setScoreIncrementValue(value) {
-    scoreIncrementValue = value;
+export function setCoinsIncrementValue(value) {
+    coinsIncrementValue = value;
 }
 
 export function setNotesIncrementValue(value) {
@@ -300,9 +300,9 @@ export function resetGame() {
 }
 
 export function resetAllVariables() {
-    // Reset score and increment value
-    score = 0;
-    scoreIncrementValue = 1;
+    // Reset coins and increment value
+    coins = 0;
+    coinsIncrementValue = 1;
     
     // Reset click tracking
     clickTimestamps = [];
@@ -333,13 +333,20 @@ export function resetAllVariables() {
 
 export function captureGameStatusForSaving() {
     const state = {
-        version: 1,
+        version: 2, // Increment version for save file format changes
         // Core values
         language: getLanguage(),
-        score: getScore(),
-        scoreIncrementValue: getScoreIncrementValue(),
+        coins: getCoins(),
+        coinsIncrementValue: getCoinsIncrementValue(),
         betterClicksMultiplierRate: getBetterClicksMultiplierRate(),
         autoClickerMultiplierRate: getAutoClickerMultiplierRate(),
+        // Notes
+        notes: getNotes(),
+        notesIncrementValue: getNotesIncrementValue(),
+        betterNotesUpgradeRate: getBetterNotesUpgradeRate(),
+        autoNotesUpgradeRate: getAutoNotesUpgradeRate(),
+        betterNotesMultiplierRate: getBetterNotesMultiplierRate(),
+        autoNotesMultiplierRate: getAutoNotesMultiplierRate(),
         // Upgrades (optional chaining in case instances not yet initialized)
         upgrades: {
             betterClicks: {
@@ -365,11 +372,24 @@ export function restoreGameStatus(gameState) {
             // Language
             if (gameState.language) setLanguage(gameState.language);
 
-            // Core numbers
-            if (typeof gameState.score === 'number') setScore(gameState.score);
-            if (typeof gameState.scoreIncrementValue === 'number') setScoreIncrementValue(gameState.scoreIncrementValue);
+            // Core numbers (support both old 'score' and new 'coins' for backward compatibility)
+            const coins = gameState.coins !== undefined ? gameState.coins : gameState.score;
+            const coinsIncrementValue = gameState.coinsIncrementValue !== undefined ? gameState.coinsIncrementValue : gameState.scoreIncrementValue;
+            
+            if (typeof coins === 'number') setCoins(coins);
+            if (typeof coinsIncrementValue === 'number') setCoinsIncrementValue(coinsIncrementValue);
             if (typeof gameState.betterClicksMultiplierRate === 'number') setBetterClicksMultiplierRate(gameState.betterClicksMultiplierRate);
             if (typeof gameState.autoClickerMultiplierRate === 'number') setAutoClickerMultiplierRate(gameState.autoClickerMultiplierRate);
+            
+            // Notes (only available in version 2+)
+            if (gameState.version >= 2) {
+                if (typeof gameState.notes === 'number') setNotes(gameState.notes);
+                if (typeof gameState.notesIncrementValue === 'number') setNotesIncrementValue(gameState.notesIncrementValue);
+                if (typeof gameState.betterNotesUpgradeRate === 'number') setBetterNotesUpgradeRate(gameState.betterNotesUpgradeRate);
+                if (typeof gameState.autoNotesUpgradeRate === 'number') setAutoNotesUpgradeRate(gameState.autoNotesUpgradeRate);
+                if (typeof gameState.betterNotesMultiplierRate === 'number') setBetterNotesMultiplierRate(gameState.betterNotesMultiplierRate);
+                if (typeof gameState.autoNotesMultiplierRate === 'number') setAutoNotesMultiplierRate(gameState.autoNotesMultiplierRate);
+            }
 
             // Theme and sound preferences
             if (gameState.theme) {
@@ -410,6 +430,50 @@ export function restoreGameStatus(gameState) {
             reject(error);
         }
     });
+}
+
+// =============================================
+// Notes Upgrade Rate Getters
+// =============================================
+
+export function getBetterNotesUpgradeRate() {
+    return betterNotesUpgradeRate;
+}
+
+export function getAutoNotesUpgradeRate() {
+    return autoNotesUpgradeRate;
+}
+
+export function getBetterNotesMultiplierRate() {
+    return betterNotesMultiplierRate;
+}
+
+export function getAutoNotesMultiplierRate() {
+    return autoNotesMultiplierRate;
+}
+
+export function setBetterNotesUpgradeRate(value) {
+    if (typeof value === 'number' && value >= 0) {
+        betterNotesUpgradeRate = value;
+    }
+}
+
+export function setAutoNotesUpgradeRate(value) {
+    if (typeof value === 'number' && value >= 0) {
+        autoNotesUpgradeRate = value;
+    }
+}
+
+export function setBetterNotesMultiplierRate(value) {
+    if (typeof value === 'number' && value >= 1) {
+        betterNotesMultiplierRate = value;
+    }
+}
+
+export function setAutoNotesMultiplierRate(value) {
+    if (typeof value === 'number' && value >= 1) {
+        autoNotesMultiplierRate = value;
+    }
 }
 
 // =============================================

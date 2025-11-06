@@ -1,6 +1,6 @@
 import { 
-    getScoreIncrementValue, 
-    setScoreIncrementValue,
+    getCoinsIncrementValue as getScoreIncrementValue, 
+    setCoinsIncrementValue as setScoreIncrementValue,
     getBetterClicksMultiplierRate,
     setBetterClicksMultiplierRate,
     getAutoClickerMultiplierRate,

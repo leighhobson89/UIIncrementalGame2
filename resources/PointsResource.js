@@ -1,5 +1,5 @@
 import Resource from './Resource.js';
-import { getScore, setScore } from '../constantsAndGlobalVars.js';
+import { getCoins as getScore, setCoins as setScore } from '../constantsAndGlobalVars.js';
 import { getManualClickRate } from '../game.js';
 
 export class PointsResource extends Resource {

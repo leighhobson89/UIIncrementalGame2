@@ -1,8 +1,8 @@
 import { 
-    getScore, 
-    setScore, 
+    getCoins as getScore, 
+    setCoins as setScore, 
     getLanguage, 
-    getScoreIncrementValue, 
+    getCoinsIncrementValue as getScoreIncrementValue, 
     getBetterClicksMultiplierRate,
     getAutoClickerMultiplierRate
 } from './constantsAndGlobalVars.js';

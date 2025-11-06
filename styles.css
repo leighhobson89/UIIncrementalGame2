@@ -342,11 +342,10 @@ input, textarea, [contenteditable] {
     align-items: center;
 }
 
-.floating-money {
+.floating-bonus {
     position: absolute;
     width: 64px;
     height: 64px;
-    background-image: url('../assets/images/coin.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -357,6 +356,17 @@ input, textarea, [contenteditable] {
     cursor: pointer;
     pointer-events: auto; /* clickable even though parent ignores events */
     z-index: 1001;
+}
+
+.coin-bonus {
+    background-image: url('../assets/images/coin.png');
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.7));
+}
+
+.note-bonus {
+    background-image: url('../assets/images/dollar_banknote.png');
+    filter: drop-shadow(0 0 10px rgba(50, 205, 50, 0.7));
+    transform: rotate(15deg); /* Slight rotation for visual distinction */
 }
 
 .floating-money:hover {

@@ -1,4 +1,4 @@
-import {  
+import {
     getLanguage, 
     setElements, 
     getElements, 
@@ -10,7 +10,7 @@ import {
     setLanguage, 
     getGameActive,
     resetGame,
-    getScore
+    getCoins
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
@@ -24,7 +24,7 @@ import { refreshUpgradeUI } from './upgrades.js';
  * @param {Array} upgrades - Array of upgrade objects with currentCost property
  */
 export function updatePriceColors(upgrades) {
-    const currentScore = getScore();
+    const currentScore = getCoins();
     
     upgrades.forEach(upgrade => {
         if (upgrade.button) {

@@ -7,13 +7,15 @@ import {
     getLanguage, 
     getGameInProgress, 
     gameState,
-    getScore,
-    setScore,
-    getScoreIncrementValue,
+    getCoins,
+    setCoins,
+    getCoinsIncrementValue,
     getClickTimestamps,
     setClickTimestamps,
     getClickRateWindow,
-    setLastClickTime
+    setLastClickTime,
+    getNotes,
+    setNotes
 } from './constantsAndGlobalVars.js';
 import { testNumberFormatter, formatNumber } from './utils/numberFormatter.js'; //call in console
 import { 
@@ -32,9 +34,9 @@ let mainClicker = null;
 // Create a single click handler function
 function createClickHandler() {
     return function(event) {
-        const currentScore = getScore();
-        const increment = getScoreIncrementValue();
-        setScore(currentScore + increment);
+        const current = getCoins();
+        const increment = getCoinsIncrementValue();
+        setCoins(current + increment);
         
         // Track the click and get current click rate
         trackManualClick();
@@ -58,7 +60,7 @@ function createClickHandler() {
         setTimeout(() => fx.remove(), 1200);
 
         // Create multiple coins based on the score increment (max 8 per click)
-        const coinCount = Math.min(8, Math.max(1, Math.floor(getScoreIncrementValue())));
+        const coinCount = Math.min(8, Math.max(1, Math.floor(getCoinsIncrementValue())));
         const coinOverlay = document.getElementById('coinOverlay');
         
         // Floating money now spawns on a timer, not on click
@@ -126,11 +128,27 @@ function cleanupClickHandler() {
 // Expose cleanup for external calls if needed
 window.cleanupClickHandler = cleanupClickHandler;
 
-// Floating money animation with random path
-function createFloatingMoney() {
+// Bonus types
+const BONUS_TYPES = {
+    COIN: 'coin',
+    NOTE: 'note'
+};
+
+// Floating bonus animation with random path
+function createFloatingBonus() {
     const overlay = document.getElementById('bonusOverlay');
-    const money = document.createElement('div');
-    money.className = 'floating-money';
+    const bonus = document.createElement('div');
+    
+    // Determine bonus type (80% coins, 20% notes)
+    const bonusType = Math.random() < 0.2 ? BONUS_TYPES.COIN : BONUS_TYPES.NOTE;
+    const isCoin = bonusType === BONUS_TYPES.COIN;
+    
+    // Set bonus value and class
+    const bonusValue = isCoin 
+        ? Math.floor(3000 + Math.random() * 3001) // 3000-6000 coins
+        : 1 + Math.floor(Math.random() * 3);     // 1-3 notes
+        
+    bonus.className = `floating-bonus ${bonusType}-bonus`;
     
     // Random starting position
     let x = Math.random() * (window.innerWidth - 100) + 50;
@@ -157,39 +175,48 @@ function createFloatingMoney() {
     points.unshift({ x, y, time: 0 });
     
     // Initial position
-    money.style.left = `${x}px`;
-    money.style.top = `${y}px`;
-    money.style.opacity = '1';
+    bonus.style.left = `${x}px`;
+    bonus.style.top = `${y}px`;
+    bonus.style.opacity = '1';
     
     // Add to DOM
-    overlay.appendChild(money);
+    overlay.appendChild(bonus);
     overlay.classList.remove('d-none');
     
     // Click to collect bonus
     let finished = false;
-    money.addEventListener('click', (e) => {
+    bonus.addEventListener('click', (e) => {
         e.stopPropagation();
         if (finished) return;
         finished = true;
-        // Award random points between 3000 and 6000
-        const current = getScore();
-        const bonusPoints = Math.floor(3000 + Math.random() * 3001); // 3000-6000 (inclusive)
-        setScore(current + bonusPoints);
-        console.log(`[bonus] collected: +${bonusPoints} points`);
+        
+        // Award the appropriate resource
+        if (isCoin) {
+            const current = getCoins();
+            setCoins(current + bonusValue);
+            console.log(`[bonus] collected: +${bonusValue} coins`);
+        } else {
+            const currentNotes = getNotes();
+            setNotes(currentNotes + bonusValue);
+            console.log(`[bonus] collected: +${bonusValue} notes`);
+        }
+        
         // Floating text at click point
         const fx = document.createElement('div');
         fx.className = 'bonus-float';
-        fx.textContent = `+${bonusPoints}`;
+        fx.textContent = `+${bonusValue} ${isCoin ? '' : 'Notes'}`;
         fx.style.left = `${e.clientX}px`;
         fx.style.top = `${e.clientY - 10}px`;
         document.body.appendChild(fx);
         setTimeout(() => fx.remove(), 1200);
-        // Optional sound
+        
+        // Play sound
         if (audioManager && !audioManager.muted) {
             audioManager.playFx('buxCollect');
         }
+        
         // Remove element and hide overlay if empty
-        money.remove();
+        bonus.remove();
         if (overlay.children.length === 0) {
             overlay.classList.add('d-none');
         }
@@ -226,9 +253,9 @@ function createFloatingMoney() {
             
             // Apply position with pulsing effect
             const pulseScale = 0.8 + Math.sin(elapsed / 150) * 0.3; // Faster pulsing
-            money.style.transform = `translate(-50%, -50%) scale(${pulseScale})`;
-            money.style.left = `${x}px`;
-            money.style.top = `${y}px`;
+            bonus.style.transform = `translate(-50%, -50%) scale(${pulseScale})`;
+            bonus.style.left = `${x}px`;
+            bonus.style.top = `${y}px`;
             
             // Continue animation
             requestAnimationFrame(animate);
@@ -236,13 +263,13 @@ function createFloatingMoney() {
             // Fade out at the end
             const fadeOutDuration = 300; // ms
             const fadeProgress = Math.min((elapsed - (duration - fadeOutDuration)) / fadeOutDuration, 1);
-            money.style.opacity = `${1 - fadeProgress}`;
+            bonus.style.opacity = `${1 - fadeProgress}`;
             
             if (fadeProgress < 1) {
                 requestAnimationFrame(animate);
             } else {
                 // Clean up
-                money.remove();
+                bonus.remove();
                 if (overlay.children.length === 0) {
                     overlay.classList.add('d-none');
                 }
@@ -252,7 +279,21 @@ function createFloatingMoney() {
     
     // Start animation
     requestAnimationFrame(animate);
+    
+    // Auto-remove after 30 seconds if not collected
+    setTimeout(() => {
+        if (!finished) {
+            finished = true;
+            bonus.remove();
+            if (overlay.children.length === 0) {
+                overlay.classList.add('d-none');
+            }
+        }
+    }, 30000);
 }
+
+// Expose for debugging
+window.createFloatingBonus = createFloatingBonus;
 
 // Game timing
 let lastTime = 0;
@@ -262,12 +303,16 @@ const fixedTimeStep = 1000 / 60; // 60 FPS
 let bonusSpawnRemainingMs = 0;
 let bonusLastLoggedSecond = null;
 function resetBonusSpawnTimer() {
-    const seconds = 60 + Math.random() * 260;
-    //const seconds = 5;
-
+    // For testing: fixed 20 second spawn timer
+    const seconds = 20;
+    
     bonusSpawnRemainingMs = seconds * 1000;
     bonusLastLoggedSecond = Math.ceil(bonusSpawnRemainingMs / 1000);
-    console.log(`[bonus] next spawn in ~${Math.ceil(seconds)}s`);
+    console.log(`[DEBUG] Next bonus spawn in ${seconds} seconds`);
+    
+    // Log the current time for debugging
+    const now = new Date();
+    console.log(`[DEBUG] Current time: ${now.toLocaleTimeString()}`);
 }
 
 //--------------------------------------------------------------------------------------------------------
@@ -311,21 +356,31 @@ export function trackManualClick() {
     
     // Calculate clicks per second (over the last second)
     const recentClicks = updatedTimestamps.filter(ts => now - ts <= 1000);
-    return recentClicks.length * getScoreIncrementValue(); // Return points per second from manual clicks
+    return recentClicks.length * getCoinsIncrementValue(); // Return coins per second from manual clicks
 }
 
 export function getManualClickRate() {
     const now = Date.now();
     // Only count clicks within the last second for current rate
     const recentClicks = getClickTimestamps().filter(ts => now - ts <= 1000);
-    return recentClicks.length * getScoreIncrementValue(); // Points per second from manual clicks
+    return recentClicks.length * getCoinsIncrementValue(); // Coins per second from manual clicks
 }
 
 export function updateScoreDisplay() {
-    const scoreElement = document.getElementById('points');
-    if (scoreElement) {
-        scoreElement.textContent = formatNumber(Math.floor(getScore()), 10000);
+    // Update coins display
+    const coinsElement = document.getElementById('points');
+    if (coinsElement) {
+        coinsElement.textContent = formatNumber(Math.floor(getCoins()), 10000);
     }
+    
+    // Update notes display
+    const notesElement = document.getElementById('notes');
+    if (notesElement) {
+        notesElement.textContent = formatNumber(Math.floor(getNotes()), 10000);
+    }
+    
+    // Log for debugging
+    console.log(`[DEBUG] Coins: ${getCoins()}, Notes: ${getNotes()}`);
 }
 
 export function gameLoop(timestamp) {
@@ -356,7 +411,7 @@ export function gameLoop(timestamp) {
                 //console.log(`[bonus] countdown: ${secLeft}s`);
             }
             if (bonusSpawnRemainingMs <= 0) {
-                createFloatingMoney();
+                createFloatingBonus();
                 resetBonusSpawnTimer();
             }
         }
@@ -425,6 +480,14 @@ export function setGameState(newState) {
         if (elements.gameContainer) {
             elements.gameContainer.classList.remove('d-none');
             elements.gameContainer.classList.add('d-flex');
+            
+            // Ensure the click handler is set up when the game becomes active
+            setupClickHandler();
+            
+            // If this is a fresh game start (not a load), reset the game state
+            if (!getGameInProgress()) {
+                resetGame();
+            }
         }
     }
 }

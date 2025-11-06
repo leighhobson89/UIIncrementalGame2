@@ -15,7 +15,10 @@ import {
     getClickRateWindow,
     setLastClickTime,
     getNotes,
-    setNotes
+    setNotes,
+    getNotesIncrementValue,
+    getNoteClickTimestamps,
+    setNoteClickTimestamps
 } from './constantsAndGlobalVars.js';
 import { testNumberFormatter, formatNumber } from './utils/numberFormatter.js'; //call in console
 import { 
@@ -23,16 +26,20 @@ import {
     betterClicks, 
     autoClicker, 
     betterClicksMultiplier, 
-    autoClickerMultiplier 
+    autoClickerMultiplier,
+    noteAutoClicker,
+    noteAutoClickerMultiplier
 } from './upgrades.js';
 import { audioManager } from './AudioManager.js';
 
-// Module-scoped references for main click handler to avoid duplicate bindings
-let clickHandler = null;
+// Module-scoped references for click handlers to avoid duplicate bindings
+let coinClickHandler = null;
+let noteClickHandler = null;
 let mainClicker = null;
+let noteClicker = null;
 
-// Create a single click handler function
-function createClickHandler() {
+// Create a coin click handler function
+function createCoinClickHandler() {
     return function(event) {
         const current = getCoins();
         const increment = getCoinsIncrementValue();
@@ -62,8 +69,6 @@ function createClickHandler() {
         // Create multiple coins based on the score increment (max 8 per click)
         const coinCount = Math.min(8, Math.max(1, Math.floor(getCoinsIncrementValue())));
         const coinOverlay = document.getElementById('coinOverlay');
-        
-        // Floating money now spawns on a timer, not on click
         
         for (let i = 0; i < coinCount; i++) {
             const coin = document.createElement('img');
@@ -98,35 +103,109 @@ function createClickHandler() {
     };
 }
 
-// Set up the click handler with proper cleanup
-function setupClickHandler() {
-    // Clean up any existing handler first
-    cleanupClickHandler();
-    
-    // Get the clicker element
-    mainClicker = document.getElementById('mainClicker');
-    if (!mainClicker) return;
-    
-    // Create and store the new click handler
-    clickHandler = createClickHandler();
-    
-    // Add the event listener
-    mainClicker.addEventListener('click', clickHandler);
+// Create a note click handler function
+function createNoteClickHandler() {
+    return function(event) {
+        const currentNotes = getNotes();
+        const increment = 1; // Each click gives 1 note
+        setNotes(currentNotes + increment);
+        // Track the note click for current notes/sec
+        trackManualNoteClick();
+        
+        // Play a different sound effect for notes
+        if (audioManager && !audioManager.muted) {
+            audioManager.playFx('buxCollect');
+        }
+        
+        // Add click animation
+        this.classList.add('clicked');
+        setTimeout(() => {
+            this.classList.remove('clicked');
+        }, 100);
+
+        // Show floating +1 text at click position
+        const fx = document.createElement('div');
+        fx.className = 'bonus-float';
+        fx.textContent = `+1 Note`;
+        fx.style.left = `${event.clientX}px`;
+        fx.style.top = `${event.clientY - 10}px`;
+        fx.style.color = '#4caf50'; // Green color for notes
+        document.body.appendChild(fx);
+        setTimeout(() => fx.remove(), 1200);
+
+        // Create a note animation
+        const noteOverlay = document.getElementById('coinOverlay');
+        const note = document.createElement('img');
+        note.src = 'assets/images/dollar_banknote.png';
+        note.className = 'coin-animation';
+        
+        // Position the note at the click location with some randomness
+        const offsetX = (Math.random() - 0.5) * 40;
+        const offsetY = (Math.random() - 0.5) * 40;
+        note.style.left = `${event.clientX + offsetX}px`;
+        note.style.top = `${event.clientY + offsetY}px`;
+        
+        // Randomly choose left or right direction with some variation
+        const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+        note.style.animationName = `coinFly${direction}`;
+        
+        // Randomize animation duration slightly for more natural look
+        const duration = 1 + Math.random() * 0.5; // 1s to 1.5s
+        note.style.animationDuration = `${duration}s`;
+        
+        // Add the note to the overlay
+        noteOverlay.appendChild(note);
+        
+        // Remove the note after animation completes
+        setTimeout(() => {
+            if (note.parentNode === noteOverlay) {
+                noteOverlay.removeChild(note);
+            }
+        }, duration * 1000);
+    };
 }
 
-// Clean up the click handler
-function cleanupClickHandler() {
-    if (mainClicker && clickHandler) {
-        // Remove the event listener
-        mainClicker.removeEventListener('click', clickHandler);
+// Set up the click handlers with proper cleanup
+function setupClickHandler() {
+    // Clean up any existing handlers first
+    cleanupClickHandlers();
+    
+    // Get the clicker elements
+    mainClicker = document.getElementById('mainClicker');
+    noteClicker = document.getElementById('noteClicker');
+    
+    if (!mainClicker || !noteClicker) return;
+    
+    // Create and store the click handlers
+    coinClickHandler = createCoinClickHandler();
+    noteClickHandler = createNoteClickHandler();
+    
+    // Add the event listeners
+    mainClicker.addEventListener('click', coinClickHandler);
+    noteClicker.addEventListener('click', noteClickHandler);
+}
+
+// Clean up the click handlers
+function cleanupClickHandlers() {
+    // Clean up coin clicker
+    if (mainClicker && coinClickHandler) {
+        mainClicker.removeEventListener('click', coinClickHandler);
     }
-    // Clean up references regardless
-    clickHandler = null;
+    
+    // Clean up note clicker
+    if (noteClicker && noteClickHandler) {
+        noteClicker.removeEventListener('click', noteClickHandler);
+    }
+    
+    // Clean up references
+    coinClickHandler = null;
+    noteClickHandler = null;
     mainClicker = null;
+    noteClicker = null;
 }
 
 // Expose cleanup for external calls if needed
-window.cleanupClickHandler = cleanupClickHandler;
+window.cleanupClickHandler = cleanupClickHandlers;
 
 // Bonus types
 const BONUS_TYPES = {
@@ -303,16 +382,16 @@ const fixedTimeStep = 1000 / 60; // 60 FPS
 let bonusSpawnRemainingMs = 0;
 let bonusLastLoggedSecond = null;
 function resetBonusSpawnTimer() {
-    // For testing: fixed 20 second spawn timer
-    const seconds = 20;
+    // Random spawn timer between 80-320 seconds (1.3 to 5.3 minutes)
+    const seconds = 80 + Math.floor(Math.random() * 241);
     
     bonusSpawnRemainingMs = seconds * 1000;
     bonusLastLoggedSecond = Math.ceil(bonusSpawnRemainingMs / 1000);
-    console.log(`[DEBUG] Next bonus spawn in ${seconds} seconds`);
+    //console.log(`[DEBUG] Next bonus spawn in ${seconds} seconds`);
     
     // Log the current time for debugging
     const now = new Date();
-    console.log(`[DEBUG] Current time: ${now.toLocaleTimeString()}`);
+    //console.log(`[DEBUG] Current time: ${now.toLocaleTimeString()}`);
 }
 
 //--------------------------------------------------------------------------------------------------------
@@ -337,6 +416,8 @@ function updateButtonStates() {
     if (betterClicksMultiplier) betterClicksMultiplier.updateButtonState();
     if (autoClicker) autoClicker.updateButtonState();
     if (autoClickerMultiplier) autoClickerMultiplier.updateButtonState();
+    if (noteAutoClicker) noteAutoClicker.updateButtonState();
+    if (noteAutoClickerMultiplier) noteAutoClickerMultiplier.updateButtonState();
 }
 
 export function trackManualClick() {
@@ -366,6 +447,24 @@ export function getManualClickRate() {
     return recentClicks.length * getCoinsIncrementValue(); // Coins per second from manual clicks
 }
 
+// Track a manual note click (timestamps kept in constants)
+export function trackManualNoteClick() {
+    const now = Date.now();
+    const windowMs = getClickRateWindow();
+    const currentTimestamps = getNoteClickTimestamps().filter(ts => now - ts < windowMs);
+    const updatedTimestamps = [...currentTimestamps, now];
+    setNoteClickTimestamps(updatedTimestamps);
+    const recentClicks = updatedTimestamps.filter(ts => now - ts <= 1000);
+    return recentClicks.length * getNotesIncrementValue();
+}
+
+// Current manual note clicks per second
+export function getManualNoteClickRate() {
+    const now = Date.now();
+    const recentClicks = getNoteClickTimestamps().filter(ts => now - ts <= 1000);
+    return recentClicks.length * getNotesIncrementValue();
+}
+
 export function updateScoreDisplay() {
     // Update coins display
     const coinsElement = document.getElementById('points');
@@ -393,8 +492,9 @@ export function gameLoop(timestamp) {
     const deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     
-    // Update autoclicker with delta time
+    // Update autoclickers with delta time
     if (autoClicker) autoClicker.update(deltaTime);
+    if (noteAutoClicker) noteAutoClicker.update(deltaTime);
     
     // Update button states
     updateButtonStates();

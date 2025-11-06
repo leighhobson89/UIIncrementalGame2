@@ -4,12 +4,15 @@ import {
     getBetterClicksMultiplierRate,
     setBetterClicksMultiplierRate,
     getAutoClickerMultiplierRate,
-    setAutoClickerMultiplierRate
+    setAutoClickerMultiplierRate,
+    getAutoNotesMultiplierRate,
+    setAutoNotesMultiplierRate
 } from './constantsAndGlobalVars.js';
 import { updatePriceColors } from './ui.js';
 import AutoClicker from './AutoClicker.js';
 import Upgrade from './Upgrade.js';
 import { coinResource } from './resources/CoinResource.js';
+import { noteResource } from './resources/NoteResource.js';
 
 // Create better clicks upgrade
 export const betterClicks = new Upgrade(
@@ -24,8 +27,24 @@ export const betterClicks = new Upgrade(
     }
 );
 
-// Create auto-clicker instance bound to Points resource
-export const autoClicker = new AutoClicker(coinResource);
+// (moved below with other multiplier declarations)
+
+// Create coin auto-clicker instance
+export const autoClicker = new AutoClicker(coinResource, {
+    id: 'autoClicker',
+    displayName: 'Coin Makers',
+    nameKey: 'autoClicker',
+    descriptionKey: 'autoClickerDesc',
+});
+
+// Create note auto-clicker instance
+export const noteAutoClicker = new AutoClicker(noteResource, {
+    id: 'noteAutoClicker',
+    displayName: 'Note Makers',
+    nameKey: 'noteAutoClicker',
+    descriptionKey: 'noteAutoClickerDesc',
+    multiplierGetter: getAutoNotesMultiplierRate,
+});
 
 // Create auto-clicker multiplier upgrade
 export const autoClickerMultiplier = new Upgrade(
@@ -38,6 +57,20 @@ export const autoClickerMultiplier = new Upgrade(
         setAutoClickerMultiplierRate(currentRate + 1);
         // After changing multiplier, refresh autoclicker button state using its custom logic
         try { autoClicker.updateButtonState(); } catch {}
+    }
+);
+
+// Create note auto-clicker multiplier upgrade
+export const noteAutoClickerMultiplier = new Upgrade(
+    'noteAutoClickerMultiplier',
+    150,    // base cost
+    1.2,    // cost multiplier
+    'Note Maker Machine',
+    () => {
+        const currentRate = getAutoNotesMultiplierRate();
+        setAutoNotesMultiplierRate(currentRate + 1);
+        // After changing multiplier, refresh note autoclicker button state
+        try { noteAutoClicker.updateButtonState(); } catch {}
     }
 );
 
@@ -56,7 +89,7 @@ export const betterClicksMultiplier = new Upgrade(
 // Function to update price colors for all upgrades
 function updateAllPriceColors() {
     // Exclude autoClicker because its affordability uses batch cost logic
-    updatePriceColors([betterClicks, betterClicksMultiplier, autoClickerMultiplier]);
+    updatePriceColors([betterClicks, betterClicksMultiplier, autoClickerMultiplier, noteAutoClickerMultiplier]);
 }
 
 // Override the updateButtonState method to include price color updates
@@ -70,11 +103,13 @@ Upgrade.prototype.updateButtonState = function() {
 if (typeof window !== 'undefined') {
     window.betterClicks = betterClicks;
     window.autoClicker = autoClicker;
+    window.noteAutoClicker = noteAutoClicker;
 }
 
 // Function to update all autoclicker timers (called from game loop)
 export function updateAutoclickers(deltaTime) {
     autoClicker.update(deltaTime);
+    noteAutoClicker.update(deltaTime);
 }
 
 // Export a function to get current CPS (Coins Per Second)
@@ -89,6 +124,8 @@ export function refreshUpgradeUI() {
         betterClicksMultiplier.updateButtonState();
         autoClicker.updateButtonState();
         autoClickerMultiplier.updateButtonState();
+        noteAutoClicker.updateButtonState();
+        noteAutoClickerMultiplier.updateButtonState();
     } catch (e) {
         console.warn('refreshUpgradeUI: could not update all upgrades', e);
     }
@@ -100,5 +137,7 @@ export function initUpgrades() {
     betterClicksMultiplier.init();
     autoClicker.init();
     autoClickerMultiplier.init();
+    noteAutoClicker.init();
+    noteAutoClickerMultiplier.init();
     updateAllPriceColors(); // Initial price color update
 }

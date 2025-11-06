@@ -4,7 +4,8 @@ import {
     getLanguage, 
     getCoinsIncrementValue as getScoreIncrementValue, 
     getBetterClicksMultiplierRate,
-    getAutoClickerMultiplierRate
+    getAutoClickerMultiplierRate,
+    getAutoNotesMultiplierRate
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
 import { updateScoreDisplay } from './game.js';
@@ -86,6 +87,9 @@ export default class Upgrade {
         } else if (this.id === 'autoClickerMultiplier') {
             value = getAutoClickerMultiplierRate();
             nameKey = 'autoClickerMultiplier';
+        } else if (this.id === 'noteAutoClickerMultiplier') {
+            value = getAutoNotesMultiplierRate();
+            nameKey = 'noteAutoClickerMultiplier';
         } else if (this.id === 'autoClicker') {
             value = 1; // Auto-clicker value is handled in its own class
         }
@@ -100,6 +104,9 @@ export default class Upgrade {
         } else if (this.id === 'autoClickerMultiplier') {
             const multiplier = getAutoClickerMultiplierRate();
             description = localize(`${nameKey}Desc`, getLanguage(), multiplier);
+        } else if (this.id === 'noteAutoClickerMultiplier') {
+            const multiplier = getAutoNotesMultiplierRate();
+            description = localize(`${nameKey}Desc`, getLanguage(), multiplier);
         } else {
             description = localize(`${nameKey}Desc`, getLanguage(), value);
         }
@@ -112,7 +119,7 @@ export default class Upgrade {
         if (this.id === 'betterClicks') {
             const multiplier = getBetterClicksMultiplierRate();
             this.button.textContent = `+ ${multiplier}`;
-        } else if (this.id === 'betterClicksMultiplier' || this.id === 'autoClickerMultiplier') {
+        } else if (this.id === 'betterClicksMultiplier' || this.id === 'autoClickerMultiplier' || this.id === 'noteAutoClickerMultiplier') {
             this.button.textContent = `× ${value}`;
         } else {
             this.button.textContent = `${name} (${countText})`;

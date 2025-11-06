@@ -12,17 +12,21 @@ import { audioManager } from './AudioManager.js';
  * Auto-clicker implementation with delta time
  */
 export default class AutoClicker {
-    constructor(resource) {
-        this.id = 'autoClicker';
-        this.baseCost = 15;
-        this.costMultiplier = 1.13;
-        this.description = 'Coin Makers';
+    constructor(resource, options = {}) {
+        this.id = options.id || 'autoClicker';
+        this.baseCost = options.baseCost ?? 15;
+        this.costMultiplier = options.costMultiplier ?? 1.13;
+        this.displayName = options.displayName || null; // Overrides localized name
+        this.description = options.description || 'Coin Makers';
+        this.nameKey = options.nameKey || 'autoClicker';
+        this.descriptionKey = options.descriptionKey || 'autoClickerDesc';
         this.count = 0;
         this.currentCost = this.baseCost;
         this.purchasesMade = 0; // advances cost progression once per purchase click
         this.initialized = false;
         this.button = null;
         this.resource = resource; // Resource this autoclicker generates
+        this.multiplierGetter = options.multiplierGetter || getAutoClickerMultiplierRate;
         
         // Delta time tracking
         this.accumulatedTime = 0;
@@ -73,8 +77,7 @@ export default class AutoClicker {
         const deltaSeconds = deltaTime / 1000;
         this.accumulatedTime += deltaSeconds;
         
-        // Calculate coins per second based on count
-        // Each auto-clicker generates baseRate coins per second
+        // Calculate generated amount per second based on count
         const coinsPerSecond = this.baseRate * this.count;
         
         // Determine maximum time between updates
@@ -92,7 +95,7 @@ export default class AutoClicker {
             // The multiplier is only applied at purchase time, not here
             const coinsThisFrame = coinsPerSecond * maxFrameTime;
             
-            // Update coins
+            // Update resource
             if (coinsThisFrame > 0) {
                 // Add to resource
                 this.resource.add(coinsThisFrame);
@@ -137,7 +140,8 @@ export default class AutoClicker {
             if (this.coinsPerSecond > 0 && additionalRate > 0) {
                 const formattedAuto = formatNumber(this.coinsPerSecond);
                 const formattedAdditional = formatNumber(additionalRate);
-                cpsElement.title = `${formattedAuto} from Coin Makers + ${formattedAdditional} from clicks`;
+                const fromAuto = this.displayName || localize(this.nameKey, getLanguage());
+                cpsElement.title = `${formattedAuto} from ${fromAuto} + ${formattedAdditional} from clicks`;
             } else {
                 cpsElement.title = '';
             }
@@ -158,7 +162,7 @@ export default class AutoClicker {
     }
 
     updateCachedValues() {
-        this.currentMultiplier = getAutoClickerMultiplierRate();
+        this.currentMultiplier = Math.max(1, this.multiplierGetter());
         this.cachedBaseCoins = this.count * this.baseRate;
         // Total CPS is just base coins, as multiplier only affects new purchases
         this.cachedTotalCPS = this.cachedBaseCoins;
@@ -166,7 +170,7 @@ export default class AutoClicker {
     
     purchase() {
         const currentScore = this.resource.get();
-        const multiplier = Math.max(1, getAutoClickerMultiplierRate());
+        const multiplier = Math.max(1, this.multiplierGetter());
         const purchaseCost = this.calculatePurchaseCost(multiplier);
         
         if (currentScore >= purchaseCost) {
@@ -181,6 +185,8 @@ export default class AutoClicker {
             
             console.log(`Auto-clicker purchased! Added ${multiplier} auto-clickers. New total: ${this.count}`);
             this.updateCachedValues();
+            // Immediately refresh CPS display (important for notes/sec UI)
+            this.updateCPSDisplay();
             
             // Play upgrade sound on successful purchase
             if (audioManager && !audioManager.muted) {
@@ -201,24 +207,28 @@ export default class AutoClicker {
     updateButtonState() {
         if (!this.button) return;
         
-        const multiplier = Math.max(1, getAutoClickerMultiplierRate());
+        const multiplier = Math.max(1, this.multiplierGetter());
         const purchaseCost = this.calculatePurchaseCost(multiplier);
         const canAfford = this.resource.get() >= purchaseCost;
         
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
         
-        // Get localized name and description
-        const name = localize('autoClicker', getLanguage());
+        // Get name (prefer explicit displayName, else localization)
+        const name = this.displayName || localize(this.nameKey, getLanguage());
         
-        // Get localized description
+        // Build description. Prefer localization when available, otherwise simple fallback.
         const totalCpsInt = Math.round(this.cachedTotalCPS);
         const baseCoinsInt = Math.round(this.count * this.baseRate);
-        const description = localize('autoClickerDesc', getLanguage(), 
-            totalCpsInt,          // {0} - Total coins per second (integer)
-            baseCoinsInt,        // {1} - Base coins (integer)
-            multiplier            // {2} - Current purchase multiplier
-        );
+        let description;
+        try {
+            description = localize(this.descriptionKey, getLanguage(), totalCpsInt, baseCoinsInt, multiplier);
+        } catch {
+            // Fallback description if no localization exists
+            const unit = this.resource?.id === 'notes' ? 'note' : 'coin';
+            const unitPlural = unit + 's';
+            description = `Generates ${totalCpsInt} ${totalCpsInt === 1 ? unit : unitPlural} per second (${baseCoinsInt} base)`;
+        }
         
         // Format numbers
         const countText = formatNumber(this.count);

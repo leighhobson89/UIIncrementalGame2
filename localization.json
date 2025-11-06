@@ -42,7 +42,11 @@
     "headerStringLoad": "Paste String Below and click Load:",
     "textAreaLabel": "Paste Save String Here...",
     "notes": "Notes:",
-    "notesPerSecond": "Notes/Sec"
+    "notesPerSecond": "Notes/Sec",
+    "noteAutoClicker": "Note Makers",
+    "noteAutoClickerDesc": "Generates {0} notes per second",
+    "noteAutoClickerMultiplier": "Note Printer Machine",
+    "noteAutoClickerMultiplierDesc": "Machines for Auto Note Printing"
   },
   "es": {
     "gameTitle": "Wealth Inc.",

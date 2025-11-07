@@ -102,6 +102,9 @@ if (typeof window !== 'undefined') {
     window.betterClicks = betterClicks;
     window.autoClicker = autoClicker;
     window.noteAutoClicker = noteAutoClicker;
+    window.autoClickerMultiplier = autoClickerMultiplier;
+    window.betterClicksMultiplier = betterClicksMultiplier;
+    window.noteAutoClickerMultiplier = noteAutoClickerMultiplier;
 }
 
 // Function to update all autoclicker timers (called from game loop)

@@ -10,7 +10,8 @@ import {
     setLanguage, 
     getGameActive,
     resetGame,
-    getCoins
+    getCoins,
+    getNotes
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
@@ -42,6 +43,57 @@ export function updatePriceColors(upgrades) {
                     headerElement.classList.toggle('price-unaffordable', !canAfford);
                 }
             }
+        }
+    });
+
+    // Also evaluate visibility thresholds after updating price colors
+    try { updateUpgradeVisibility(); } catch {}
+}
+
+/**
+ * Update upgrade visibility based on affordability
+ */
+export function updateUpgradeVisibility() {
+    const thresholdFactor = 0.9;
+    const coins = getCoins();
+    const notes = getNotes();
+
+    const mappings = [
+        { btnId: 'autoClickerBtn', inst: window.autoClicker, currency: 'coins' },
+        { btnId: 'noteAutoClickerBtn', inst: window.noteAutoClicker, currency: 'notes' },
+        { btnId: 'betterClicksBtn', inst: window.betterClicks, currency: 'coins' },
+        { btnId: 'betterClicksMultiplierBtn', inst: window.betterClicksMultiplier, currency: 'coins' },
+        { btnId: 'autoClickerMultiplierBtn', inst: window.autoClickerMultiplier, currency: 'coins' },
+        { btnId: 'noteAutoClickerMultiplierBtn', inst: window.noteAutoClickerMultiplier, currency: 'notes' },
+    ];
+
+    mappings.forEach(({ btnId, inst, currency }) => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        const item = btn.closest('.upgrade-item');
+        if (!item || item.classList.contains('revealed')) return;
+
+        // Determine effective price (as shown in header)
+        let cost = parseFloat(btn.getAttribute('data-cost')) || Infinity;
+        if (inst && typeof inst.currentCost === 'number') {
+            cost = inst.currentCost;
+            // If it's an AutoClicker instance, use its batch purchase price like the header
+            if (typeof inst.calculatePurchaseCost === 'function') {
+                const getMult = typeof inst.multiplierGetter === 'function' ? inst.multiplierGetter.bind(inst) : null;
+                const mult = Math.max(1, getMult ? getMult() : 1);
+                cost = inst.calculatePurchaseCost(mult);
+            }
+        }
+        if (!isFinite(cost)) return;
+
+        // Choose correct currency balance
+        let balance = currency === 'notes' ? notes : coins;
+
+        if (balance >= thresholdFactor * cost) {
+            item.classList.remove('d-none');
+            item.classList.add('fade-in', 'revealed');
+            // Remove fade-in class after animation completes to avoid re-triggering
+            setTimeout(() => item.classList.remove('fade-in'), 500);
         }
     });
 }
@@ -130,6 +182,14 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Add fade-in animation for revealing upgrades
+const visibilityStyle = document.createElement('style');
+visibilityStyle.textContent = `
+    .fade-in { opacity: 0; animation: fadeIn 400ms ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+`;
+document.head.appendChild(visibilityStyle);
 
 // Create loading screen
 const loadingScreen = document.createElement('div');

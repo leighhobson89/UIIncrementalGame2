@@ -418,6 +418,8 @@ function updateButtonStates() {
     if (autoClickerMultiplier) autoClickerMultiplier.updateButtonState();
     if (noteAutoClicker) noteAutoClicker.updateButtonState();
     if (noteAutoClickerMultiplier) noteAutoClickerMultiplier.updateButtonState();
+    // Trigger progressive reveal check
+    try { if (window.updateUpgradeVisibility) window.updateUpgradeVisibility(); } catch {}
 }
 
 export function trackManualClick() {

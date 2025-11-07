@@ -43,8 +43,10 @@ export function formatNumber(numberToFormat, kThreshold = 1000, mThreshold = 100
         // For numbers between 1 and kThreshold, return as is without decimal
         return sign + Math.round(absNum).toString();
     } else if (absNum > 0) {
-        // For very small numbers, use scientific notation
-        return absNum.toExponential(2);
+        // For numbers between 0 and 1, display as plain decimal up to 3 decimals
+        const dec = absNum.toFixed(3);
+        const trimmed = dec.replace(/\.0+$/,'').replace(/\.(?=0+$)/,'');
+        return sign + (trimmed === '' ? '0' : trimmed);
     } else {
         // Zero
         return '0';

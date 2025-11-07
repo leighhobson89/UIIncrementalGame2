@@ -359,6 +359,22 @@ export function captureGameStatusForSaving() {
         theme: localStorage.getItem('theme') || null,
         soundEnabled: localStorage.getItem('soundEnabled') !== 'false'
     };
+    
+    // Persist UI visibility: parent containers and revealed upgrade items
+    try {
+        const autoContainer = document.querySelector('.autoclickers-container');
+        const upgradesContainer = document.querySelector('.upgrades-container');
+        const revealedItems = Array.from(document.querySelectorAll('.upgrade-item.revealed .upgrade-btn'))
+            .map(btn => btn.id)
+            .filter(Boolean);
+        state.visibility = {
+            parents: {
+                autoclickers: !!(autoContainer && autoContainer.classList.contains('revealed')),
+                upgrades: !!(upgradesContainer && upgradesContainer.classList.contains('revealed')),
+            },
+            items: revealedItems,
+        };
+    } catch {}
     return state;
 }
 export function restoreGameStatus(gameState) {
@@ -423,6 +439,45 @@ export function restoreGameStatus(gameState) {
             if (typeof updateButtonStates === 'function') {
                 setTimeout(updateButtonStates, 0);
             }
+
+            // Restore UI visibility (parents and individual items)
+            try {
+                const vis = gameState.visibility;
+                if (vis && typeof document !== 'undefined') {
+                    // Parent containers
+                    const autoContainer = document.querySelector('.autoclickers-container');
+                    const upgradesContainer = document.querySelector('.upgrades-container');
+                    if (autoContainer) {
+                        if (vis.parents?.autoclickers) {
+                            autoContainer.classList.remove('d-none');
+                            autoContainer.classList.add('revealed');
+                        } else {
+                            autoContainer.classList.add('d-none');
+                            autoContainer.classList.remove('revealed');
+                        }
+                    }
+                    if (upgradesContainer) {
+                        if (vis.parents?.upgrades) {
+                            upgradesContainer.classList.remove('d-none');
+                            upgradesContainer.classList.add('revealed');
+                        } else {
+                            upgradesContainer.classList.add('d-none');
+                            upgradesContainer.classList.remove('revealed');
+                        }
+                    }
+                    // Individual items
+                    if (Array.isArray(vis.items)) {
+                        vis.items.forEach(id => {
+                            const btn = document.getElementById(id);
+                            if (!btn) return;
+                            const item = btn.closest('.upgrade-item');
+                            if (!item) return;
+                            item.classList.remove('d-none');
+                            item.classList.add('revealed');
+                        });
+                    }
+                }
+            } catch {}
 
             resolve();
         } catch (error) {

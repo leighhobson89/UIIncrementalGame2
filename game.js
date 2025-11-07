@@ -37,126 +37,140 @@ let coinClickHandler = null;
 let noteClickHandler = null;
 let mainClicker = null;
 let noteClicker = null;
+// Track manual coin click progress (0..9)
+let coinClickProgress = 0;
+// Track manual note click progress (0..9)
+let noteClickProgress = 0;
 
 // Create a coin click handler function
 function createCoinClickHandler() {
     return function(event) {
-        const current = getCoins();
-        const increment = getCoinsIncrementValue();
-        setCoins(current + increment);
-        
-        // Track the click and get current click rate
+        // Ensure a progress overlay exists
+        let fill = this.querySelector('.progress-fill');
+        if (!fill) {
+            fill = document.createElement('div');
+            fill.className = 'progress-fill';
+            this.appendChild(fill);
+        }
+
+        // Track click for stats (coins/sec reflects 0.1 per click)
         trackManualClick();
-        
+
+        // Add click pulse animation
+        this.classList.add('clicked');
+        setTimeout(() => this.classList.remove('clicked'), 100);
+
+        // Increment progress up to 10
+        coinClickProgress += 1;
+        if (coinClickProgress < 10) {
+            fill.style.height = `${coinClickProgress * 10}%`;
+            return; // No coin awarded yet
+        }
+
+        // On 10th click: award +1 coin and reset progress
+        coinClickProgress = 0;
+        fill.style.height = '0%';
+
+        const current = getCoins();
+        const award = getCoinsIncrementValue();
+        setCoins(current + award);
+
         // Play coin jingle sound
         audioManager.playFx('coinJingle');
-        
-        // Add click animation
-        this.classList.add('clicked');
-        setTimeout(() => {
-            this.classList.remove('clicked');
-        }, 100);
 
-        // Show floating +increment text at click position
+        // Show floating +1 at click position
         const fx = document.createElement('div');
         fx.className = 'bonus-float';
-        fx.textContent = `+${increment}`;
+        fx.textContent = `+${award}`;
         fx.style.left = `${event.clientX}px`;
         fx.style.top = `${event.clientY - 10}px`;
         document.body.appendChild(fx);
         setTimeout(() => fx.remove(), 1200);
 
-        // Create multiple coins based on the score increment (max 8 per click)
-        const coinCount = Math.min(8, Math.max(1, Math.floor(getCoinsIncrementValue())));
+        // Coin animation (single coin on award)
         const coinOverlay = document.getElementById('coinOverlay');
-        
-        for (let i = 0; i < coinCount; i++) {
-            const coin = document.createElement('img');
-            coin.src = 'assets/images/coin.png';
-            coin.className = 'coin-animation';
-            
-            // Position the coin at the click location (relative to viewport)
-            // Add some randomness to the position
-            const offsetX = (Math.random() - 0.5) * 40;
-            const offsetY = (Math.random() - 0.5) * 40;
-            coin.style.left = `${event.clientX + offsetX}px`;
-            coin.style.top = `${event.clientY + offsetY}px`;
-            
-            // Randomly choose left or right direction with some variation
-            const direction = Math.random() > 0.5 ? 'Right' : 'Left';
-            coin.style.animationName = `coinFly${direction}`;
-            
-            // Randomize animation duration slightly for more natural look
-            const duration = 1 + Math.random() * 0.5; // 1s to 1.5s
-            coin.style.animationDuration = `${duration}s`;
-            
-            // Add the coin to the overlay
-            coinOverlay.appendChild(coin);
-            
-            // Remove the coin after animation completes
-            setTimeout(() => {
-                if (coin.parentNode === coinOverlay) {
-                    coinOverlay.removeChild(coin);
-                }
-            }, duration * 1000);
-        }
+        const coin = document.createElement('img');
+        coin.src = 'assets/images/coin.png';
+        coin.className = 'coin-animation';
+        const offsetX = (Math.random() - 0.5) * 40;
+        const offsetY = (Math.random() - 0.5) * 40;
+        coin.style.left = `${event.clientX + offsetX}px`;
+        coin.style.top = `${event.clientY + offsetY}px`;
+        const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+        coin.style.animationName = `coinFly${direction}`;
+        const duration = 1 + Math.random() * 0.5;
+        coin.style.animationDuration = `${duration}s`;
+        coinOverlay.appendChild(coin);
+        setTimeout(() => {
+            if (coin.parentNode === coinOverlay) coinOverlay.removeChild(coin);
+        }, duration * 1000);
     };
 }
 
 // Create a note click handler function
 function createNoteClickHandler() {
     return function(event) {
-        const currentNotes = getNotes();
-        const increment = 1; // Each click gives 1 note
-        setNotes(currentNotes + increment);
-        // Track the note click for current notes/sec
-        trackManualNoteClick();
-        
-        // Play a different sound effect for notes
-        if (audioManager && !audioManager.muted) {
-            audioManager.playFx('buxCollect');
+        // Ensure a progress overlay exists
+        let fill = this.querySelector('.progress-fill');
+        if (!fill) {
+            fill = document.createElement('div');
+            fill.className = 'progress-fill';
+            this.appendChild(fill);
         }
-        
+
+        // Track the note click for stats (0.1 per click)
+        trackManualNoteClick();
+
         // Add click animation
         this.classList.add('clicked');
         setTimeout(() => {
             this.classList.remove('clicked');
         }, 100);
 
-        // Show floating +1 text at click position
+        // Increment progress, fill by 10% per click
+        noteClickProgress += 1;
+        if (noteClickProgress < 10) {
+            fill.style.height = `${noteClickProgress * 10}%`;
+            return; // No note awarded yet
+        }
+
+        // On 10th click: award +1 note and reset progress
+        noteClickProgress = 0;
+        fill.style.height = '0%';
+
+        const currentNotes = getNotes();
+        const noteAward = getNotesIncrementValue();
+        setNotes(currentNotes + noteAward);
+
+        // Play a different sound effect for notes
+        if (audioManager && !audioManager.muted) {
+            audioManager.playFx('buxCollect');
+        }
+
+        // Show floating +1 Note at click position
         const fx = document.createElement('div');
         fx.className = 'bonus-float';
-        fx.textContent = `+1 Note`;
+        fx.textContent = `+${noteAward} Note`;
         fx.style.left = `${event.clientX}px`;
         fx.style.top = `${event.clientY - 10}px`;
         fx.style.color = '#4caf50'; // Green color for notes
         document.body.appendChild(fx);
         setTimeout(() => fx.remove(), 1200);
 
-        // Create a note animation
+        // Create a single note animation on award
         const noteOverlay = document.getElementById('coinOverlay');
         const note = document.createElement('img');
         note.src = 'assets/images/dollar_banknote.png';
         note.className = 'coin-animation';
-        
-        // Position the note at the click location with some randomness
         const offsetX = (Math.random() - 0.5) * 40;
         const offsetY = (Math.random() - 0.5) * 40;
         note.style.left = `${event.clientX + offsetX}px`;
         note.style.top = `${event.clientY + offsetY}px`;
-        
-        // Randomly choose left or right direction with some variation
         const direction = Math.random() > 0.5 ? 'Right' : 'Left';
         note.style.animationName = `coinFly${direction}`;
-        
-        // Randomize animation duration slightly for more natural look
-        const duration = 1 + Math.random() * 0.5; // 1s to 1.5s
+        const duration = 1 + Math.random() * 0.5;
         note.style.animationDuration = `${duration}s`;
-        
-        // Add the note to the overlay
         noteOverlay.appendChild(note);
-        
-        // Remove the note after animation completes
         setTimeout(() => {
             if (note.parentNode === noteOverlay) {
                 noteOverlay.removeChild(note);
@@ -439,14 +453,14 @@ export function trackManualClick() {
     
     // Calculate clicks per second (over the last second)
     const recentClicks = updatedTimestamps.filter(ts => now - ts <= 1000);
-    return recentClicks.length * getCoinsIncrementValue(); // Return coins per second from manual clicks
+    return recentClicks.length * (getCoinsIncrementValue() / 10);
 }
 
 export function getManualClickRate() {
     const now = Date.now();
     // Only count clicks within the last second for current rate
     const recentClicks = getClickTimestamps().filter(ts => now - ts <= 1000);
-    return recentClicks.length * getCoinsIncrementValue(); // Coins per second from manual clicks
+    return recentClicks.length * (getCoinsIncrementValue() / 10);
 }
 
 // Track a manual note click (timestamps kept in constants)
@@ -457,14 +471,14 @@ export function trackManualNoteClick() {
     const updatedTimestamps = [...currentTimestamps, now];
     setNoteClickTimestamps(updatedTimestamps);
     const recentClicks = updatedTimestamps.filter(ts => now - ts <= 1000);
-    return recentClicks.length * getNotesIncrementValue();
+    return recentClicks.length * (getNotesIncrementValue() / 10);
 }
 
 // Current manual note clicks per second
 export function getManualNoteClickRate() {
     const now = Date.now();
     const recentClicks = getNoteClickTimestamps().filter(ts => now - ts <= 1000);
-    return recentClicks.length * getNotesIncrementValue();
+    return recentClicks.length * (getNotesIncrementValue() / 10);
 }
 
 export function updateScoreDisplay() {

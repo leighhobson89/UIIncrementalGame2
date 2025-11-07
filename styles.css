@@ -61,6 +61,8 @@ input, textarea, [contenteditable] {
     --theme-upgrade-hover: rgba(255, 255, 255, 0.1);
     --theme-border: rgba(76, 201, 240, 0.2);
     --theme-shadow: rgba(67, 97, 238, 0.3);
+    /* Contrast overlay for progress fill (default: light overlay) */
+    --theme-contrast: rgba(255, 255, 255, 0.35);
 }
 
 /* Forest Theme */
@@ -76,6 +78,7 @@ input, textarea, [contenteditable] {
     --theme-upgrade-hover: rgba(45, 106, 79, 0.25);
     --theme-border: rgba(116, 198, 157, 0.3);
     --theme-shadow: rgba(27, 67, 50, 0.4);
+    --theme-contrast: rgba(255, 255, 255, 0.30);
 }
 
 /* Beach Theme */
@@ -91,6 +94,7 @@ input, textarea, [contenteditable] {
     --theme-upgrade-hover: rgba(255, 158, 27, 0.2);
     --theme-border: rgba(255, 158, 27, 0.3);
     --theme-shadow: rgba(255, 158, 27, 0.3);
+    --theme-contrast: rgba(255, 255, 255, 0.35);
 }
 
 /* Glacier Theme */
@@ -106,6 +110,8 @@ input, textarea, [contenteditable] {
     --theme-upgrade-hover: rgba(144, 224, 239, 0.5);
     --theme-border: rgba(0, 150, 199, 0.4);
     --theme-shadow: rgba(0, 150, 199, 0.2);
+    /* For light themes, use a darker contrast overlay */
+    --theme-contrast: rgba(0, 0, 0, 0.15);
 }
 
 /* Shadow Theme */
@@ -121,6 +127,7 @@ input, textarea, [contenteditable] {
     --theme-upgrade-hover: rgba(123, 44, 191, 0.2);
     --theme-border: rgba(123, 44, 191, 0.3);
     --theme-shadow: rgba(58, 12, 163, 0.3);
+    --theme-contrast: rgba(255, 255, 255, 0.25);
 }
 
 /* Theme Selector */
@@ -854,6 +861,18 @@ button.disabled {
     justify-content: center;
     position: relative;
     overflow: hidden;
+}
+
+/* Progress overlay inside clicker button (fills from top by --progress height) */
+.clicker-btn .progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: var(--theme-contrast);
+    pointer-events: none;
+    transition: height 120ms ease;
 }
 
 .clicker-btn:hover {

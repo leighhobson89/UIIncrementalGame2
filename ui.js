@@ -90,8 +90,15 @@ export function updateUpgradeVisibility() {
         let balance = currency === 'notes' ? notes : coins;
 
         if (balance >= thresholdFactor * cost) {
+            // Reveal the specific upgrade item permanently
             item.classList.remove('d-none');
             item.classList.add('fade-in', 'revealed');
+            // Reveal the parent container permanently
+            const parentContainer = item.closest('.autoclickers-container, .upgrades-container');
+            if (parentContainer) {
+                parentContainer.classList.remove('d-none');
+                parentContainer.classList.add('revealed');
+            }
             // Remove fade-in class after animation completes to avoid re-triggering
             setTimeout(() => item.classList.remove('fade-in'), 500);
         }

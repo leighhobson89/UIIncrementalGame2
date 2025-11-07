@@ -960,11 +960,24 @@ button.disabled {
 }
 
 /* Purchased non-repeatable upgrade */
+@keyframes fadeOutUpgrade {
+    0%, 80% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
 .upgrade-item.purchased {
     background: rgba(76, 175, 80, 0.15); /* Semi-transparent green */
     border-color: rgba(76, 175, 80, 0.3);
-    opacity: 0.9;
+    opacity: 1;
     position: relative;
+    transition: opacity 1s ease-out 4s, transform 1s ease-out 4s; /* Start after 4 seconds */
+    will-change: opacity, transform;
     padding-right: 50px; /* Make room for the checkmark */
 }
 

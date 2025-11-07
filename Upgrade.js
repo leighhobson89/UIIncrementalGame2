@@ -93,6 +93,16 @@ export default class Upgrade {
                 upgradeContainer.appendChild(checkmark); // Append to container instead of upgrade-info
             }
             
+            // Set up the fade out animation and removal
+            setTimeout(() => {
+                upgradeContainer.style.animation = 'fadeOutUpgrade 1s forwards';
+                
+                // Remove the element after the animation completes
+                upgradeContainer.addEventListener('animationend', function onAnimationEnd() {
+                    upgradeContainer.remove();
+                }, { once: true });
+            }, 4000); // Start fade out after 4 seconds
+            
             // Update header to show "(bought)" instead of price
             const headerElement = upgradeContainer.querySelector('.upgrade-info h4');
             const priceElement = upgradeContainer.querySelector('.upgrade-price');

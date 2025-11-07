@@ -80,7 +80,7 @@ function createCoinClickHandler() {
         // Play coin jingle sound
         audioManager.playFx('coinJingle');
 
-        // Show floating +1 at click position
+        // Show floating +X at click position where X is the award value
         const fx = document.createElement('div');
         fx.className = 'bonus-float';
         fx.textContent = `+${award}`;
@@ -89,23 +89,47 @@ function createCoinClickHandler() {
         document.body.appendChild(fx);
         setTimeout(() => fx.remove(), 1200);
 
-        // Coin animation (single coin on award)
+        // Coin animation (show up to 8 coins based on award value)
         const coinOverlay = document.getElementById('coinOverlay');
-        const coin = document.createElement('img');
-        coin.src = 'assets/images/coin.png';
-        coin.className = 'coin-animation';
-        const offsetX = (Math.random() - 0.5) * 40;
-        const offsetY = (Math.random() - 0.5) * 40;
-        coin.style.left = `${event.clientX + offsetX}px`;
-        coin.style.top = `${event.clientY + offsetY}px`;
-        const direction = Math.random() > 0.5 ? 'Right' : 'Left';
-        coin.style.animationName = `coinFly${direction}`;
-        const duration = 1 + Math.random() * 0.5;
-        coin.style.animationDuration = `${duration}s`;
-        coinOverlay.appendChild(coin);
-        setTimeout(() => {
-            if (coin.parentNode === coinOverlay) coinOverlay.removeChild(coin);
-        }, duration * 1000);
+        const numCoins = Math.min(Math.ceil(award), 8); // Show up to 8 coins max
+        
+        for (let i = 0; i < numCoins; i++) {
+            const coin = document.createElement('img');
+            coin.src = 'assets/images/coin.png';
+            coin.className = 'coin-animation';
+            
+            // Stagger the start time slightly for each coin
+            const delay = i * 50 + Math.random() * 50;
+            coin.style.animationDelay = `${delay}ms`;
+            
+            // Calculate position with more spread for multiple coins
+            const spread = 60 + (numCoins * 5); // Increase spread with more coins
+            const angle = (i / numCoins) * Math.PI * 2;
+            const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
+            const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
+            
+            coin.style.left = `${event.clientX + offsetX}px`;
+            coin.style.top = `${event.clientY + offsetY}px`;
+            
+            const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+            coin.style.animationName = `coinFly${direction}`;
+            
+            const duration = 0.8 + Math.random() * 0.4; // Slightly faster animation
+            coin.style.animationDuration = `${duration}s`;
+            
+            // Random scale between 0.7 and 1.0 for visual variety
+            const scale = 0.7 + Math.random() * 0.3;
+            coin.style.transform = `scale(${scale})`;
+            
+            coinOverlay.appendChild(coin);
+            
+            // Clean up the coin after animation
+            setTimeout(() => {
+                if (coin.parentNode === coinOverlay) {
+                    coinOverlay.removeChild(coin);
+                }
+            }, (duration * 1000) + delay);
+        }
     };
 }
 
@@ -149,35 +173,62 @@ function createNoteClickHandler() {
             audioManager.playFx('buxCollect');
         }
 
-        // Show floating +1 Note at click position
+        // Show floating +X Note at click position
         const fx = document.createElement('div');
         fx.className = 'bonus-float';
-        fx.textContent = `+${noteAward} Note`;
+        fx.textContent = `+${noteAward} Note${noteAward !== 1 ? 's' : ''}`;
         fx.style.left = `${event.clientX}px`;
         fx.style.top = `${event.clientY - 10}px`;
         fx.style.color = '#4caf50'; // Green color for notes
         document.body.appendChild(fx);
         setTimeout(() => fx.remove(), 1200);
 
-        // Create a single note animation on award
+        // Note animation (show up to 8 notes based on award value)
         const noteOverlay = document.getElementById('coinOverlay');
-        const note = document.createElement('img');
-        note.src = 'assets/images/dollar_banknote.png';
-        note.className = 'coin-animation';
-        const offsetX = (Math.random() - 0.5) * 40;
-        const offsetY = (Math.random() - 0.5) * 40;
-        note.style.left = `${event.clientX + offsetX}px`;
-        note.style.top = `${event.clientY + offsetY}px`;
-        const direction = Math.random() > 0.5 ? 'Right' : 'Left';
-        note.style.animationName = `coinFly${direction}`;
-        const duration = 1 + Math.random() * 0.5;
-        note.style.animationDuration = `${duration}s`;
-        noteOverlay.appendChild(note);
-        setTimeout(() => {
-            if (note.parentNode === noteOverlay) {
-                noteOverlay.removeChild(note);
-            }
-        }, duration * 1000);
+        const numNotes = Math.min(Math.ceil(noteAward), 8); // Show up to 8 notes max
+        
+        for (let i = 0; i < numNotes; i++) {
+            const note = document.createElement('img');
+            note.src = 'assets/images/dollar_banknote.png';
+            note.className = 'coin-animation';
+            
+            // Stagger the start time slightly for each note
+            const delay = i * 50 + Math.random() * 50;
+            note.style.animationDelay = `${delay}ms`;
+            
+            // Calculate position with more spread for multiple notes
+            const spread = 80 + (numNotes * 5); // Slightly wider spread for notes
+            const angle = (i / numNotes) * Math.PI * 2;
+            const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
+            const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
+            
+            note.style.left = `${event.clientX + offsetX}px`;
+            note.style.top = `${event.clientY + offsetY}px`;
+            
+            const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+            note.style.animationName = `coinFly${direction}`;
+            
+            const duration = 0.8 + Math.random() * 0.4; // Slightly faster animation
+            note.style.animationDuration = `${duration}s`;
+            
+            // Random rotation and scale for visual variety
+            const rotation = (Math.random() * 60) - 30; // -30 to 30 degrees
+            const scale = 0.8 + Math.random() * 0.4; // 0.8 to 1.2 scale
+            note.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+            
+            // Make notes slightly larger than coins
+            note.style.width = '40px';
+            note.style.height = '40px';
+            
+            noteOverlay.appendChild(note);
+            
+            // Clean up the note after animation
+            setTimeout(() => {
+                if (note.parentNode === noteOverlay) {
+                    noteOverlay.removeChild(note);
+                }
+            }, (duration * 1000) + delay);
+        }
     };
 }
 

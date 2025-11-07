@@ -302,7 +302,7 @@ function createFloatingBonus() {
     });
     
     // Animation loop
-    function animate(currentTime) {
+    function animateFloatingBonus(currentTime) {
         if (finished) return; // Stop animating if collected
         const elapsed = (currentTime - startTime) * speedMultiplier;
         
@@ -337,7 +337,7 @@ function createFloatingBonus() {
             bonus.style.top = `${y}px`;
             
             // Continue animation
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateFloatingBonus);
         } else {
             // Fade out at the end
             const fadeOutDuration = 300; // ms
@@ -345,7 +345,7 @@ function createFloatingBonus() {
             bonus.style.opacity = `${1 - fadeProgress}`;
             
             if (fadeProgress < 1) {
-                requestAnimationFrame(animate);
+                requestAnimationFrame(animateFloatingBonus);
             } else {
                 // Clean up
                 bonus.remove();
@@ -357,7 +357,7 @@ function createFloatingBonus() {
     }
     
     // Start animation
-    requestAnimationFrame(animate);
+    requestAnimationFrame(animateFloatingBonus);
     
     // Auto-remove after 30 seconds if not collected
     setTimeout(() => {

@@ -171,7 +171,8 @@ export default class AutoClicker {
     purchase() {
         const currentScore = this.resource.get();
         const multiplier = Math.max(1, this.multiplierGetter());
-        const purchaseCost = this.calculatePurchaseCost(multiplier);
+        // Price per purchase should not be affected by the machine multiplier
+        const purchaseCost = this.currentCost;
         
         if (currentScore >= purchaseCost) {
             this.resource.set(currentScore - purchaseCost);
@@ -208,7 +209,8 @@ export default class AutoClicker {
         if (!this.button) return;
         
         const multiplier = Math.max(1, this.multiplierGetter());
-        const purchaseCost = this.calculatePurchaseCost(multiplier);
+        // Use per-purchase price for affordance and header display
+        const purchaseCost = this.currentCost;
         const canAfford = this.resource.get() >= purchaseCost;
         
         this.button.disabled = !canAfford;

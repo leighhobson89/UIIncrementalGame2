@@ -959,6 +959,97 @@ button.disabled {
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Purchased non-repeatable upgrade */
+.upgrade-item.purchased {
+    background: rgba(76, 175, 80, 0.15); /* Semi-transparent green */
+    border-color: rgba(76, 175, 80, 0.3);
+    opacity: 0.9;
+    position: relative;
+    padding-right: 50px; /* Make room for the checkmark */
+}
+
+/* Dark theme adjustment for purchased items */
+[data-theme="dark"] .upgrade-item.purchased {
+    background: rgba(0, 128, 0, 0.2); /* Darker green for dark theme */
+    border-color: rgba(0, 200, 0, 0.3);
+}
+
+[data-theme="dark"] .upgrade-item.purchased .upgrade-info h4,
+[data-theme="dark"] .upgrade-item.purchased .upgrade-price {
+    color: #81c784; /* Lighter green for dark theme text */
+}
+
+/* Light theme adjustment for purchased items */
+[data-theme="light"] .upgrade-item.purchased {
+    background: rgba(102, 187, 106, 0.2); /* Lighter green for light theme */
+    border-color: rgba(56, 142, 60, 0.3);
+}
+
+[data-theme="light"] .upgrade-item.purchased .upgrade-info h4,
+[data-theme="light"] .upgrade-item.purchased .upgrade-price {
+    color: #2e7d32; /* Darker green for light theme text */
+}
+
+/* Checkmark for purchased items */
+.purchased-checkmark {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.8rem;
+    color: #4CAF50;
+    font-weight: bold;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+/* Update the header text color for purchased items */
+.upgrade-item.purchased .upgrade-info h4 {
+    color: var(--theme-text); /* Use theme text color for the main text */
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Style for the "bought" text in the header */
+.upgrade-item.purchased .upgrade-info h4 .bought-text {
+    color: var(--theme-purchased-text); /* Use theme variable for consistent theming */
+    font-weight: 500;
+    margin-left: 4px;
+}
+
+/* Define theme-specific colors for purchased text */
+:root {
+    --theme-purchased-text: #2e7d32; /* Default green for light theme */
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] {
+    --theme-purchased-text: #81c784; /* Lighter green for dark theme */
+}
+
+/* Light theme adjustments */
+[data-theme="light"] {
+    --theme-purchased-text: #2e7d32; /* Darker green for light theme */
+}
+
+/* Ensure the header text is visible and properly colored */
+.upgrade-info h4 {
+    color: var(--theme-text);
+    transition: color 0.2s ease;
+}
+
+/* Hover effect for purchased items */
+.upgrade-item.purchased:hover {
+    transform: none;
+    cursor: default;
+}
+
 .upgrade-item:hover {
     background: var(--theme-upgrade-hover);
     transform: translateX(5px);

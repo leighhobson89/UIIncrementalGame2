@@ -28,7 +28,7 @@ import {
     betterClicks, 
     autoClicker, 
     betterClicksMultiplier, 
-    autoClickerMultiplier,
+    coinAutoClickerMultiplier,
     noteAutoClicker,
     noteAutoClickerMultiplier
 } from './upgrades.js';
@@ -234,9 +234,20 @@ function createFloatingBonus() {
     const overlay = document.getElementById('bonusOverlay');
     const bonus = document.createElement('div');
     
-    // Determine bonus type (80% coins, 20% notes)
-    const bonusType = Math.random() < 0.80 ? BONUS_TYPES.COIN : BONUS_TYPES.NOTE;
-    const isCoin = bonusType === BONUS_TYPES.COIN;
+    // Check if upgrades container is visible
+    const upgradesContainer = document.querySelector('.upgrades-container');    
+    // Determine bonus type - if upgrades are not visible yet, force coin bonus
+    let bonusType, isCoin;
+    
+    if (upgradesContainer && !upgradesContainer.classList.contains('d-none')) {
+        // If upgrades are visible, allow note bonuses (20% chance)
+        bonusType = Math.random() < 0.80 ? BONUS_TYPES.COIN : BONUS_TYPES.NOTE;
+        isCoin = bonusType === BONUS_TYPES.COIN;
+    } else {
+        // If upgrades are not visible yet, only allow coin bonuses
+        bonusType = BONUS_TYPES.COIN;
+        isCoin = true;
+    }
     
     // Set bonus value and class
     const bonusValue = isCoin 
@@ -295,13 +306,15 @@ function createFloatingBonus() {
             setNotes(currentNotes + bonusValue);
             console.log(`[bonus] collected: +${bonusValue} notes`);
             
-            // If this is a note bonus and notes aren't printable yet, make them printable
+            // Show the Note Printing Tech upgrade if it exists and notes aren't printable yet
             if (!getNotesPrintable()) {
-                setNotesPrintable(true);
-                // Show the note clicker button
-                const noteClicker = document.getElementById('noteClicker');
-                if (noteClicker) {
-                    noteClicker.classList.remove('d-none');
+                const notePrintingTech = window.notePrintingTech;
+                if (notePrintingTech) {
+                    const upgradeElement = document.querySelector(`.upgrade-item[data-upgrade-id="${notePrintingTech.id}"]`);
+                    if (upgradeElement && upgradeElement.classList.contains('d-none')) {
+                        upgradeElement.classList.remove('d-none');
+                        console.log('[Bonus] Note Printing Tech upgrade shown');
+                    }
                 }
             }
         }
@@ -437,7 +450,7 @@ function updateButtonStates() {
     if (betterClicks) betterClicks.updateButtonState();
     if (betterClicksMultiplier) betterClicksMultiplier.updateButtonState();
     if (autoClicker) autoClicker.updateButtonState();
-    if (autoClickerMultiplier) autoClickerMultiplier.updateButtonState();
+    if (coinAutoClickerMultiplier) coinAutoClickerMultiplier.updateButtonState();
     if (noteAutoClicker) noteAutoClicker.updateButtonState();
     if (noteAutoClickerMultiplier) noteAutoClickerMultiplier.updateButtonState();
     // Trigger progressive reveal check

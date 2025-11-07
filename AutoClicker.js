@@ -20,6 +20,7 @@ export default class AutoClicker {
         this.description = options.description || 'Coin Makers';
         this.nameKey = options.nameKey || 'autoClicker';
         this.descriptionKey = options.descriptionKey || 'autoClickerDesc';
+        this.repeatable = options.repeatable !== undefined ? options.repeatable : true; // Default to true for backward compatibility
         this.count = 0;
         this.currentCost = this.baseCost;
         this.purchasesMade = 0; // advances cost progression once per purchase click
@@ -169,6 +170,11 @@ export default class AutoClicker {
     }
     
     purchase() {
+        // If this is a non-repeatable upgrade that's already been purchased, don't allow another purchase
+        if (!this.repeatable && this.count > 0) {
+            return false;
+        }
+        
         const currentScore = this.resource.get();
         const multiplier = Math.max(1, this.multiplierGetter());
         // Price per purchase should not be affected by the machine multiplier
@@ -180,14 +186,19 @@ export default class AutoClicker {
             // Add the multiplier number of auto-clickers
             this.count += multiplier;
             
-            // Advance cost by a single step regardless of batch size
-            this.purchasesMade += 1;
-            this.currentCost = Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.purchasesMade));
+            // For non-repeatable upgrades, we don't want to increase the cost for future purchases
+            if (this.repeatable) {
+                this.purchasesMade += 1;
+                this.currentCost = Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.purchasesMade));
+            }
             
             console.log(`Auto-clicker purchased! Added ${multiplier} auto-clickers. New total: ${this.count}`);
             this.updateCachedValues();
             // Immediately refresh CPS display (important for notes/sec UI)
             this.updateCPSDisplay();
+            
+            // Update button state to handle non-repeatable case
+            this.updateButtonState();
             
             // Play upgrade sound on successful purchase
             if (audioManager && !audioManager.muted) {

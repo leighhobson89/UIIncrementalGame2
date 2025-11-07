@@ -23,7 +23,13 @@
     "betterClicksMultiplier": "Manual Press Tech",
     "betterClicksMultiplierDesc": "Stronger Manual Press Upgrades",
     "autoClickerMultiplier": "Coin Maker Machine",
-    "autoClickerMultiplierDesc": "Machines for Auto Coin Pressing",
+    "autoClickerMultiplierDesc": "Increases coin production by 1 per second per level",
+    "notePrintingTech": "Note Printing Tech",
+    "notePrintingTechDesc": "Unlocks the ability to manually print notes",
+    "noteAutoClicker": "Note Makers",
+    "noteAutoClickerDesc": "Generates {0} notes per second",
+    "noteAutoClickerMultiplier": "Note Printer Machine",
+    "noteAutoClickerMultiplierDesc": "Machines for Auto Note Printing",
     "buy": "Buy",
     "english": "English",
     "spanish": "Español",
@@ -42,12 +48,11 @@
     "headerStringSave": "Copy This String To A Text File:",
     "headerStringLoad": "Paste String Below and click Load:",
     "textAreaLabel": "Paste Save String Here...",
+    "notePrintingTechBtn": "Note Printing Tech",
+    "notePrintingTechBtnDesc": "Unlocks manual note printing",
     "notes": "Notes:",
     "notesPerSecond": "Notes/Sec",
-    "noteAutoClicker": "Note Makers",
-    "noteAutoClickerDesc": "Generates {0} notes per second",
-    "noteAutoClickerMultiplier": "Note Printer Machine",
-    "noteAutoClickerMultiplierDesc": "Machines for Auto Note Printing"
+    "bought": "Bought"
   },
   "es": {
     "gameTitle": "Wealth Inc.",
@@ -95,8 +100,11 @@
     "headerStringSave": "Copiar esta cadena a un archivo de texto:",
     "headerStringLoad": "Pega la cadena a continuación y haz clic en Cargar:",
     "textAreaLabel": "Pega la cadena de guardado aquí...",
+    "notePrintingTechBtn": "Tecnología de Impresión de Billetes",
+    "notePrintingTechBtnDesc": "Desbloquea la impresión manual de billetes",
     "notes": "Billetes:",
-    "notesPerSecond": "Billetes/Seg"
+    "notesPerSecond": "Billetes/Seg",
+    "bought": "Comprado"
   },
   "de": {
     "gameTitle": "Wealth Inc.",
@@ -144,8 +152,11 @@
     "headerStringSave": "Kopiere diesen String in eine Textdatei:",
     "headerStringLoad": "Fügen Sie den String unten ein und klicken Sie auf Laden:",
     "textAreaLabel": "Fügen Sie den Speicherstring hier ein...",
+    "notePrintingTechBtn": "Banknoten-Drucktechnik",
+    "notePrintingTechBtnDesc": "Aktiviert manuellen Banknotendruck",
     "notes": "Banknoten:",
-    "notesPerSecond": "Banknoten/Sek"
+    "notesPerSecond": "Banknoten/Sek",
+    "bought": "Gekauft"
   },
   "it": {
     "gameTitle": "Wealth Inc.",
@@ -172,10 +183,10 @@
     "betterClicksMultiplierDesc": "Miglioramenti di pressione manuale più potenti",
     "autoClickerMultiplier": "Macchina Produttrice di Monete",
     "autoClickerMultiplierDesc": "Macchine",
-    "noteAutoClicker": "Produttori di Banconote",
-    "noteAutoClickerDesc": "Genera {0} banconote al secondo",
-    "noteAutoClickerMultiplier": "Macchina Stampatrice di Banconote",
-    "noteAutoClickerMultiplierDesc": "Macchine per la stampa automatica di banconote",
+    "noteAutoClicker": "Genera Note",
+    "noteAutoClickerDesc": "Genera {0} note al secondo",
+    "noteAutoClickerMultiplier": "Macchina Stampa Note",
+    "noteAutoClickerMultiplierDesc": "Macchine per la stampa automatica di note",
     "english": "Inglese",
     "spanish": "Spagnolo",
     "german": "Tedesco",
@@ -193,8 +204,11 @@
     "headerStringSave": "Copia questa stringa in un file di testo:",
     "headerStringLoad": "Incolla la stringa qui sotto e clicca Carica:",
     "textAreaLabel": "Incolla la stringa di salvataggio qui...",
+    "notePrintingTechBtn": "Tecnologia di Stampa Banconote",
+    "notePrintingTechBtnDesc": "Sblocca la stampa manuale di banconote",
     "notes": "Banconote:",
-    "notesPerSecond": "Banconote/Sec"
+    "notesPerSecond": "Banconote/Sec",
+    "bought": "Acquistato"
   },
   "fr": {
     "gameTitle": "Wealth Inc.",
@@ -221,10 +235,10 @@
     "betterClicksMultiplierDesc": "Améliorations de pression manuelle plus fortes",
     "autoClickerMultiplier": "Machine à Pièces",
     "autoClickerMultiplierDesc": "Machines pour la fabrication automatique de pièces",
-    "noteAutoClicker": "Fabricants de Billets",
-    "noteAutoClickerDesc": "Génère {0} billets par seconde",
-    "noteAutoClickerMultiplier": "Machine à Billets",
-    "noteAutoClickerMultiplierDesc": "Machines pour l'impression automatique de billets",
+    "noteAutoClicker": "Générateurs de Notes",
+    "noteAutoClickerDesc": "Génère {0} notes par seconde",
+    "noteAutoClickerMultiplier": "Machine à Imprimer les Notes",
+    "noteAutoClickerMultiplierDesc": "Machines pour l'impression automatique de notes",
     "english": "Anglais",
     "spanish": "Espagnol",
     "german": "Allemand",
@@ -242,7 +256,10 @@
     "headerStringSave": "Copiez cette chaîne dans un fichier texte :",
     "headerStringLoad": "Collez la chaîne ci-dessous et cliquez sur Charger :",
     "textAreaLabel": "Collez la chaîne de sauvegarde ici...",
+    "notePrintingTechBtn": "Technologie d'Impression de Billets",
+    "notePrintingTechBtnDesc": "Débloque l'impression manuelle de billets",
     "notes": "Billets:",
-    "notesPerSecond": "Billets/Sec"
+    "notesPerSecond": "Billets/Sec",
+    "bought": "Acheté"
   }     
 }

@@ -13,12 +13,15 @@ import { localize } from './localization.js';
 import { formatNumber } from './utils/numberFormatter.js';
 
 export default class Upgrade {
-    constructor(id, baseCost, costMultiplier, description, onPurchase) {
-        this.id = id;
+    constructor(id, baseCost, costMultiplier, description, onPurchase, repeatable = true, nameKey = null) {
+        // Store the original ID without 'Btn' suffix for data attributes
+        this.id = id.endsWith('Btn') ? id.replace('Btn', '') : id;
         this.baseCost = baseCost;
         this.costMultiplier = costMultiplier;
         this.description = description;
         this.onPurchase = onPurchase;
+        this.repeatable = repeatable;
+        this.nameKey = nameKey || this.id; // Use provided nameKey or fallback to id for upgrades that are non repeatable currently
         this.count = 0;
         this.currentCost = baseCost;
         this.button = null;
@@ -28,9 +31,11 @@ export default class Upgrade {
     init() {
         if (this.initialized) return;
         
-        this.button = document.getElementById(`${this.id}Btn`);
+        // Check if the ID already ends with 'Btn' to avoid duplicating it
+        const buttonId = this.id.endsWith('Btn') ? this.id : `${this.id}Btn`;
+        this.button = document.getElementById(buttonId);
         if (!this.button) {
-            console.error(`Button with ID ${this.id}Btn not found!`);
+            console.error(`Button with ID ${buttonId} not found!`);
             return;
         }
 
@@ -71,6 +76,47 @@ export default class Upgrade {
         if (!this.button) return;
         
         const canAfford = getScore() >= this.currentCost;
+        const isMaxed = !this.repeatable && this.count > 0;
+        const upgradeContainer = this.button.closest('.upgrade-item');
+        
+        if (isMaxed && upgradeContainer) {
+            // For non-repeatable upgrades that have been purchased
+            this.button.style.display = 'none';
+            upgradeContainer.classList.add('purchased');
+            
+            // Add checkmark icon
+            let checkmark = upgradeContainer.querySelector('.purchased-checkmark');
+            if (!checkmark) {
+                checkmark = document.createElement('span');
+                checkmark.className = 'purchased-checkmark';
+                checkmark.textContent = '✓';
+                upgradeContainer.appendChild(checkmark); // Append to container instead of upgrade-info
+            }
+            
+            // Update header to show "(bought)" instead of price
+            const headerElement = upgradeContainer.querySelector('.upgrade-info h4');
+            const priceElement = upgradeContainer.querySelector('.upgrade-price');
+            
+            if (headerElement) {
+                const name = this.displayName || localize(this.nameKey, getLanguage());
+                // Always use the localized name directly to avoid undefined
+                headerElement.innerHTML = `${name} - <span class="bought-text">${localize('bought', getLanguage())}</span>`;
+                headerElement.style.color = ''; // Let CSS handle the color
+            }
+            
+            // Hide the separate price element if it exists
+            if (priceElement) {
+                priceElement.style.display = 'none';
+            }
+            
+            return; // Skip the rest of the function for purchased non-repeatable upgrades
+        } else if (upgradeContainer) {
+            // Reset to default state if not purchased
+            upgradeContainer.classList.remove('purchased');
+            this.button.style.display = '';
+        }
+        
+        // For repeatable upgrades or unpurchased non-repeatable ones
         this.button.disabled = !canAfford;
         this.button.classList.toggle('disabled', !canAfford);
         

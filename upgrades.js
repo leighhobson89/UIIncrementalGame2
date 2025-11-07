@@ -13,30 +13,90 @@ import AutoClicker from './AutoClicker.js';
 import Upgrade from './Upgrade.js';
 import { coinResource } from './resources/CoinResource.js';
 import { noteResource } from './resources/NoteResource.js';
+import { setNotesPrintable } from './constantsAndGlobalVars.js';
 
-// Create better clicks upgrade
 export const betterClicks = new Upgrade(
     'betterClicks',
-    10,     // base cost
-    1.13,   // cost multiplier
+    10,
+    1.2,
     'Better Clicks',
     () => {
         const currentValue = getScoreIncrementValue();
         const increment = getBetterClicksMultiplierRate();
         setScoreIncrementValue(currentValue + increment);
-    }
+    },
+    true,
+    'betterClicks'
 );
 
-// (moved below with other multiplier declarations)
+export const coinAutoClickerMultiplier = new Upgrade(
+    'autoClickerMultiplier',
+    100,
+    1.2,
+    'Coin Maker Machine',
+    () => {
+        const currentRate = getAutoClickerMultiplierRate();
+        setAutoClickerMultiplierRate(currentRate + 1);
+        try { autoClicker.updateButtonState(); } catch {}
+    },
+    true,
+);
 
-// Create coin auto-clicker instance
+export const noteAutoClickerMultiplier = new Upgrade(
+    'noteAutoClickerMultiplier',
+    150,
+    1.2,
+    'Note Maker Machine',
+    () => {
+        const currentRate = getAutoNotesMultiplierRate();
+        setAutoNotesMultiplierRate(currentRate + 1);
+        try { noteAutoClicker.updateButtonState(); } catch {}
+    },
+    true
+);
+
+export const notePrintingTech = new Upgrade(
+    'notePrintingTechBtn', // Match the button ID in HTML
+    0,
+    1,
+    'Manually Print Notes',
+    () => {
+        setNotesPrintable(true);
+        // Show the note clicker button when this upgrade is purchased
+        const noteClicker = document.getElementById('noteClicker');
+        if (noteClicker) {
+            noteClicker.classList.remove('d-none');
+            console.log('[Upgrade] Note clicker button shown');
+        }
+        
+        // Show the note clicker in the UI
+        const noteClickerUI = document.querySelector('.clicker-container #noteClicker');
+        if (noteClickerUI) {
+            noteClickerUI.classList.remove('d-none');
+        }
+    },
+    false,
+    'notePrintingTech'
+);
+
+export const betterClicksMultiplier = new Upgrade(
+    'betterClicksMultiplier',
+    150,
+    1.15,
+    'Better Clicks Multiplier',
+    () => {
+        const currentRate = getBetterClicksMultiplierRate();
+        setBetterClicksMultiplierRate(currentRate + 1);
+    },
+    true
+);
+
 export const autoClicker = new AutoClicker(coinResource, {
     id: 'autoClicker',
     nameKey: 'autoClicker',
     descriptionKey: 'autoClickerDesc',
 });
 
-// Create note auto-clicker instance
 export const noteAutoClicker = new AutoClicker(noteResource, {
     id: 'noteAutoClicker',
     nameKey: 'noteAutoClicker',
@@ -44,87 +104,41 @@ export const noteAutoClicker = new AutoClicker(noteResource, {
     multiplierGetter: getAutoNotesMultiplierRate,
 });
 
-// Create auto-clicker multiplier upgrade
-export const autoClickerMultiplier = new Upgrade(
-    'autoClickerMultiplier',
-    100,    // base cost
-    1.2,    // cost multiplier
-    'Auto-Clicker Multiplier',
-    () => {
-        const currentRate = getAutoClickerMultiplierRate();
-        setAutoClickerMultiplierRate(currentRate + 1);
-        // After changing multiplier, refresh autoclicker button state using its custom logic
-        try { autoClicker.updateButtonState(); } catch {}
-    }
-);
-
-// Create note auto-clicker multiplier upgrade
-export const noteAutoClickerMultiplier = new Upgrade(
-    'noteAutoClickerMultiplier',
-    150,    // base cost
-    1.2,    // cost multiplier
-    'Note Maker Machine',
-    () => {
-        const currentRate = getAutoNotesMultiplierRate();
-        setAutoNotesMultiplierRate(currentRate + 1);
-        // After changing multiplier, refresh note autoclicker button state
-        try { noteAutoClicker.updateButtonState(); } catch {}
-    }
-);
-
-// Create better clicks multiplier upgrade
-export const betterClicksMultiplier = new Upgrade(
-    'betterClicksMultiplier',
-    150,    // base cost
-    1.15,   // cost multiplier
-    'Better Clicks Multiplier',
-    () => {
-        const currentRate = getBetterClicksMultiplierRate();
-        setBetterClicksMultiplierRate(currentRate + 1);
-    }
-);
-
-// Function to update price colors for all upgrades
 function updateAllPriceColors() {
-    // Exclude autoClicker because its affordability uses batch cost logic
-    updatePriceColors([betterClicks, betterClicksMultiplier, autoClickerMultiplier, noteAutoClickerMultiplier]);
+    updatePriceColors([betterClicks, betterClicksMultiplier, coinAutoClickerMultiplier, noteAutoClickerMultiplier, notePrintingTech]);
 }
 
-// Override the updateButtonState method to include price color updates
 const originalUpdateButtonState = Upgrade.prototype.updateButtonState;
 Upgrade.prototype.updateButtonState = function() {
     originalUpdateButtonState.call(this);
     updateAllPriceColors();
 };
 
-// Expose instances globally for reset functionality
 if (typeof window !== 'undefined') {
     window.betterClicks = betterClicks;
     window.autoClicker = autoClicker;
     window.noteAutoClicker = noteAutoClicker;
-    window.autoClickerMultiplier = autoClickerMultiplier;
+    window.coinAutoClickerMultiplier = coinAutoClickerMultiplier;
     window.betterClicksMultiplier = betterClicksMultiplier;
     window.noteAutoClickerMultiplier = noteAutoClickerMultiplier;
+    window.notePrintingTech = notePrintingTech;
 }
 
-// Function to update all autoclicker timers (called from game loop)
 export function updateAutoclickers(deltaTime) {
     autoClicker.update(deltaTime);
     noteAutoClicker.update(deltaTime);
 }
 
-// Export a function to get current CPS (Coins Per Second)
 export function getCoinsPerSecond() {
     return autoClicker.coinsPerSecond;
 }
 
-// Export a function to refresh all upgrade UI texts (useful after language changes)
 export function refreshUpgradeUI() {
     try {
         betterClicks.updateButtonState();
         betterClicksMultiplier.updateButtonState();
         autoClicker.updateButtonState();
-        autoClickerMultiplier.updateButtonState();
+        coinAutoClickerMultiplier.updateButtonState();
         noteAutoClicker.updateButtonState();
         noteAutoClickerMultiplier.updateButtonState();
     } catch (e) {
@@ -132,13 +146,22 @@ export function refreshUpgradeUI() {
     }
 }
 
-// Initialize all upgrades
 export function initUpgrades() {
     betterClicks.init();
     betterClicksMultiplier.init();
     autoClicker.init();
-    autoClickerMultiplier.init();
+    coinAutoClickerMultiplier.init();
     noteAutoClicker.init();
     noteAutoClickerMultiplier.init();
-    updateAllPriceColors(); // Initial price color update
+    
+    // Initialize note printing tech upgrade
+    notePrintingTech.init();
+    
+    // Hide the upgrade by default - it will be shown when a note bonus is collected
+    const upgradeElement = document.querySelector(`.upgrade-item[data-upgrade-id="${notePrintingTech.id}"]`);
+    if (upgradeElement) {
+        upgradeElement.classList.add('d-none');
+    }
+    
+    updateAllPriceColors();
 }

@@ -3,8 +3,8 @@ import {
     setCoins as setScore, 
     getLanguage, 
     getCoinsIncrementValue as getScoreIncrementValue, 
-    getBetterClicksMultiplierRate,
-    getAutoClickerMultiplierRate,
+    getManualCoinPressMultiplierRate,
+    getCoinAutoClickerMultiplierRate,
     getAutoNotesMultiplierRate
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
@@ -138,10 +138,10 @@ export default class Upgrade {
         if (this.id === 'betterClicks') {
             value = getScoreIncrementValue();
         } else if (this.id === 'betterClicksMultiplier') {
-            value = getBetterClicksMultiplierRate();
+            value = getManualCoinPressMultiplierRate();
             nameKey = 'betterClicksMultiplier';
         } else if (this.id === 'autoClickerMultiplier') {
-            value = getAutoClickerMultiplierRate();
+            value = getCoinAutoClickerMultiplierRate();
             nameKey = 'autoClickerMultiplier';
         } else if (this.id === 'noteAutoClickerMultiplier') {
             value = getAutoNotesMultiplierRate();
@@ -155,10 +155,10 @@ export default class Upgrade {
         // For multiplier upgrades, include the current multiplier rate in the description
         let description;
         if (this.id === 'betterClicksMultiplier') {
-            const multiplier = getBetterClicksMultiplierRate();
+            const multiplier = getManualCoinPressMultiplierRate();
             description = localize(`${nameKey}Desc`, getLanguage(), multiplier);
         } else if (this.id === 'autoClickerMultiplier') {
-            const multiplier = getAutoClickerMultiplierRate();
+            const multiplier = getCoinAutoClickerMultiplierRate();
             description = localize(`${nameKey}Desc`, getLanguage(), multiplier);
         } else if (this.id === 'noteAutoClickerMultiplier') {
             const multiplier = getAutoNotesMultiplierRate();
@@ -173,7 +173,7 @@ export default class Upgrade {
         
         // Update button text based on upgrade type
         if (this.id === 'betterClicks') {
-            const multiplier = getBetterClicksMultiplierRate();
+            const multiplier = getManualCoinPressMultiplierRate();
             this.button.textContent = `+ ${multiplier}`;
         } else if (this.id === 'betterClicksMultiplier' || this.id === 'autoClickerMultiplier' || this.id === 'noteAutoClickerMultiplier') {
             this.button.textContent = `× ${value}`;

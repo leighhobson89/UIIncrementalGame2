@@ -1,7 +1,7 @@
 import { 
     getLanguage, 
-    getAutoClickerUpgradeRate,
-    getAutoClickerMultiplierRate
+    getCoinAutoClickerUpgradeRate,
+    getCoinAutoClickerMultiplierRate
 } from './constantsAndGlobalVars.js';
 import { updateScoreDisplay } from './game.js';
 import { localize } from './localization.js';
@@ -27,7 +27,7 @@ export default class AutoClicker {
         this.initialized = false;
         this.button = null;
         this.resource = resource; // Resource this autoclicker generates
-        this.multiplierGetter = options.multiplierGetter || getAutoClickerMultiplierRate;
+        this.multiplierGetter = options.multiplierGetter || getCoinAutoClickerMultiplierRate;
         
         // Delta time tracking
         this.accumulatedTime = 0;

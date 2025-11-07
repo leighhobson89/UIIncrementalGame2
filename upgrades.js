@@ -1,10 +1,10 @@
 import { 
     getCoinsIncrementValue as getScoreIncrementValue, 
     setCoinsIncrementValue as setScoreIncrementValue,
-    getBetterClicksMultiplierRate,
-    setBetterClicksMultiplierRate,
-    getAutoClickerMultiplierRate,
-    setAutoClickerMultiplierRate,
+    getManualCoinPressMultiplierRate,
+    setManualCoinPressMultiplierRate,
+    getCoinAutoClickerMultiplierRate,
+    setCoinAutoClickerMultiplierRate,
     getAutoNotesMultiplierRate,
     setAutoNotesMultiplierRate
 } from './constantsAndGlobalVars.js';
@@ -22,7 +22,7 @@ export const betterClicks = new Upgrade(
     'Better Clicks',
     () => {
         const currentValue = getScoreIncrementValue();
-        const increment = getBetterClicksMultiplierRate();
+        const increment = getManualCoinPressMultiplierRate();
         setScoreIncrementValue(currentValue + increment);
     },
     true,
@@ -35,8 +35,8 @@ export const coinAutoClickerMultiplier = new Upgrade(
     1.2,
     'Coin Maker Machine',
     () => {
-        const currentRate = getAutoClickerMultiplierRate();
-        setAutoClickerMultiplierRate(currentRate + 1);
+        const currentRate = getCoinAutoClickerMultiplierRate();
+        setCoinAutoClickerMultiplierRate(currentRate + 1);
         try { autoClicker.updateButtonState(); } catch {}
     },
     true,
@@ -85,8 +85,8 @@ export const betterClicksMultiplier = new Upgrade(
     1.15,
     'Better Clicks Multiplier',
     () => {
-        const currentRate = getBetterClicksMultiplierRate();
-        setBetterClicksMultiplierRate(currentRate + 1);
+        const currentRate = getManualCoinPressMultiplierRate();
+        setManualCoinPressMultiplierRate(currentRate + 1);
     },
     true
 );

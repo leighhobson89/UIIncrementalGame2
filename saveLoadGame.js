@@ -3,7 +3,7 @@ import {localize} from './localization.js';
 import { handleLanguageChange } from './ui.js';
 import { refreshUpgradeUI, initUpgrades } from './upgrades.js';
 
-export function saveGame(isManualSave) {
+export function saveGame() {
     const gameState = captureGameStatusForSaving();
     const serializedGameState = JSON.stringify(gameState);
     let compressed = LZString.compressToEncodedURIComponent(serializedGameState);
@@ -12,43 +12,18 @@ export function saveGame(isManualSave) {
     });
     const url = URL.createObjectURL(blob);
 
-    if (isManualSave) {
-        document.querySelector('.save-load-header').innerHTML = `${localize('headerStringSave', getLanguage())}`;
-        document.getElementById('copyButtonSavePopup').classList.remove('d-none');
-        document.getElementById('loadStringButton').classList.add('d-none');
-        getElements().saveLoadPopup.classList.remove('d-none');
-        //document.getElementById('overlay').classList.remove('d-none');
+    document.querySelector('.save-load-header').innerHTML = `${localize('headerStringSave', getLanguage())}`;
+    document.getElementById('copyButtonSavePopup').classList.remove('d-none');
+    document.getElementById('loadStringButton').classList.add('d-none');
+    getElements().saveLoadPopup.classList.remove('d-none');
+    //document.getElementById('overlay').classList.remove('d-none');
 
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            getElements().loadSaveGameStringTextArea.value = `${event.target.result}`;
-            getElements().loadSaveGameStringTextArea.readOnly = true;
-        };
-        reader.readAsText(blob);
-    } else {
-        const a = document.createElement('a');
-        // Generate the filename with "AUTO_" prefix for auto save
-        const timestamp = getCurrentTimestamp();
-        const prefix = isManualSave ? "" : "AUTO_";
-        a.href = url;
-        a.download = `${prefix}ChipShopSave_${timestamp}.txt`;
-        a.style.display = 'none';
-
-        document.body.appendChild(a);
-        a.click();
-        URL.revokeObjectURL(url);
-        a.remove();
-    }
-}
-
-
-function getCurrentTimestamp() {
-    const now = new Date();
-    return `${now.getFullYear()}_${padZero(now.getMonth() + 1)}_${padZero(now.getDate())}_${padZero(now.getHours())}_${padZero(now.getMinutes())}_${padZero(now.getSeconds())}`;
-}
-
-function padZero(num) {
-    return num.toString().padStart(2, '0');
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        getElements().loadSaveGameStringTextArea.value = `${event.target.result}`;
+        getElements().loadSaveGameStringTextArea.readOnly = true;
+    };
+    reader.readAsText(blob);
 }
 
 export function copySaveStringToClipBoard() {
@@ -59,7 +34,6 @@ export function copySaveStringToClipBoard() {
     try {
         navigator.clipboard.writeText(textArea.value)
             .then(() => {
-                // No confirmation dialog needed for copy
             })
             .catch(err => {
                 alert(err);
@@ -83,35 +57,17 @@ export function loadGameOption() {
     getElements().loadSaveGameStringTextArea.placeholder = `${localize('textAreaLabel', getLanguage())}`;
 }
 
-export function loadGame(string) {
-    if (!string) {
-        return new Promise((resolve, reject) => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.txt';
-
-            input.addEventListener('change', (event) => {
-                handleFileSelectAndInitialiseLoadedGame(event, false, null)
-                    .then(() => {
-                        resolve();
-                    })
-                    .catch(reject);
-            });
-
-            input.click();
-        });
+export function loadGame() {
+    const textArea = document.getElementById('loadSaveGameStringTextArea');
+    if (textArea) {
+        const string = {
+            target: {
+                result: textArea.value
+            }
+        };
+        return handleFileSelectAndInitialiseLoadedGame(null, true, string);
     } else {
-        const textArea = document.getElementById('loadSaveGameStringTextArea');
-        if (textArea) {
-            const string = {
-                target: {
-                    result: textArea.value
-                }
-            };
-            return handleFileSelectAndInitialiseLoadedGame(null, true, string);
-        } else {
-            return Promise.reject("Text area not found.");
-        }
+        return Promise.reject("Text area not found.");
     }
 }
 

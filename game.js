@@ -10,8 +10,8 @@ import {
     getCoins,
     setCoins,
     getCoinsIncrementValue,
-    getClickTimestamps,
-    setClickTimestamps,
+    getCoinClickTimestamps,
+    setCoinClickTimestamps,
     getClickRateWindow,
     setLastClickTime,
     getNotes,
@@ -513,12 +513,12 @@ export function trackManualClick() {
     const windowMs = getClickRateWindow();
     
     // Get current timestamps and filter out old ones
-    const currentTimestamps = getClickTimestamps()
+    const currentTimestamps = getCoinClickTimestamps()
         .filter(timestamp => now - timestamp < windowMs);
     
     // Add the new click timestamp
     const updatedTimestamps = [...currentTimestamps, now];
-    setClickTimestamps(updatedTimestamps);
+    setCoinClickTimestamps(updatedTimestamps);
     
     // Update the last click time
     setLastClickTime(now);
@@ -531,7 +531,7 @@ export function trackManualClick() {
 export function getManualClickRate() {
     const now = Date.now();
     // Only count clicks within the last second for current rate
-    const recentClicks = getClickTimestamps().filter(ts => now - ts <= 1000);
+    const recentClicks = getCoinClickTimestamps().filter(ts => now - ts <= 1000);
     return recentClicks.length * (getCoinsIncrementValue() / 10);
 }
 

@@ -1,29 +1,22 @@
-import {
-    getLanguage, 
+import { 
     setElements, 
     getElements, 
     setBeginGameStatus, 
     getGameInProgress, 
     setGameInProgress,
     getMenuState, 
-    getLanguageSelected, 
-    setLanguage, 
-    getGameActive,
+    getLanguageSelected,    getGameActive,
     resetGame,
     getCoins,
     getNotes
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
-import { initLocalization, localize, changeLanguage } from './localization.js';
+import { initLocalization, changeLanguage } from './localization.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
 import { initThemes } from './themes.js';
 import { refreshUpgradeUI } from './upgrades.js';
 
-/**
- * Update price colors and button states based on affordability
- * @param {Array} upgrades - Array of upgrade objects with currentCost property
- */
 export function updatePriceColors(upgrades) {
     const currentScore = getCoins();
     
@@ -31,11 +24,9 @@ export function updatePriceColors(upgrades) {
         if (upgrade.button) {
             const canAfford = currentScore >= upgrade.currentCost;
             
-            // Update button disabled state
             upgrade.button.disabled = !canAfford;
             upgrade.button.classList.toggle('disabled', !canAfford);
             
-            // Update price color in header
             const upgradeItem = upgrade.button.closest('.upgrade-item');
             if (upgradeItem) {
                 const headerElement = upgradeItem.querySelector('.upgrade-info h4');
@@ -46,13 +37,9 @@ export function updatePriceColors(upgrades) {
         }
     });
 
-    // Also evaluate visibility thresholds after updating price colors
     try { updateUpgradeVisibility(); } catch {}
 }
 
-/**
- * Update upgrade visibility based on affordability
- */
 export function updateUpgradeVisibility() {
     const thresholdFactor = 0.9;
     const coins = getCoins();
@@ -73,11 +60,9 @@ export function updateUpgradeVisibility() {
         const item = btn.closest('.upgrade-item');
         if (!item || item.classList.contains('revealed')) return;
 
-        // Determine effective price (as shown in header)
         let cost = parseFloat(btn.getAttribute('data-cost')) || Infinity;
         if (inst && typeof inst.currentCost === 'number') {
             cost = inst.currentCost;
-            // If it's an AutoClicker instance, use its batch purchase price like the header
             if (typeof inst.calculatePurchaseCost === 'function') {
                 const getMult = typeof inst.multiplierGetter === 'function' ? inst.multiplierGetter.bind(inst) : null;
                 const mult = Math.max(1, getMult ? getMult() : 1);
@@ -86,129 +71,57 @@ export function updateUpgradeVisibility() {
         }
         if (!isFinite(cost)) return;
 
-        // Choose correct currency balance
         let balance = currency === 'notes' ? notes : coins;
 
         if (balance >= thresholdFactor * cost) {
-            // Reveal the specific upgrade item permanently
             item.classList.remove('d-none');
             item.classList.add('fade-in', 'revealed');
-            // Reveal the parent container permanently
             const parentContainer = item.closest('.autoclickers-container, .upgrades-container');
             if (parentContainer) {
                 parentContainer.classList.remove('d-none');
                 parentContainer.classList.add('revealed');
             }
-            // Remove fade-in class after animation completes to avoid re-triggering
             setTimeout(() => item.classList.remove('fade-in'), 500);
         }
     });
 }
 
-// Sound toggle state
 let isSoundEnabled = localStorage.getItem('soundEnabled') !== 'false';
 const toggleSoundBtn = document.getElementById('toggleSound');
 
-// Toggle sound function
 function toggleSound() {
     isSoundEnabled = !isSoundEnabled;
     audioManager.muted = !isSoundEnabled;
     
-    // Update button icon and class
     const icon = toggleSoundBtn.querySelector('i');
     icon.className = isSoundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
     toggleSoundBtn.classList.toggle('muted', !isSoundEnabled);
     
-    // Save preference to localStorage
     localStorage.setItem('soundEnabled', isSoundEnabled);
     
-    // Play a sound when unmuting to help with autoplay policies
     if (isSoundEnabled) {
         audioManager.playFx('coinJingle').catch(console.error);
     }
 }
 
-// Initialize sound toggle from localStorage
 function initSoundToggle() {
     const savedSoundPref = localStorage.getItem('soundEnabled');
     if (savedSoundPref !== null) {
         isSoundEnabled = savedSoundPref === 'true';
         audioManager.muted = !isSoundEnabled;
         
-        // Update button icon and class based on saved preference
         const icon = toggleSoundBtn.querySelector('i');
         icon.className = isSoundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
         toggleSoundBtn.classList.toggle('muted', !isSoundEnabled);
     } else {
-        // Default to enabled if no preference is saved
         isSoundEnabled = true;
         audioManager.muted = false;
         toggleSoundBtn.classList.remove('muted');
     }
 }
 
-// Add loading screen styles
-const style = document.createElement('style');
-style.textContent = `
-    #loadingScreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: var(--theme-bg, #1a1a1a);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: var(--theme-text, #ffffff);
-        font-size: 1.5rem;
-        z-index: 9999;
-        transition: opacity 0.5s ease;
-    }
-    #loadingScreen h2 {
-        margin-bottom: 1rem;
-        color: var(--theme-accent, #4a90e2);
-    }
-    #loadingScreen p {
-        margin-top: 1rem;
-        font-size: 1rem;
-        opacity: 0.8;
-    }
-    .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        border-top-color: var(--theme-accent, #4a90e2);
-        animation: spin 1s ease-in-out infinite;
-        margin-bottom: 1rem;
-    }
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(style);
+const loadingScreen = document.getElementById('loadingScreen');
 
-// Add fade-in animation for revealing upgrades
-const visibilityStyle = document.createElement('style');
-visibilityStyle.textContent = `
-    .fade-in { opacity: 0; animation: fadeIn 400ms ease forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-`;
-document.head.appendChild(visibilityStyle);
-
-// Create loading screen
-const loadingScreen = document.createElement('div');
-loadingScreen.id = 'loadingScreen';
-loadingScreen.innerHTML = `
-    <div class="loading-spinner"></div>
-    <h2>Loading Game</h2>
-    <p>Preparing your experience...</p>
-`;
-document.body.appendChild(loadingScreen);
-
-// Update loading message
 function updateLoadingMessage(message) {
     const messageEl = loadingScreen.querySelector('p');
     if (messageEl) messageEl.textContent = message;
@@ -216,37 +129,29 @@ function updateLoadingMessage(message) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Initialize elements
         setElements();
         const elements = getElements();
         
-        // Initialize sound toggle
         initSoundToggle();
         toggleSoundBtn.addEventListener('click', toggleSound);
         
-        // Initialize themes
         initThemes();
         
         updateLoadingMessage('Loading game resources...');
         
-        // Initialize localization
         await initLocalization(getLanguageSelected() || 'en');
         
-        // Preload audio
         updateLoadingMessage('Loading audio...');
         const audioResults = await audioManager.preloadAll();
         console.log('Audio preload results:', audioResults);
         
-        // Remove pause button if it exists
         const pauseGameBtn = document.getElementById('pauseGame');
         if (pauseGameBtn && pauseGameBtn.parentNode) {
             pauseGameBtn.parentNode.removeChild(pauseGameBtn);
         }
 
-        // Menu event listeners
         if (elements.newGameMenuButton) {
             elements.newGameMenuButton.addEventListener('click', () => {
-                // Reset the game state before starting
                 resetGame();
                 
                 setBeginGameStatus(true);
@@ -265,12 +170,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-    // Remove pause/resume button if it exists
     if (elements.pauseResumeGameButton && elements.pauseResumeGameButton.parentNode) {
         elements.pauseResumeGameButton.parentNode.removeChild(elements.pauseResumeGameButton);
     }
 
-    // Resume game from menu - go directly to active game
     if (elements.resumeGameMenuButton) {
         elements.resumeGameMenuButton.addEventListener('click', () => {
             setGameState(getGameActive());
@@ -281,7 +184,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Return to menu button (both old and new UI)
     const returnToMenuButtons = [
         elements.returnToMenuButton,
         elements.pauseGame?.closest('.game-controls')?.querySelector('.btn-outline-light')
@@ -293,7 +195,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    // Language buttons
     const languageButtons = {
         'en': elements.btnEnglish,
         'es': elements.btnSpanish,
@@ -302,35 +203,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         'fr': elements.btnFrench
     };
 
-    // Add event listeners for language buttons
     Object.entries(languageButtons).forEach(([lang, button]) => {
         if (button) {
             button.addEventListener('click', () => {
                 changeLanguage(lang);
-                // Re-apply dynamic upgrade texts so placeholders like {0} are replaced
                 refreshUpgradeUI();
                 setGameState(getMenuState());
             });
         }
     });
     
-    // Set active language button
     const currentLang = getLanguageSelected() || 'en';
     if (languageButtons[currentLang]) {
         languageButtons[currentLang].classList.add('active');
     }
 
-    // Save game button
     if (elements.saveGameButton) {
         elements.saveGameButton.addEventListener('click', function () {
             if (elements.overlay) {
                 elements.overlay.classList.remove('d-none');
             }
-            saveGame(true);
+            saveGame();
         });
     }
 
-    // Load game button
     if (elements.loadGameButton) {
         elements.loadGameButton.addEventListener('click', function () {
             if (elements.overlay) {
@@ -340,21 +236,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Load game from string
     if (elements.loadStringButton && elements.loadSaveGameStringTextArea) {
         elements.loadStringButton.addEventListener('click', function () {
-            loadGame(elements.loadSaveGameStringTextArea.value);
+            loadGame();
         });
     }
 
-    // Copy save string to clipboard
     if (elements.copyButtonSavePopup) {
         elements.copyButtonSavePopup.addEventListener('click', function () {
             copySaveStringToClipBoard();
         });
     }
 
-    // Close save/load popup
     if (elements.closeButtonSavePopup && elements.overlay && elements.saveLoadPopup) {
         elements.closeButtonSavePopup.addEventListener('click', function () {
             elements.overlay.classList.add('d-none');
@@ -362,19 +255,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-        // Set initial game state and language
         setGameState(getMenuState());
         handleLanguageChange(getLanguageSelected());
         
-        // Track if game loop is running
         window.gameLoopRunning = false;
         
-        // Hide loading screen with fade out
         setTimeout(() => {
             loadingScreen.style.opacity = '0';
             setTimeout(() => {
                 loadingScreen.remove();
-                // Try to play a sound to unlock audio context (helps with autoplay policies)
                 audioManager.playFx('coinJingle').catch(() => {});
             }, 500);
         }, 500);
@@ -387,23 +276,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-async function setElementsLanguageText() {
-    // Localization text
-    getElements().menuTitle.innerHTML = `<h2>${localize('menuTitle', getLanguage())}</h2>`;
-    getElements().newGameMenuButton.innerHTML = `${localize('newGame', getLanguage())}`;
-    getElements().resumeGameMenuButton.innerHTML = `${localize('resumeGame', getLanguage())}`;
-    getElements().loadGameButton.innerHTML = `${localize('loadGame', getLanguage())}`;
-    getElements().saveGameButton.innerHTML = `${localize('saveGame', getLanguage())}`;
-    getElements().loadStringButton.innerHTML = `${localize('loadButton', getLanguage())}`;
-}
-
 export function handleLanguageChange(languageCode) {
     changeLanguage(languageCode);
-}
-
-async function setupLanguageAndLocalization() {
-    setLanguage(getLanguageSelected());
-    await initLocalization(getLanguage());
 }
 
 export function disableActivateButton(button, action, activeClass) {
@@ -413,9 +287,10 @@ export function disableActivateButton(button, action, activeClass) {
             button.classList.add(activeClass);
             break;
         case 'disable':
-            button.classList.remove(activeClass);
             button.classList.add('disabled');
+            button.classList.remove(activeClass);
             break;
+        default:
+            console.warn('Invalid action for disableActivateButton:', action);
     }
 }
-

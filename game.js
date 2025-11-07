@@ -18,7 +18,9 @@ import {
     setNotes,
     getNotesIncrementValue,
     getNoteClickTimestamps,
-    setNoteClickTimestamps
+    setNoteClickTimestamps,
+    getNotesPrintable,
+    setNotesPrintable
 } from './constantsAndGlobalVars.js';
 import { testNumberFormatter, formatNumber } from './utils/numberFormatter.js'; //call in console
 import { 
@@ -233,7 +235,7 @@ function createFloatingBonus() {
     const bonus = document.createElement('div');
     
     // Determine bonus type (80% coins, 20% notes)
-    const bonusType = Math.random() < 0.2 ? BONUS_TYPES.COIN : BONUS_TYPES.NOTE;
+    const bonusType = Math.random() < 0.80 ? BONUS_TYPES.COIN : BONUS_TYPES.NOTE;
     const isCoin = bonusType === BONUS_TYPES.COIN;
     
     // Set bonus value and class
@@ -292,6 +294,16 @@ function createFloatingBonus() {
             const currentNotes = getNotes();
             setNotes(currentNotes + bonusValue);
             console.log(`[bonus] collected: +${bonusValue} notes`);
+            
+            // If this is a note bonus and notes aren't printable yet, make them printable
+            if (!getNotesPrintable()) {
+                setNotesPrintable(true);
+                // Show the note clicker button
+                const noteClicker = document.getElementById('noteClicker');
+                if (noteClicker) {
+                    noteClicker.classList.remove('d-none');
+                }
+            }
         }
         
         // Floating text at click point
@@ -400,12 +412,8 @@ function resetBonusSpawnTimer() {
     const seconds = 80 + Math.floor(Math.random() * 241);
     
     bonusSpawnRemainingMs = seconds * 1000;
+    //bonusSpawnRemainingMs = 5000; //DEBUG
     bonusLastLoggedSecond = Math.ceil(bonusSpawnRemainingMs / 1000);
-    //console.log(`[DEBUG] Next bonus spawn in ${seconds} seconds`);
-    
-    // Log the current time for debugging
-    const now = new Date();
-    //console.log(`[DEBUG] Current time: ${now.toLocaleTimeString()}`);
 }
 
 //--------------------------------------------------------------------------------------------------------
@@ -514,6 +522,14 @@ export function gameLoop(timestamp) {
     
     // Update button states
     updateButtonStates();
+    
+    // Check if notes are printable and update visibility
+    if (getNotesPrintable()) {
+        const noteClicker = document.getElementById('noteClicker');
+        if (noteClicker && noteClicker.classList.contains('d-none')) {
+            noteClicker.classList.remove('d-none');
+        }
+    }
     
     if (gameState === getGameActive()) {
         // Game logic for active state

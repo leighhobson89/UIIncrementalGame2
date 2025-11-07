@@ -37,6 +37,7 @@ let languageChangedFlag = false;
 let beginGameState = true;
 let gameInProgress = false;
 let autoSaveOn = false;
+let notesPrintable = false;
 
 // =============================================
 // GETTERS
@@ -325,6 +326,7 @@ export function resetAllVariables() {
     autoNotesUpgradeRate = 1;
     betterNotesMultiplierRate = 1;
     autoNotesMultiplierRate = 1;
+    notesPrintable = false;
     
     // Update the score display
     updateScoreDisplay();
@@ -357,7 +359,8 @@ export function captureGameStatusForSaving() {
         },
         // Preferences
         theme: localStorage.getItem('theme') || null,
-        soundEnabled: localStorage.getItem('soundEnabled') !== 'false'
+        soundEnabled: localStorage.getItem('soundEnabled') !== 'false',
+        notesPrintable: getNotesPrintable()
     };
     
     // Persist UI visibility: parent containers and revealed upgrade items
@@ -412,6 +415,9 @@ export function restoreGameStatus(gameState) {
             }
             if (typeof gameState.soundEnabled === 'boolean') {
                 localStorage.setItem('soundEnabled', String(gameState.soundEnabled));
+            }
+            if (typeof gameState.notesPrintable === 'boolean') {
+                setNotesPrintable(gameState.notesPrintable);
             }
 
             // Upgrades (requires instances to exist)
@@ -566,6 +572,14 @@ export function setBetterClicksMultiplierRate(value) {
 
 export function getAutoClickerMultiplierRate() {
     return autoClickerMultiplierRate;
+}
+
+export function getNotesPrintable() {
+    return notesPrintable;
+}
+
+export function setNotesPrintable(value) {
+    notesPrintable = value;
 }
 
 export function setAutoClickerMultiplierRate(value) {

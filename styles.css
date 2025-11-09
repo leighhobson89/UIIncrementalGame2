@@ -1282,3 +1282,59 @@ button.disabled {
     }
 }
 
+/* Notification System */
+.notification-container {
+    position: fixed;
+    bottom: 16px;
+    right: 16px; /* dynamically adjusted per stack in JS */
+    width: 320px;
+    z-index: 1100;
+}
+
+.notification {
+    background: var(--theme-primary, #1a1a2e);
+    color: var(--theme-text, #ffffff);
+    border: 1px solid var(--theme-border, rgba(76, 201, 240, 0.2));
+    box-shadow: 0 6px 18px var(--theme-shadow, rgba(67, 97, 238, 0.3));
+    border-radius: 10px;
+    padding: 12px 12px 12px 14px;
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    transition: opacity 200ms ease, transform 200ms ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.notification .notification-content {
+    flex: 1;
+}
+
+.notification-button {
+    background: var(--theme-button-bg, #4361ee);
+    color: var(--theme-text, #ffffff);
+    border: 1px solid var(--theme-border, rgba(76, 201, 240, 0.2));
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.notification-button:hover {
+    background: var(--theme-button-hover, #3a56d4);
+}
+
+/* Variants */
+.notification-info {
+    border-left: 4px solid var(--theme-accent, #4cc9f0);
+}
+.notification-success {
+    border-left: 4px solid #4caf50;
+}
+.notification-error {
+    border-left: 4px solid #ff6b6b;
+}

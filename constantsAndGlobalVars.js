@@ -188,6 +188,28 @@ export function getNotesPrintable() { return notesPrintable; }
 export function setNotesPrintable(value) { notesPrintable = value; }
 
 // =============================================
+// Save Name Management
+// =============================================
+let currentSaveName = 'My Save';
+
+export function getSaveName() {
+    try {
+        return localStorage.getItem('currentSaveName') || currentSaveName;
+    } catch (e) {
+        return currentSaveName;
+    }
+}
+
+export function setSaveName(name) {
+    currentSaveName = name;
+    try {
+        localStorage.setItem('currentSaveName', name);
+    } catch (e) {
+        // Ignore local storage errors
+    }
+}
+
+// =============================================
 // Bottom functions
 // =============================================
 

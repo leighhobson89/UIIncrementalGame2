@@ -52,7 +52,10 @@
     "notePrintingTechBtnDesc": "Unlocks manual note printing",
     "notes": "Notes:",
     "notesPerSecond": "Notes/Sec",
-    "bought": "Bought"
+    "bought": "Bought",
+    "cloudSaveLoad": "Cloud Save / Load",
+    "manualSave": "Manual Save",
+    "manualLoad": "Manual Load"
   },
   "es": {
     "gameTitle": "Wealth Inc.",
@@ -104,7 +107,10 @@
     "notePrintingTechBtnDesc": "Desbloquea la impresión manual de billetes",
     "notes": "Billetes:",
     "notesPerSecond": "Billetes/Seg",
-    "bought": "Comprado"
+    "bought": "Comprado",
+    "cloudSaveLoad": "Guardar/Cargar en la Nube",
+    "manualSave": "Guardado Manual",
+    "manualLoad": "Carga Manual"
   },
   "de": {
     "gameTitle": "Wealth Inc.",
@@ -156,7 +162,10 @@
     "notePrintingTechBtnDesc": "Aktiviert manuellen Banknotendruck",
     "notes": "Banknoten:",
     "notesPerSecond": "Banknoten/Sek",
-    "bought": "Gekauft"
+    "bought": "Gekauft",
+    "cloudSaveLoad": "Cloud Speichern/Laden",
+    "manualSave": "Manuell Speichern",
+    "manualLoad": "Manuell Laden"
   },
   "it": {
     "gameTitle": "Wealth Inc.",
@@ -208,7 +217,10 @@
     "notePrintingTechBtnDesc": "Sblocca la stampa manuale di banconote",
     "notes": "Banconote:",
     "notesPerSecond": "Banconote/Sec",
-    "bought": "Acquistato"
+    "bought": "Acquistato",
+    "cloudSaveLoad": "Salva/Carica nel Cloud",
+    "manualSave": "Salvataggio Manuale",
+    "manualLoad": "Caricamento Manuale"
   },
   "fr": {
     "gameTitle": "Wealth Inc.",
@@ -260,6 +272,9 @@
     "notePrintingTechBtnDesc": "Débloque l'impression manuelle de billets",
     "notes": "Billets:",
     "notesPerSecond": "Billets/Sec",
-    "bought": "Acheté"
+    "bought": "Acheté",
+    "cloudSaveLoad": "Sauvegarder/Charger dans le Cloud",
+    "manualSave": "Sauvegarde Manuelle",
+    "manualLoad": "Chargement Manuel"
   }     
 }

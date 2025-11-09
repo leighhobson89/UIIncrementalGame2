@@ -7,6 +7,36 @@ const supabaseUrl = 'https://riogcxvtomyjlzkcnujf.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpb2djeHZ0b215amx6a2NudWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwMjY1NDgsImV4cCI6MjA1OTYwMjU0OH0.HH7KXPrcORvl6Wiefupl422gRYxAa_kFCRM2-puUcsQ';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Autosave state
+let autosaveTimeoutId = null;
+const AUTOSAVE_INTERVAL_MS = 120000; // 120 seconds
+
+function scheduleAutosave() {
+    if (autosaveTimeoutId) {
+        clearTimeout(autosaveTimeoutId);
+        autosaveTimeoutId = null;
+    }
+    autosaveTimeoutId = setTimeout(async () => {
+        try {
+            const name = (() => {
+                try { return localStorage.getItem('currentSaveName') || ''; } catch { return ''; }
+            })();
+            if (name) {
+                await saveToCloud();
+            }
+        } catch (e) {
+            // Ignore autosave errors; try again next cycle
+            console.error('Autosave error:', e);
+        } finally {
+            scheduleAutosave();
+        }
+    }, AUTOSAVE_INTERVAL_MS);
+}
+
+function resetAutosaveTimer() {
+    scheduleAutosave();
+}
+
 // Initialize cloud save UI
 export function initCloudSaveUI() {
     // Add cloud save/load buttons to the UI
@@ -69,29 +99,69 @@ function showCloudSaveModal() {
 }
 
 // Save game to cloud
-async function saveToCloud() {
+async function saveToCloud(initialSave = false) {
     const saveName = (typeof getSaveName === 'function' ? getSaveName() : '') || '';
     if (!saveName) {
-        showNotification('Please start a New Game and set a save name first', 'error');
+        console.log('No save name found, skipping cloud save');
         return;
     }
 
     try {
-        // Get game state
-        const gameState = captureGameStatusForSaving();
+        // Get a minimal game state for initial save
+        const gameState = initialSave 
+            ? { version: 2, initialSave: true, timestamp: new Date().toISOString() }
+            : captureGameStatusForSaving();
+            
         const serializedGameState = JSON.stringify(gameState);
         const compressedSaveData = LZString.compressToEncodedURIComponent(serializedGameState);
         
-        // Check if save already exists
+        // For initial save, check if save exists first
+        if (initialSave) {
+            const { data: existingSave, error: fetchError } = await supabase
+                .from('WealthInc_Saves')
+                .select('save_name')
+                .eq('save_name', saveName)
+                .maybeSingle();
+            
+            if (fetchError) throw fetchError;
+            
+            if (existingSave) {
+                // Update existing save
+                const { error } = await supabase
+                    .from('WealthInc_Saves')
+                    .update({ 
+                        data: compressedSaveData,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('save_name', saveName);
+                
+                if (error) throw error;
+                console.log('Initial cloud save updated');
+            } else {
+                // Create new save
+                const { error } = await supabase
+                    .from('WealthInc_Saves')
+                    .insert([{ 
+                        save_name: saveName, 
+                        data: compressedSaveData,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    }]);
+                
+                if (error) throw error;
+                console.log('New initial cloud save created');
+            }
+            return;
+        }
+
+        // Normal save flow
         const { data: existingSave, error: fetchError } = await supabase
             .from('WealthInc_Saves')
             .select('save_name')
             .eq('save_name', saveName)
             .single();
 
-        let result;
         if (existingSave) {
-            // Update existing save
             const { error } = await supabase
                 .from('WealthInc_Saves')
                 .update({ 
@@ -101,9 +171,9 @@ async function saveToCloud() {
                 .eq('save_name', saveName);
             
             if (error) throw error;
+            console.log('Cloud save updated');
             showNotification('Game saved to cloud!', 'success');
         } else {
-            // Create new save
             const { error } = await supabase
                 .from('WealthInc_Saves')
                 .insert([{ 
@@ -114,16 +184,21 @@ async function saveToCloud() {
                 }]);
             
             if (error) throw error;
+            console.log('New cloud save created');
             showNotification('New save created in cloud!', 'success');
         }
 
-        // Update the saves list
-        //loadCloudSaves();
-        setSaveName(saveName);
+        // Reset autosave timer on successful save
+        if (typeof resetAutosaveTimer === 'function') {
+            resetAutosaveTimer();
+        }
         
     } catch (error) {
-        console.error('Error saving to cloud:', error);
-        showNotification('Error saving to cloud', 'error');
+        console.error('Error in saveToCloud:', error);
+        // Don't show error notifications for autosaves to avoid being annoying
+        if (!initialSave) {
+            showNotification('Error saving to cloud', 'error');
+        }
     }
 }
 
@@ -182,4 +257,8 @@ async function loadFromCloud() {
 // Initialize cloud save functionality when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     initCloudSaveUI();
+    scheduleAutosave();
 });
+
+// Expose saveToCloud so other modules can trigger it without importing (avoid circular deps)
+try { window.saveToCloud = saveToCloud; } catch {}

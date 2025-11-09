@@ -212,6 +212,9 @@ function startNewGameFlow() {
         setGameState(getGameActive());
         startGame();
         window.gameLoopRunning = true;
+
+        // Immediately create or update the cloud save for this new game
+        try { if (window.saveToCloud) { window.saveToCloud(true); } } catch (e) { console.error('Error in initial cloud save:', e); }
     };
 
     // Also submit on Enter key

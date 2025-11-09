@@ -1,5 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-import { getElements, setSaveName, getSaveName, captureGameStatusForSaving, restoreGameStatus, getLanguage } from './constantsAndGlobalVars.js';
+import { setSaveName, getSaveName, captureGameStatusForSaving, restoreGameStatus, getLanguage } from './constantsAndGlobalVars.js';
 import { showNotification } from './ui.js';
 import { localize } from './localization.js';
 
@@ -176,44 +176,6 @@ async function loadFromCloud() {
     } catch (error) {
         console.error('Error loading from cloud:', error);
         showNotification('Error loading from cloud', 'error');
-    }
-}
-
-// Add or remove a quick cloud save button in the in-game controls
-function ensureQuickCloudSaveButton() {
-    let enabled = false;
-    try { enabled = (localStorage.getItem('cloudSaveEnabled') === '1'); } catch {}
-    const controls = document.querySelector('.game-header .game-controls');
-    if (!controls) return;
-    let btn = document.getElementById('quickCloudSaveBtn');
-    if (enabled) {
-        if (!btn) {
-            btn = document.createElement('button');
-            btn.id = 'quickCloudSaveBtn';
-            btn.className = 'icon-button';
-            btn.title = 'Quick Cloud Save';
-            btn.setAttribute('aria-label', 'Quick Cloud Save');
-            btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i>';
-            btn.addEventListener('click', () => {
-                // If no name set yet, open the modal to prompt
-                const currentName = getSaveName?.();
-                if (!currentName) {
-                    showCloudSaveModal();
-                    showNotification('Enter a save name first, then save to cloud.', 'info');
-                    return;
-                }
-                // Prefill and trigger save
-                const modal = document.getElementById('cloudSaveModal');
-                if (modal) {
-                    const input = modal.querySelector('#saveName');
-                    if (input) input.value = currentName;
-                }
-                saveToCloud();
-            });
-            controls.appendChild(btn);
-        }
-    } else if (btn) {
-        btn.remove();
     }
 }
 

@@ -1,9 +1,9 @@
 export function initThemes() {
     const defaultTheme = 'ocean';
-    const savedTheme = localStorage.getItem('theme');
+    const savedTheme = localStorage.getItem('themeWealthInc');
     const currentTheme = savedTheme || defaultTheme;
     if (!savedTheme) {
-        localStorage.setItem('theme', currentTheme);
+        localStorage.setItem('themeWealthInc', currentTheme);
     }
     applyTheme(currentTheme);
 
@@ -13,7 +13,7 @@ export function initThemes() {
         select.addEventListener('change', (e) => {
             const theme = e.target.value;
             applyTheme(theme);
-            localStorage.setItem('theme', theme);
+            localStorage.setItem('themeWealthInc', theme);
             themeSelects.forEach(s => s.value = theme);
         });
     });
@@ -33,7 +33,7 @@ function applyTheme(theme) {
 }
 
 export function getCurrentTheme() {
-    return localStorage.getItem('theme') || 'ocean';
+    return localStorage.getItem('themeWealthInc') || 'ocean';
 }
 
 export function getThemeColor(type = 'primary') {

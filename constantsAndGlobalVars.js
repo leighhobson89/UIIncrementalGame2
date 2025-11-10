@@ -27,9 +27,17 @@ let autoNotesMultiplierRate = 1;
 
 let elements;
 let localization = {};
-let language = 'en';
-let languageSelected = 'en';
-let oldLanguage = 'en';
+// Initialize language from localStorage or use browser language as fallback
+const getInitialLanguage = () => {
+    const savedLanguage = localStorage.getItem('languagePreferenceWealthInc');
+    const browserLanguage = navigator.language.split('-')[0];
+    const supportedLanguages = ['en', 'es', 'de', 'it', 'fr'];
+    return savedLanguage || (supportedLanguages.includes(browserLanguage) ? browserLanguage : 'en');
+};
+
+let language = getInitialLanguage();
+let languageSelected = getInitialLanguage();
+let oldLanguage = getInitialLanguage();
 
 // Flags
 let audioMuted = false;
@@ -190,20 +198,20 @@ export function setNotesPrintable(value) { notesPrintable = value; }
 // =============================================
 // Save Name Management
 // =============================================
-let currentSaveName = 'My Save';
+let currentSaveNameWealthInc = 'My Save';
 
 export function getSaveName() {
     try {
-        return localStorage.getItem('currentSaveName') || currentSaveName;
+        return localStorage.getItem('currentSaveNameWealthInc') || currentSaveNameWealthInc;
     } catch (e) {
-        return currentSaveName;
+        return currentSaveNameWealthInc;
     }
 }
 
 export function setSaveName(name) {
-    currentSaveName = name;
+    currentSaveNameWealthInc = name;
     try {
-        localStorage.setItem('currentSaveName', name);
+        localStorage.setItem('currentSaveNameWealthInc', name);
     } catch (e) {
         // Ignore local storage errors
     }

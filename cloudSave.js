@@ -38,7 +38,7 @@ function scheduleAutosave() {
     autosaveTimeoutId = setTimeout(async () => {
         try {
             const name = (() => {
-                try { return localStorage.getItem('currentSaveName') || ''; } catch { return ''; }
+                try { return localStorage.getItem('currentSaveNameWealthInc') || ''; } catch { return ''; }
             })();
             if (name) {
                 await saveToCloud();

@@ -50,6 +50,85 @@
 .fade-in { opacity: 0; animation: fadeIn 400ms ease forwards; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
+/* Modal Styling */
+.modal-content {
+    background-color: var(--theme-secondary, #1a1a2e);
+    color: var(--theme-text, #ffffff);
+    border: 1px solid var(--theme-accent, #4cc9f0);
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+}
+
+.modal-title {
+    color: var(--theme-accent, #4cc9f0);
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+}
+
+.close {
+    color: var(--theme-text, #ffffff);
+    opacity: 0.7;
+    text-shadow: none;
+}
+
+.close:hover {
+    color: var(--theme-accent, #4cc9f0);
+    opacity: 1;
+}
+
+.form-control {
+    background-color: var(--theme-primary, #0f0f1a);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--theme-text, #ffffff);
+}
+
+.form-control:focus {
+    background-color: var(--theme-secondary, #1a1a2e);
+    border-color: var(--theme-accent, #4cc9f0);
+    color: var(--theme-text, #ffffff);
+    box-shadow: 0 0 0 0.2rem rgba(76, 201, 240, 0.25);
+}
+
+.form-text {
+    color: var(--theme-text-muted, #adb5bd);
+}
+
+/* Suggestion row in modals */
+.suggestion-row {
+    background-color: rgba(76, 201, 240, 0.1);
+    border: 1px solid var(--theme-accent, #4cc9f0) !important;
+    color: var(--theme-text, #ffffff);
+    transition: all 0.2s ease;
+}
+
+.suggestion-row:hover {
+    background-color: rgba(76, 201, 240, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-row:active {
+    transform: translateY(0);
+}
+
+.suggestion-row.selected {
+    background-color: rgba(76, 201, 240, 0.3);
+    border-width: 2px !important;
+}
+
 /* Allow text selection in input and textarea */
 input, textarea, [contenteditable] {
     -webkit-user-select: text;

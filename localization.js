@@ -2,7 +2,8 @@ import {
     getLocalization,
     setLanguage,
     setLocalization,
-    setLanguageChangedFlag
+    setLanguageChangedFlag,
+    getLanguageSelected
 } from './constantsAndGlobalVars.js';
 import { getManualCoinPressMultiplierRate, getCoinAutoClickerMultiplierRate } from './constantsAndGlobalVars.js';
 
@@ -49,13 +50,18 @@ export function updateAllElements(language) {
 }
 
 export async function initLocalization(language = 'en') {
+    console.log('initLocalization called with:', language);
     const localization = await fetchLocalization();
+    console.log('Fetched localization data, setting language to:', language);
     setLocalization(localization);
     setLanguage(language);
-    updateAllElements(language);
+    setLanguageChangedFlag(true);
+    console.log('Before updateAllElements, current language:', getLanguageSelected());
+    await updateAllElements(language);
+    console.log('After updateAllElements, current language:', getLanguageSelected());
 }
 
-export function changeLanguage(language) {
+export async function changeLanguage(language) {
     setLanguage(language);
     setLanguageChangedFlag(true);
     updateAllElements(language);

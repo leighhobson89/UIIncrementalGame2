@@ -5,16 +5,19 @@ import {
     getGameInProgress, 
     setGameInProgress,
     getMenuState, 
-    getLanguageSelected,    getGameActive,
+    getLanguageSelected,
+    getGameActive,
     resetGame,
     getCoins,
     getNotes,
     setSaveName,
-    getLanguage
+    getLanguage,
+    setLanguage,
+    setLanguageChangedFlag
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
-import { initLocalization, changeLanguage, localize } from './localization.js';
+import { initLocalization, changeLanguage, localize, updateAllElements } from './localization.js';
 import { checkPlayerNameExists } from './cloudSave.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
 import { initThemes } from './themes.js';
@@ -39,6 +42,25 @@ function getNotificationContainers() { return notificationContainers; }
 function setNotificationContainers(c) { notificationContainers = c; }
 function getClassificationOrder() { return classificationOrder; }
 function setClassificationOrder(o) { classificationOrder = o; }
+
+// Function to generate a unique name by appending a number
+async function generateUniqueName(baseName) {
+    let counter = 1;
+    let newName = `${baseName}${counter}`;
+    
+    // Try up to 100 variations
+    while (counter < 100) {
+        const exists = await checkPlayerNameExists(newName);
+        if (!exists) {
+            return newName;
+        }
+        counter++;
+        newName = `${baseName}${counter}`;
+    }
+    
+    // If we can't find a unique name, return null
+    return null;
+}
 
 export function updatePriceColors(upgrades) {
     const currentScore = getCoins();
@@ -110,7 +132,7 @@ export function updateUpgradeVisibility() {
     });
 }
 
-let isSoundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+let isSoundEnabled = localStorage.getItem('soundEnabledWealthInc') !== 'false';
 const toggleSoundBtn = document.getElementById('toggleSound');
 
 function toggleSound() {
@@ -121,7 +143,7 @@ function toggleSound() {
     icon.className = isSoundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
     toggleSoundBtn.classList.toggle('muted', !isSoundEnabled);
     
-    localStorage.setItem('soundEnabled', isSoundEnabled);
+    localStorage.setItem('soundEnabledWealthInc', isSoundEnabled);
     
     if (isSoundEnabled) {
         audioManager.playFx('coinJingle').catch(console.error);
@@ -129,7 +151,7 @@ function toggleSound() {
 }
 
 function initSoundToggle() {
-    const savedSoundPref = localStorage.getItem('soundEnabled');
+    const savedSoundPref = localStorage.getItem('soundEnabledWealthInc');
     if (savedSoundPref !== null) {
         isSoundEnabled = savedSoundPref === 'true';
         audioManager.muted = !isSoundEnabled;
@@ -162,15 +184,21 @@ function ensurePlayerNameModal() {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">New Game</h5>
+                    <h5 class="modal-title" data-i18n="newGame">New Game</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="playerSaveName">Enter a name for your save</label>
-                        <input type="text" class="form-control" id="playerSaveName" placeholder="My Save" data-i18n="[placeholder]saveNamePlaceholder" />
+                        <label for="playerSaveName" data-i18n="enterSaveName">Enter a name for your save</label>
+                        <input type="text" class="form-control" id="playerSaveName" placeholder="My Save" data-i18n-placeholder="saveNamePlaceholder" />
+                        <div id="suggestionContainer" class="mt-2 d-none">
+                            <div class="suggestion-row d-flex align-items-center p-2 border rounded" style="cursor: pointer;">
+                                <span class="suggestion-text flex-grow-1"></span>
+                                <i class="fas fa-check-circle text-success ml-2"></i>
+                            </div>
+                        </div>
                         <small class="form-text text-muted" data-i18n="saveNameDescription">This name will also be used for Cloud Save / Load.</small>
                     </div>
                 </div>
@@ -180,6 +208,28 @@ function ensurePlayerNameModal() {
                 </div>
             </div>
         </div>`;
+    // Add styles for the suggestion row
+    const style = document.createElement('style');
+    style.textContent = `
+        .suggestion-row {
+            transition: all 0.2s ease;
+            border: 1px solid #28a745 !important;
+        }
+        .suggestion-row:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .suggestion-row:active {
+            transform: translateY(0);
+        }
+        .suggestion-row.selected {
+            background-color: rgba(40, 167, 69, 0.2);
+            border-width: 2px !important;
+        }
+    `;
+    document.head.appendChild(style);
+    
     document.body.appendChild(modal);
     return modal;
 }
@@ -189,20 +239,42 @@ async function startNewGameFlow() {
     // Wire up confirm click each time to avoid duplicates by resetting handler
     const confirmBtn = modal.querySelector('#confirmPlayerNameBtn');
     const input = modal.querySelector('#playerSaveName');
+    const suggestionContainer = modal.querySelector('#suggestionContainer');
     
     // Disable the confirm button while we're checking the name
     const originalButtonText = confirmBtn.innerHTML;
     
-    confirmBtn.onclick = async () => {
-        const name = (input.value || '').trim();
-        if (!name) {
-            try { showNotification(localize('notfcn_nameRequired', getLanguage()) || 'Please enter a name to start a new game', 'error'); } catch {}
-            return;
+    // Hide suggestion when user starts typing
+    input.addEventListener('input', () => {
+        if (suggestionContainer) {
+            suggestionContainer.classList.add('d-none');
         }
-        
+    });
+    
+    // Function to handle the suggestion click
+    const handleSuggestionClick = (suggestedName) => {
+        input.value = suggestedName;
+        const container = modal.querySelector('#suggestionContainer');
+        container.classList.add('d-none');
+        input.focus();
+    };
+
+    // Add click handler for suggestion row
+    const suggestionRow = modal.querySelector('.suggestion-row');
+    if (suggestionRow) {
+        suggestionRow.addEventListener('click', () => {
+            const suggestedName = suggestionRow.querySelector('.suggestion-text').textContent;
+            if (suggestedName) {
+                handleSuggestionClick(suggestedName);
+            }
+        });
+    }
+
+    // Function to handle the actual game start logic
+    async function startGameWithName(name) {
         // Show loading state on button
         confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking name...';
+        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Starting...';
         
         try {
             // Check if the name already exists in the database
@@ -210,15 +282,35 @@ async function startNewGameFlow() {
             
             if (nameExists) {
                 showNotification(localize('notfcn_nameTaken', getLanguage()) || 'This name is already taken. Please choose another name.', 'error');
+                
+                // Generate and show a suggested name
+                const suggestedName = await generateUniqueName(name);
+                const suggestionContainer = modal.querySelector('#suggestionContainer');
+                const suggestionText = modal.querySelector('.suggestion-text');
+                
+                if (suggestedName && suggestionContainer && suggestionText) {
+                    // Use localized string for the suggestion
+                    const useSuggestionText = localize('useSuggestion', getLanguage()) || 'Use "{0}"';
+                    suggestionText.textContent = useSuggestionText.replace('{0}', suggestedName);
+                    suggestionContainer.classList.remove('d-none');
+                    
+                    // Add click handler to the suggestion
+                    suggestionContainer.onclick = () => {
+                        input.value = suggestedName;
+                        suggestionContainer.classList.add('d-none');
+                        input.focus();
+                    };
+                }
+                
                 input.focus();
-                return;
+                return false; // Indicate that we didn't start the game
             }
             
             // If we get here, the name is available
             setSaveName(name);
             $(modal).modal('hide');
-
-            // Proceed with the same logic as before
+            
+            // Start the game logic
             const elements = getElements();
             resetGame();
             setBeginGameStatus(true);
@@ -228,25 +320,60 @@ async function startNewGameFlow() {
             if (elements.resumeGameMenuButton) {
                 disableActivateButton(elements.resumeGameMenuButton, 'active', 'btn-primary');
             }
-            if (elements.saveGameButton) {
-                disableActivateButton(elements.saveGameButton, 'active', 'btn-primary');
-            }
+            
+            // Start the game
             setGameState(getGameActive());
             startGame();
             window.gameLoopRunning = true;
 
             // Immediately create the cloud save for this new game
-            try { if (window.saveToCloud) { window.saveToCloud(true); } } catch (e) { 
-                console.error('Error in initial cloud save:', e); 
+            try { 
+                if (window.saveToCloud) { 
+                    await window.saveToCloud(true); 
+                } 
+            } catch (e) { 
+                console.error('Error in initial cloud save:', e);
+                // Non-critical error, just log it
             }
+            
+            return true; // Indicate successful game start
+            
         } catch (error) {
-            console.error('Error checking player name:', error);
-            showNotification(localize('notfcn_nameCheckError', getLanguage()) || 'Error checking player name. Please try again.', 'error');
+            console.error('Error in new game flow:', error);
+            const errorMessage = error.message.includes('name') 
+                ? localize('notfcn_nameCheckError', getLanguage()) || 'Error checking player name. Please try again.'
+                : 'An error occurred while starting the game. Please try again.';
+                
+            showNotification(errorMessage, 'error');
+            return false;
         } finally {
-            // Restore the button state
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = originalButtonText;
+            // Always reset the button state
+            if (confirmBtn && originalButtonText) {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = originalButtonText;
+            }
+            
+            // Update UI elements if needed
+            const elements = getElements();
+            if (elements.saveGameButton) {
+                disableActivateButton(elements.saveGameButton, 'active', 'btn-primary');
+            }
         }
+    }
+    
+    // Set up the click handler for the confirm button
+    confirmBtn.onclick = async () => {
+        const name = (input.value || '').trim();
+        if (!name) {
+            try { 
+                showNotification(localize('notfcn_nameRequired', getLanguage()) || 'Please enter a name to start a new game', 'error'); 
+            } catch (e) {
+                console.error('Error showing notification:', e);
+            }
+            return;
+        }
+        
+        await startGameWithName(name);
     };
 
     // Also submit on Enter key
@@ -260,31 +387,87 @@ async function startNewGameFlow() {
     setTimeout(() => input.focus(), 200);
 }
 
+// Function to handle language selection and save to localStorage
+function setupLanguageButtons() {
+    const languageMap = {
+        'btnEnglish': 'en',
+        'btnSpanish': 'es',
+        'btnGerman': 'de',
+        'btnItalian': 'it',
+        'btnFrench': 'fr'
+    };
+
+    Object.entries(languageMap).forEach(([buttonId, langCode]) => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.addEventListener('click', () => {
+                localStorage.setItem('languagePreferenceWealthInc', langCode);
+                changeLanguage(langCode);
+            });
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
+        // Initialize core components first
         setElements();
         const elements = getElements();
         
+        // Initialize sound and themes
         initSoundToggle();
         toggleSoundBtn.addEventListener('click', toggleSound);
-        
         initThemes();
         
+        // Show initial loading message
         updateLoadingMessage('Loading game resources...');
         
-        await initLocalization(getLanguageSelected() || 'en');
-        
+        // Load audio first as it might take time
         updateLoadingMessage('Loading audio...');
-        const audioResults = await audioManager.preloadAll();
+        const audioPromise = audioManager.preloadAll();
+        
+        // Setup language buttons
+        setupLanguageButtons();
+        
+        // Get the current language (already initialized from localStorage)
+        const currentLanguage = getLanguageSelected();
+        console.log('Initial language from state:', {
+            currentLanguage,
+            fromLocalStorage: localStorage.getItem('languagePreferenceWealthInc'),
+            browserLanguage: navigator.language
+        });
+        
+        // Initialize localization with the current language
+        updateLoadingMessage('Loading language resources...');
+        await initLocalization(currentLanguage);
+        
+        console.log('After initLocalization, current language:', getLanguageSelected());
+        
+        // Wait for audio to finish loading
+        const audioResults = await audioPromise;
         console.log('Audio preload results:', audioResults);
         
+        // Save the language preference if it wasn't set
+        if (!localStorage.getItem('languagePreferenceWealthInc')) {
+            localStorage.setItem('languagePreferenceWealthInc', currentLanguage);
+        }
+        
+        updateLoadingMessage('Finalizing setup...');
+        
+        // Clean up any unwanted elements
         const pauseGameBtn = document.getElementById('pauseGame');
-        if (pauseGameBtn && pauseGameBtn.parentNode) {
+        if (pauseGameBtn?.parentNode) {
             pauseGameBtn.parentNode.removeChild(pauseGameBtn);
         }
 
         if (elements.newGameMenuButton) {
-            elements.newGameMenuButton.addEventListener('click', startNewGameFlow);
+            elements.newGameMenuButton.addEventListener('click', () => {
+                // Ensure we're using the current language from localStorage
+                const currentLanguage = localStorage.getItem('languagePreferenceWealthInc') || 'en';
+                setLanguage(currentLanguage);
+                setLanguageChangedFlag(true);
+                startNewGameFlow();
+            });
         }
 
     if (elements.pauseResumeGameButton && elements.pauseResumeGameButton.parentNode) {

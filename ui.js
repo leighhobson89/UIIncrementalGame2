@@ -9,11 +9,13 @@ import {
     resetGame,
     getCoins,
     getNotes,
-    setSaveName
+    setSaveName,
+    getLanguage
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
-import { initLocalization, changeLanguage } from './localization.js';
+import { initLocalization, changeLanguage, localize } from './localization.js';
+import { checkPlayerNameExists } from './cloudSave.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
 import { initThemes } from './themes.js';
 import { refreshUpgradeUI } from './upgrades.js';
@@ -168,13 +170,13 @@ function ensurePlayerNameModal() {
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="playerSaveName">Enter a name for your save</label>
-                        <input type="text" class="form-control" id="playerSaveName" placeholder="My Save" />
-                        <small class="form-text text-muted">This name will also be used for Cloud Save / Load.</small>
+                        <input type="text" class="form-control" id="playerSaveName" placeholder="My Save" data-i18n="[placeholder]saveNamePlaceholder" />
+                        <small class="form-text text-muted" data-i18n="saveNameDescription">This name will also be used for Cloud Save / Load.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button id="confirmPlayerNameBtn" type="button" class="btn btn-primary">Start</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" data-i18n="buttonCancel">Cancel</button>
+                    <button id="confirmPlayerNameBtn" type="button" class="btn btn-primary" data-i18n="buttonStart">Start</button>
                 </div>
             </div>
         </div>`;
@@ -182,39 +184,69 @@ function ensurePlayerNameModal() {
     return modal;
 }
 
-function startNewGameFlow() {
+async function startNewGameFlow() {
     const modal = ensurePlayerNameModal();
     // Wire up confirm click each time to avoid duplicates by resetting handler
     const confirmBtn = modal.querySelector('#confirmPlayerNameBtn');
     const input = modal.querySelector('#playerSaveName');
-    confirmBtn.onclick = () => {
+    
+    // Disable the confirm button while we're checking the name
+    const originalButtonText = confirmBtn.innerHTML;
+    
+    confirmBtn.onclick = async () => {
         const name = (input.value || '').trim();
         if (!name) {
-            try { showNotification('Please enter a name to start a new game', 'error'); } catch {}
+            try { showNotification(localize('notfcn_nameRequired', getLanguage()) || 'Please enter a name to start a new game', 'error'); } catch {}
             return;
         }
-        setSaveName(name);
-        $(modal).modal('hide');
+        
+        // Show loading state on button
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking name...';
+        
+        try {
+            // Check if the name already exists in the database
+            const nameExists = await checkPlayerNameExists(name);
+            
+            if (nameExists) {
+                showNotification(localize('notfcn_nameTaken', getLanguage()) || 'This name is already taken. Please choose another name.', 'error');
+                input.focus();
+                return;
+            }
+            
+            // If we get here, the name is available
+            setSaveName(name);
+            $(modal).modal('hide');
 
-        // Proceed with the same logic as before
-        const elements = getElements();
-        resetGame();
-        setBeginGameStatus(true);
-        if (!getGameInProgress()) {
-            setGameInProgress(true);
-        }
-        if (elements.resumeGameMenuButton) {
-            disableActivateButton(elements.resumeGameMenuButton, 'active', 'btn-primary');
-        }
-        if (elements.saveGameButton) {
-            disableActivateButton(elements.saveGameButton, 'active', 'btn-primary');
-        }
-        setGameState(getGameActive());
-        startGame();
-        window.gameLoopRunning = true;
+            // Proceed with the same logic as before
+            const elements = getElements();
+            resetGame();
+            setBeginGameStatus(true);
+            if (!getGameInProgress()) {
+                setGameInProgress(true);
+            }
+            if (elements.resumeGameMenuButton) {
+                disableActivateButton(elements.resumeGameMenuButton, 'active', 'btn-primary');
+            }
+            if (elements.saveGameButton) {
+                disableActivateButton(elements.saveGameButton, 'active', 'btn-primary');
+            }
+            setGameState(getGameActive());
+            startGame();
+            window.gameLoopRunning = true;
 
-        // Immediately create or update the cloud save for this new game
-        try { if (window.saveToCloud) { window.saveToCloud(true); } } catch (e) { console.error('Error in initial cloud save:', e); }
+            // Immediately create the cloud save for this new game
+            try { if (window.saveToCloud) { window.saveToCloud(true); } } catch (e) { 
+                console.error('Error in initial cloud save:', e); 
+            }
+        } catch (error) {
+            console.error('Error checking player name:', error);
+            showNotification(localize('notfcn_nameCheckError', getLanguage()) || 'Error checking player name. Please try again.', 'error');
+        } finally {
+            // Restore the button state
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = originalButtonText;
+        }
     };
 
     // Also submit on Enter key
@@ -394,7 +426,10 @@ export function showNotification(message, type = 'info', time = 3000, classifica
         createNotificationContainer(classification);
     }
 
-    queues[classification].push({ message, type, time });
+    // If the message is a localization key (starts with 'notfcn_'), localize it
+    const displayMessage = message.startsWith('notfcn_') ? localize(message, getLanguageSelected()) : message;
+    
+    queues[classification].push({ message: displayMessage, type, time });
     setNotificationQueues(queues);
 
     if (!status[classification]) {

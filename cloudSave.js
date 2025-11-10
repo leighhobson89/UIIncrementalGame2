@@ -3,6 +3,25 @@ import { setSaveName, getSaveName, captureGameStatusForSaving, restoreGameStatus
 import { showNotification } from './ui.js';
 import { localize } from './localization.js';
 
+// Function to check if a player name already exists in the database
+export async function checkPlayerNameExists(name) {
+    if (!name) return false;
+    
+    try {
+        const { data, error } = await supabase
+            .from('WealthInc_Saves')
+            .select('save_name')
+            .eq('save_name', name)
+            .maybeSingle();
+            
+        if (error) throw error;
+        return !!data; // Returns true if name exists, false otherwise
+    } catch (error) {
+        console.error('Error checking player name:', error);
+        return false; // On error, assume name is available to avoid blocking the user
+    }
+}
+
 const supabaseUrl = 'https://riogcxvtomyjlzkcnujf.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpb2djeHZ0b215amx6a2NudWpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwMjY1NDgsImV4cCI6MjA1OTYwMjU0OH0.HH7KXPrcORvl6Wiefupl422gRYxAa_kFCRM2-puUcsQ';
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -74,7 +93,7 @@ function showCloudSaveModal() {
                     </div>
                     <div class="modal-body">
                         <div id="saveNameContainer" class="form-group">
-                            <p class="mb-0">Cloud saves use the name you set when starting a new game.</p>
+                            <p class="mb-0" data-i18n="saveNameDescription">Cloud saves use the name you set when starting a new game.</p>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -172,7 +191,7 @@ async function saveToCloud(initialSave = false) {
             
             if (error) throw error;
             console.log('Cloud save updated');
-            showNotification('Game saved to cloud!', 'success');
+            showNotification(localize('notfcn_cloudSaveSuccess', getLanguage()) || 'Game saved to cloud!', 'success');
         } else {
             const { error } = await supabase
                 .from('WealthInc_Saves')
@@ -185,19 +204,18 @@ async function saveToCloud(initialSave = false) {
             
             if (error) throw error;
             console.log('New cloud save created');
-            showNotification('New save created in cloud!', 'success');
+            showNotification(localize('notfcn_cloudSaveCreated', getLanguage()) || 'New save created in cloud!', 'success');
         }
 
         // Reset autosave timer on successful save
         if (typeof resetAutosaveTimer === 'function') {
             resetAutosaveTimer();
         }
-        
     } catch (error) {
         console.error('Error in saveToCloud:', error);
         // Don't show error notifications for autosaves to avoid being annoying
         if (!initialSave) {
-            showNotification('Error saving to cloud', 'error');
+            showNotification(localize('notfcn_cloudSaveError', getLanguage()) || 'Error saving to cloud', 'error');
         }
     }
 }
@@ -206,7 +224,7 @@ async function saveToCloud(initialSave = false) {
 async function loadFromCloud() {
     const saveName = (typeof getSaveName === 'function' ? getSaveName() : '') || '';
     if (!saveName) {
-        showNotification('Please start a New Game and set a save name first', 'error');
+        showNotification(localize('notfcn_saveNameRequired', getLanguage()) || 'Please start a New Game and set a save name first', 'error');
         return;
     }
 
@@ -246,11 +264,11 @@ async function loadFromCloud() {
         
         // Close the modal
         $('#cloudSaveModal').modal('hide');
-        showNotification('Game loaded from cloud!', 'success');
+        showNotification(localize('notfcn_cloudLoadSuccess', getLanguage()) || 'Game loaded from cloud!', 'success');
         
     } catch (error) {
         console.error('Error loading from cloud:', error);
-        showNotification('Error loading from cloud', 'error');
+        showNotification(localize('notfcn_cloudLoadError', getLanguage()) || 'Error loading from cloud', 'error');
     }
 }
 

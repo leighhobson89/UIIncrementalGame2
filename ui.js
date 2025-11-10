@@ -394,7 +394,8 @@ function setupLanguageButtons() {
         'btnSpanish': 'es',
         'btnGerman': 'de',
         'btnItalian': 'it',
-        'btnFrench': 'fr'
+        'btnFrench': 'fr',
+        'btnPortuguese': 'pt'
     };
 
     Object.entries(languageMap).forEach(([buttonId, langCode]) => {

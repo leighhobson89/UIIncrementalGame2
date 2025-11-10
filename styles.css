@@ -590,6 +590,7 @@ button:focus-visible,
 .flag-de { background-image: url('assets/images/de.png'); }
 .flag-it { background-image: url('assets/images/it.png'); }
 .flag-fr { background-image: url('assets/images/fr.png'); }
+.flag-pt { background-image: url('assets/images/pt.png'); }
 
 /* Menu action buttons (New/Resume/Load/Save) */
 .menu-btn {

@@ -8,6 +8,7 @@ const CLICK_RATE_WINDOW = 1000;
 // GLOBAL VARIABLES
 export let gameState;
 let lastClickTime = 0;
+let fillDuration = 4000; // Time in milliseconds for button fill animation
 
 let coins = 0;
 let coinsIncrementValue = 1;
@@ -194,6 +195,10 @@ export function setCoinAutoClickerMultiplierRate(value) { if (typeof value === '
 // Notes Printable
 export function getNotesPrintable() { return notesPrintable; }
 export function setNotesPrintable(value) { notesPrintable = value; }
+
+// Fill Duration
+export function getFillDuration() { return fillDuration; }
+export function setFillDuration(value) { fillDuration = value; }
 
 // =============================================
 // Save Name Management

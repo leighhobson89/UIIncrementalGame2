@@ -156,14 +156,23 @@
 
             <!-- Main Clickers -->
             <div class="clicker-container">
-                <button id="mainClicker" class="clicker-btn">
-                    <img src="assets/images/coin.png" alt="Coin" class="clicker-emoji" style="width: 64px; height: 64px;">
-                    <span class="clicker-label" data-i18n="clickMe">Make Coin!</span>
-                </button>
-                <button id="noteClicker" class="clicker-btn d-none" style="margin-top: 20px;">
-                    <img src="assets/images/dollar_banknote.png" alt="Note" class="clicker-emoji" style="width: 64px; height: 64px;">
-                    <span class="clicker-label" data-i18n="clickNote">Make Note!</span>
-                </button>
+                <!-- Coin Clicker -->
+                <div class="clicker-wrapper">
+                    <img src="assets/images/beammetal.png" alt="Beam" class="clicker-emoji clicker-emoji-left">
+                    <button id="mainClicker" class="clicker-btn">
+                        <div class="progress-fill"></div>
+                    </button>
+                    <img src="assets/images/coin.png" alt="Coin" class="clicker-emoji">
+                </div>
+                
+                <!-- Note Clicker -->
+                <div class="clicker-wrapper note-clicker-container d-none">
+                    <img src="assets/images/beammetal.png" alt="Beam" class="clicker-emoji clicker-emoji-left">
+                    <button id="noteClicker" class="clicker-btn">
+                        <div class="progress-fill"></div>
+                    </button>
+                    <img src="assets/images/dollar_banknote.png" alt="Note" class="clicker-emoji">
+                </div>
             </div>
 
             <!-- Upgrades (right side) -->

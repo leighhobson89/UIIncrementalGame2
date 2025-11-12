@@ -39,50 +39,46 @@ let coinClickHandler = null;
 let noteClickHandler = null;
 let mainClicker = null;
 let noteClicker = null;
-let coinClickProgress = 9; // Start at 9 to make first click instant
-let noteClickProgress = 9; // Start at 9 to make first click instant
 let coinAnimationId = null;
 let noteAnimationId = null;
 let coinAnimationStart = 0;
 let noteAnimationStart = 0;
+let coinClickProgress = 9; // Reset to 9 for instant first click
+let noteClickProgress = 9; // Reset to 9 for instant first click
 
-function animateCoinButton(timestamp) {
-    if (!coinAnimationStart) coinAnimationStart = timestamp;
-    const elapsed = timestamp - coinAnimationStart;
-    const fillDuration = getFillDuration();
-    const progress = Math.min(elapsed / fillDuration, 1);
-    
-    const fill = mainClicker?.querySelector('.progress-fill');
-    if (fill) {
-        fill.style.height = `${progress * 100}%`;
-    }
-    
-    if (progress < 1) {
-        coinAnimationId = requestAnimationFrame(animateCoinButton);
-    } else {
-        // Animation complete, award the coin
-        const current = getCoins();
-        const award = getCoinsIncrementValue();
-        setCoins(current + award);
+// Animation is now handled by CSS with a timeout for completion
+
+function createCoinClickHandler() {
+    return function(event) {
+        // Track the manual click
+        trackManualClick();
         
-        // Reset animation
-        if (fill) fill.style.height = '0%';
-        coinAnimationStart = 0;
-        coinAnimationId = null;
+        // If animation is already running, don't start a new one
+        if (coinAnimationId) return;
         
-        // Visual feedback
-        if (mainClicker) {
-            mainClicker.classList.add('clicked');
-            setTimeout(() => mainClicker.classList.remove('clicked'), 100);
-            
-            // Show +X coins text
-            const fx = document.createElement('div');
-            fx.className = 'bonus-float';
-            fx.textContent = `+${award}`;
-            fx.style.left = `${mainClicker.getBoundingClientRect().left + mainClicker.offsetWidth/2}px`;
-            fx.style.top = `${mainClicker.getBoundingClientRect().top - 10}px`;
-            document.body.appendChild(fx);
-            setTimeout(() => fx.remove(), 1200);
+        // Get or create the fill element
+        let fill = this.querySelector('.progress-fill');
+        if (!fill) {
+            fill = document.createElement('div');
+            fill.className = 'progress-fill';
+            this.appendChild(fill);
+        }
+        
+        // Reset the fill
+        fill.style.width = '0%';
+        this.classList.remove('filling');
+        void this.offsetWidth; // Trigger reflow
+        
+        // Start the fill animation
+        this.classList.add('filling');
+        coinAnimationStart = performance.now();
+        
+        // Set a timeout for the fill animation
+        coinAnimationId = setTimeout(() => {
+            // Animation complete - award the coin
+            const current = getCoins();
+            const award = getCoinsIncrementValue();
+            setCoins(current + award);
             
             // Show coin animation
             const coinOverlay = document.getElementById('coinOverlay');
@@ -101,7 +97,7 @@ function animateCoinButton(timestamp) {
                 const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
                 const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
                 
-                const rect = mainClicker.getBoundingClientRect();
+                const rect = this.getBoundingClientRect();
                 coin.style.left = `${rect.left + rect.width/2 + offsetX}px`;
                 coin.style.top = `${rect.top + rect.height/2 + offsetY}px`;
                 
@@ -122,86 +118,98 @@ function animateCoinButton(timestamp) {
                     }
                 }, (duration * 1000) + delay);
             }
-        }
-        
-        audioManager.playFx('coinJingle');
-        
-        // Don't restart animation automatically, wait for next click
-    }
-}
-
-function animateNoteButton(timestamp) {
-    if (!noteAnimationStart) noteAnimationStart = timestamp;
-    const elapsed = timestamp - noteAnimationStart;
-    const fillDuration = getFillDuration();
-    const progress = Math.min(elapsed / fillDuration, 1);
-    
-    const fill = noteClicker?.querySelector('.progress-fill');
-    if (fill) {
-        fill.style.height = `${progress * 100}%`;
-    }
-    
-    if (progress < 1) {
-        noteAnimationId = requestAnimationFrame(animateNoteButton);
-    } else {
-        // Animation complete, award the note
-        const currentNotes = getNotes();
-        const noteAward = getNotesIncrementValue();
-        setNotes(currentNotes + noteAward);
-        
-        // Reset animation
-        if (fill) fill.style.height = '0%';
-        noteAnimationStart = 0;
-        noteAnimationId = null;
-        
-        // Visual feedback
-        if (noteClicker) {
-            noteClicker.classList.add('clicked');
-            setTimeout(() => noteClicker.classList.remove('clicked'), 100);
             
-            // Show +X notes text
+            // Reset animation state
+            coinAnimationId = null;
+            coinAnimationStart = 0;
+            
+            // Animation will reset automatically via CSS
+            this.classList.remove('filling');
+            
+            // Visual feedback
+            this.classList.add('clicked');
+            setTimeout(() => this.classList.remove('clicked'), 100);
+            
+            // Show +X coins text
             const fx = document.createElement('div');
             fx.className = 'bonus-float';
-            fx.textContent = `+${noteAward} Note${noteAward !== 1 ? 's' : ''}`;
-            fx.style.left = `${noteClicker.getBoundingClientRect().left + noteClicker.offsetWidth/2}px`;
-            fx.style.top = `${noteClicker.getBoundingClientRect().top - 10}px`;
-            fx.style.color = '#4caf50';
+            fx.textContent = `+${award}`;
+            fx.style.left = `${this.getBoundingClientRect().left + this.offsetWidth/2}px`;
+            fx.style.top = `${this.getBoundingClientRect().top - 10}px`;
             document.body.appendChild(fx);
             setTimeout(() => fx.remove(), 1200);
             
+            // Play sound
+            audioManager.playFx('coinJingle');
+        }, getFillDuration());
+        
+        // Visual feedback for starting the fill
+        this.classList.add('clicked');
+        setTimeout(() => this.classList.remove('clicked'), 100);
+    }
+}
+
+function createNoteClickHandler() {
+    return function(event) {
+        // Track the manual click
+        trackManualNoteClick();
+        
+        // If animation is already running, don't start a new one
+        if (noteAnimationId) return;
+        
+        // Get or create the fill element
+        let fill = this.querySelector('.progress-fill');
+        if (!fill) {
+            fill = document.createElement('div');
+            fill.className = 'progress-fill';
+            this.appendChild(fill);
+        }
+        
+        // Reset the fill
+        fill.style.width = '0%';
+        this.classList.remove('filling');
+        void this.offsetWidth; // Trigger reflow
+        
+        // Start the fill animation
+        this.classList.add('filling');
+        noteAnimationStart = performance.now();
+        
+        // Set a timeout for the fill animation
+        noteAnimationId = setTimeout(() => {
+            // Animation complete - award the note
+            const current = getNotes();
+            const award = getNotesIncrementValue();
+            setNotes(current + award);
+            
             // Show note animation
-            const noteOverlay = document.getElementById('coinOverlay');
-            const numNotes = Math.min(Math.ceil(noteAward), 8);
+            const noteOverlay = document.getElementById('noteOverlay');
+            const numNotes = Math.min(Math.ceil(award), 5);
             
             for (let i = 0; i < numNotes; i++) {
                 const note = document.createElement('img');
                 note.src = 'assets/images/dollar_banknote.png';
-                note.className = 'coin-animation';
+                note.className = 'note-animation';
                 
                 const delay = i * 50 + Math.random() * 50;
                 note.style.animationDelay = `${delay}ms`;
                 
-                const spread = 80 + (numNotes * 5);
+                const spread = 60 + (numNotes * 5);
                 const angle = (i / numNotes) * Math.PI * 2;
                 const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
                 const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
                 
-                const rect = noteClicker.getBoundingClientRect();
+                const rect = this.getBoundingClientRect();
                 note.style.left = `${rect.left + rect.width/2 + offsetX}px`;
                 note.style.top = `${rect.top + rect.height/2 + offsetY}px`;
                 
                 const direction = Math.random() > 0.5 ? 'Right' : 'Left';
-                note.style.animationName = `coinFly${direction}`;
+                note.style.animationName = `noteFly${direction}`;
             
                 const duration = 0.8 + Math.random() * 0.4;
                 note.style.animationDuration = `${duration}s`;
                 
-                const rotation = (Math.random() * 60) - 30;
-                const scale = 0.8 + Math.random() * 0.4;
-                note.style.transform = `rotate(${rotation}deg) scale(${scale})`;
-
-                note.style.width = '40px';
-                note.style.height = '40px';
+                const scale = 0.5 + Math.random() * 0.3;
+                note.style.transform = `scale(${scale})`;
                 
                 noteOverlay.appendChild(note);
                 
@@ -211,66 +219,35 @@ function animateNoteButton(timestamp) {
                     }
                 }, (duration * 1000) + delay);
             }
-        }
+            
+            // Reset animation state
+            noteAnimationId = null;
+            noteAnimationStart = 0;
+            
+            // Animation will reset automatically via CSS
+            this.classList.remove('filling');
+            
+            // Visual feedback
+            this.classList.add('clicked');
+            setTimeout(() => this.classList.remove('clicked'), 100);
+            
+            // Show +X notes text
+            const fx = document.createElement('div');
+            fx.className = 'bonus-float';
+            fx.textContent = `+${award}`;
+            fx.style.left = `${this.getBoundingClientRect().left + this.offsetWidth/2}px`;
+            fx.style.top = `${this.getBoundingClientRect().top - 10}px`;
+            document.body.appendChild(fx);
+            setTimeout(() => fx.remove(), 1200);
+            
+            // Play sound
+            audioManager.playFx('noteJingle');
+        }, getFillDuration());
         
-        if (audioManager && !audioManager.muted) {
-            audioManager.playFx('buxCollect');
-        }
-        
-        // Don't restart animation automatically, wait for next click
+        // Visual feedback for starting the fill
+        this.classList.add('clicked');
+        setTimeout(() => this.classList.remove('clicked'), 100);
     }
-}
-
-function createCoinClickHandler() {
-    return function(event) {
-        // Initialize fill element if it doesn't exist
-        let fill = this.querySelector('.progress-fill');
-        if (!fill) {
-            fill = document.createElement('div');
-            fill.className = 'progress-fill';
-            this.appendChild(fill);
-        }
-        
-        // Track the manual click
-        trackManualClick();
-        
-        // If animation is not running, start it
-        if (!coinAnimationId) {
-            coinAnimationStart = performance.now();
-            coinAnimationId = requestAnimationFrame(animateCoinButton);
-            
-            // Visual feedback for starting the fill
-            this.classList.add('clicked');
-            setTimeout(() => this.classList.remove('clicked'), 100);
-        }
-    };
-}
-
-function createNoteClickHandler() {
-    return function(event) {
-        // Initialize fill element if it doesn't exist
-        let fill = this.querySelector('.progress-fill');
-        if (!fill) {
-            fill = document.createElement('div');
-            fill.className = 'progress-fill';
-            this.appendChild(fill);
-        }
-        
-        // Track the manual click
-        trackManualNoteClick();
-        
-        // If animation is not running, start it
-        if (!noteAnimationId) {
-            noteAnimationStart = performance.now();
-            noteAnimationId = requestAnimationFrame(animateNoteButton);
-            
-            // Visual feedback for starting the fill
-            this.classList.add('clicked');
-            setTimeout(() => this.classList.remove('clicked'), 100);
-            
-            // No visual feedback when starting to fill, will show when complete
-        }
-    };
 }
 
 function setupClickHandler() {

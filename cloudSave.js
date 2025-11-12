@@ -221,7 +221,7 @@ async function saveToCloud(initialSave = false) {
 }
 
 // Load game from cloud
-async function loadFromCloud() {
+export async function loadFromCloud() {
     const saveName = (typeof getSaveName === 'function' ? getSaveName() : '') || '';
     if (!saveName) {
         showNotification(localize('notfcn_saveNameRequired', getLanguage()) || 'Please start a New Game and set a save name first', 'error');

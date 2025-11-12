@@ -18,7 +18,7 @@ import {
 import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
 import { initLocalization, changeLanguage, localize, updateAllElements } from './localization.js';
-import { checkPlayerNameExists } from './cloudSave.js';
+import { checkPlayerNameExists, loadFromCloud } from './cloudSave.js';
 import { loadGameOption, loadGame, saveGame, copySaveStringToClipBoard } from './saveLoadGame.js';
 import { initThemes } from './themes.js';
 import { refreshUpgradeUI } from './upgrades.js';
@@ -443,6 +443,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         await initLocalization(currentLanguage);
         
         console.log('After initLocalization, current language:', getLanguageSelected());
+        
+        // Check for existing cloud save after language is set
+        const saveName = localStorage.getItem('currentSaveNameWealthInc');
+        if (saveName && saveName.trim() !== '') {
+            updateLoadingMessage('Loading your saved game...');
+            try {
+                await loadFromCloud();
+            } catch (error) {
+                console.error('Error loading from cloud on startup:', error);
+                // Don't show error to user on auto-load to prevent confusion
+            }
+        }
         
         // Wait for audio to finish loading
         const audioResults = await audioPromise;

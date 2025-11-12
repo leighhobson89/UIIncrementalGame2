@@ -40,6 +40,7 @@ function scheduleAutosave() {
             const name = (() => {
                 try { return localStorage.getItem('currentSaveNameWealthInc') || ''; } catch { return ''; }
             })();
+            console.debug(`[Cloud Save] Starting autosave for user: ${name}`);
             if (name) {
                 await saveToCloud();
             }
@@ -107,7 +108,7 @@ function showCloudSaveModal() {
         document.body.appendChild(modal);
         
         // Add event listeners
-        modal.querySelector('#saveToCloudBtn').addEventListener('click', saveToCloud);
+        modal.querySelector('#saveToCloudBtn').addEventListener('click', () => saveToCloud(false));
         modal.querySelector('#loadFromCloudBtn').addEventListener('click', loadFromCloud);
         // No manual name entry in this modal anymore
     }
@@ -118,15 +119,22 @@ function showCloudSaveModal() {
 }
 
 // Save game to cloud
+/**
+ * Saves the game state to the cloud
+ * @param {boolean} [initialSave=false] - Should only be true when a new game is started through the new game modal
+ */
 async function saveToCloud(initialSave = false) {
     const saveName = (typeof getSaveName === 'function' ? getSaveName() : '') || '';
     if (!saveName) {
-        console.log('No save name found, skipping cloud save');
+        console.debug('[Cloud Save] No save name found, skipping cloud save');
         return;
     }
+    const currentCoins = window.getCoins ? window.getCoins() : 'N/A';
+    console.debug(`[Cloud Save] Starting ${initialSave ? 'initial ' : ''}save for user: ${saveName}, current coins: ${currentCoins}`);
 
     try {
-        // Get a minimal game state for initial save
+        // For initial save (new game), use a minimal game state
+        // For all other saves (auto/manual), capture the full game state
         const gameState = initialSave 
             ? { version: 2, initialSave: true, timestamp: new Date().toISOString() }
             : captureGameStatusForSaving();
@@ -155,7 +163,8 @@ async function saveToCloud(initialSave = false) {
                     .eq('save_name', saveName);
                 
                 if (error) throw error;
-                console.log('Initial cloud save updated');
+                const updatedCoins = window.getCoins ? window.getCoins() : 'N/A';
+            console.debug(`[Cloud Save] Initial cloud save updated for user: ${saveName}, coins before: ${currentCoins}, coins after: ${updatedCoins}`);
             } else {
                 // Create new save
                 const { error } = await supabase
@@ -168,7 +177,8 @@ async function saveToCloud(initialSave = false) {
                     }]);
                 
                 if (error) throw error;
-                console.log('New initial cloud save created');
+                const updatedCoins = window.getCoins ? window.getCoins() : 'N/A';
+                console.debug(`[Cloud Save] New initial cloud save created for user: ${saveName}, coins before: ${currentCoins}, coins after: ${updatedCoins}`);
             }
             return;
         }
@@ -190,7 +200,8 @@ async function saveToCloud(initialSave = false) {
                 .eq('save_name', saveName);
             
             if (error) throw error;
-            console.log('Cloud save updated');
+            const updatedCoins = window.getCoins ? window.getCoins() : 'N/A';
+            console.debug(`[Cloud Save] Cloud save updated for user: ${saveName}, coins before: ${currentCoins}, coins after: ${updatedCoins}`);
             showNotification(localize('notfcn_cloudSaveSuccess', getLanguage()) || 'Game saved to cloud!', 'success');
         } else {
             const { error } = await supabase
@@ -203,7 +214,8 @@ async function saveToCloud(initialSave = false) {
                 }]);
             
             if (error) throw error;
-            console.log('New cloud save created');
+            const updatedCoins = window.getCoins ? window.getCoins() : 'N/A';
+            console.debug(`[Cloud Save] New cloud save created for user: ${saveName}, coins before: ${currentCoins}, coins after: ${updatedCoins}`);
             showNotification(localize('notfcn_cloudSaveCreated', getLanguage()) || 'New save created in cloud!', 'success');
         }
 
@@ -212,7 +224,7 @@ async function saveToCloud(initialSave = false) {
             resetAutosaveTimer();
         }
     } catch (error) {
-        console.error('Error in saveToCloud:', error);
+        console.error(`[Cloud Save] Error in saveToCloud for user ${saveName}:`, error);
         // Don't show error notifications for autosaves to avoid being annoying
         if (!initialSave) {
             showNotification(localize('notfcn_cloudSaveError', getLanguage()) || 'Error saving to cloud', 'error');
@@ -223,6 +235,8 @@ async function saveToCloud(initialSave = false) {
 // Load game from cloud
 export async function loadFromCloud() {
     const saveName = (typeof getSaveName === 'function' ? getSaveName() : '') || '';
+    const coinsBeforeLoad = window.getCoins ? window.getCoins() : 'N/A';
+    console.debug(`[Cloud Load] Attempting to load game for user: ${saveName || 'No save name found'}, coins before load: ${coinsBeforeLoad}`);
     if (!saveName) {
         showNotification(localize('notfcn_saveNameRequired', getLanguage()) || 'Please start a New Game and set a save name first', 'error');
         return;
@@ -245,8 +259,11 @@ export async function loadFromCloud() {
         const gameState = JSON.parse(decompressed);
         
         // Restore the game state
+        console.debug(`[Cloud Load] Successfully retrieved save data for user: ${saveName}`);
         await restoreGameStatus(gameState);
         setSaveName(saveName);
+        const coinsAfterLoad = window.getCoins ? window.getCoins() : 'N/A';
+        console.debug(`[Cloud Load] Game state restored for user: ${saveName}, coins before: ${coinsBeforeLoad}, coins after: ${coinsAfterLoad}`);
         
         // Enable the Resume Game and Save Game buttons
         const resumeBtn = document.getElementById('resumeFromMenu');
@@ -267,7 +284,7 @@ export async function loadFromCloud() {
         showNotification(localize('notfcn_cloudLoadSuccess', getLanguage()) || 'Game loaded from cloud!', 'success');
         
     } catch (error) {
-        console.error('Error loading from cloud:', error);
+        console.error(`[Cloud Load] Error loading from cloud for user ${saveName}:`, error);
         showNotification(localize('notfcn_cloudLoadError', getLanguage()) || 'Error loading from cloud', 'error');
     }
 }

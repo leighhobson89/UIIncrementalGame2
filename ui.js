@@ -321,6 +321,28 @@ async function startNewGameFlow() {
                 disableActivateButton(elements.resumeGameMenuButton, 'active', 'btn-primary');
             }
             
+            // Hide upgrades and auto-clicker windows and reset their visibility state
+            const autoContainer = document.querySelector('.autoclickers-container');
+            const upgradesContainer = document.querySelector('.upgrades-container');
+            
+            // Reset auto-clicker window
+            if (autoContainer) {
+                autoContainer.classList.add('d-none');
+                autoContainer.classList.remove('revealed');
+            }
+            
+            // Reset upgrades window
+            if (upgradesContainer) {
+                upgradesContainer.classList.add('d-none');
+                upgradesContainer.classList.remove('revealed');
+            }
+            
+            // Also hide any individual upgrade items that might be visible
+            document.querySelectorAll('.upgrade-item').forEach(item => {
+                item.classList.add('d-none');
+                item.classList.remove('revealed');
+            });
+            
             // Start the game
             setGameState(getGameActive());
             startGame();
@@ -447,12 +469,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Check for existing cloud save after language is set
         const saveName = localStorage.getItem('currentSaveNameWealthInc');
         if (saveName && saveName.trim() !== '') {
-            updateLoadingMessage('Loading your saved game...');
+            updateLoadingMessage('Initializing game state...');
             try {
+                // Reset game state first to ensure clean initialization
+                resetGame();
+                setBeginGameStatus(true);
+                setGameInProgress(true);
+                startGame();
+                
+                // Now load the saved game
+                updateLoadingMessage('Loading your saved game...');
                 await loadFromCloud();
+                
+                // Ensure the game is properly started after load
+                if (!window.gameLoopRunning) {
+                    window.gameLoopRunning = true;
+                    gameLoop();
+                }
             } catch (error) {
                 console.error('Error loading from cloud on startup:', error);
-                // Don't show error to user on auto-load to prevent confusion
+                // If loading fails, ensure we still have a working game state
+                resetGame();
+                setBeginGameStatus(true);
+                setGameInProgress(true);
+                startGame();
+                window.gameLoopRunning = true;
             }
         }
         

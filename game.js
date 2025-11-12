@@ -10,6 +10,7 @@ import {
     getCoins,
     setCoins,
     getCoinsIncrementValue,
+    setCoinsIncrementValue,
     getCoinClickTimestamps,
     setCoinClickTimestamps,
     getClickRateWindow,

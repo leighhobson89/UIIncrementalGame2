@@ -86,6 +86,27 @@
     <div id="gameContainer" class="d-none game-container">
         <!-- Header -->
         <div class="game-header">
+            <div class="game-controls">
+                <div class="theme-selector-inline">
+                    <select id="themeSelectGame" class="theme-select" data-i18n-title="selectTheme" title="Select Theme">
+                        <option value="ocean" selected>🌊</option>
+                        <option value="forest">🌲</option>
+                        <option value="beach">🏖️</option>
+                        <option value="glacier">❄️</option>
+                        <option value="shadow">🌑</option>
+                    </select>
+                </div>
+                <button id="returnToMenu" class="icon-button" aria-label="Menu" data-i18n-title="menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <button id="toggleSound" class="icon-button" aria-label="Toggle Sound" data-i18n-title="toggleSound">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <button id="pauseGame" class="icon-button play-button" aria-label="Pause">
+                    <i class="fas fa-play"></i>
+                    <i class="fas fa-pause" style="display: none;"></i>
+                </button>
+            </div>
             <div class="game-stats">
                 <div class="stat">
                     <span class="coin-icon"></span>
@@ -103,27 +124,6 @@
                     <span class="note-icon small"></span>
                     <span id="notesPerSecond" class="stat-value">0<span class="per-second">/sec</span></span>
                 </div>
-            </div>
-            <div class="game-controls">
-                <div class="theme-selector-inline">
-                    <select id="themeSelectGame" class="theme-select" data-i18n-title="selectTheme" title="Select theme">
-                        <option value="ocean" selected>🌊</option>
-                        <option value="forest">🌲</option>
-                        <option value="beach">🏖️</option>
-                        <option value="glacier">❄️</option>
-                        <option value="shadow">🌑</option>
-                    </select>
-                </div>
-                <button id="returnToMenu" class="icon-button" aria-label="Menu">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <button id="toggleSound" class="icon-button" aria-label="Toggle Sound" title="Toggle Sound">
-                    <i class="fas fa-volume-up"></i>
-                </button>
-                <button id="pauseGame" class="icon-button play-button" aria-label="Pause">
-                    <i class="fas fa-play"></i>
-                    <i class="fas fa-pause" style="display: none;"></i>
-                </button>
             </div>
         </div>
 

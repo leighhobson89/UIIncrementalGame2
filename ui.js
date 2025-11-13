@@ -89,9 +89,14 @@ export function updatePriceColors(upgrades) {
     try { updateUpgradeVisibility(); } catch {}
 }
 
+// Show all upgrades that should be visible
+export function showAllVisibleUpgrades() {
+    // This function is now a no-op since visibility is managed by the Upgrade class
+    // We'll keep it for backward compatibility
+}
 
 export function updateUpgradeVisibility() {
-    const thresholdFactor = 0.9;
+    const thresholdFactor = 0.5; // Show when player has 50% of the cost
     const coins = getCoins();
     const notes = getNotes();
 
@@ -103,15 +108,22 @@ export function updateUpgradeVisibility() {
         { btnId: 'autoClickerMultiplierBtn', inst: window.autoClickerMultiplier, currency: 'coins' },
         { btnId: 'noteAutoClickerMultiplierBtn', inst: window.noteAutoClickerMultiplier, currency: 'notes' },
     ];
-
+    
+    // Process each upgrade
     mappings.forEach(({ btnId, inst, currency }) => {
+        if (!inst) return;
+        
         const btn = document.getElementById(btnId);
         if (!btn) return;
-        const item = btn.closest('.upgrade-item');
-        if (!item || item.classList.contains('revealed')) return;
-
-        let cost = parseFloat(btn.getAttribute('data-cost')) || Infinity;
-        if (inst && typeof inst.currentCost === 'number') {
+        
+        // Initialize the upgrade if needed
+        if (typeof inst.init === 'function') {
+            inst.init();
+        }
+        
+        // Calculate the current cost
+        let cost = parseFloat(btn.getAttribute('data-cost')) || 0;
+        if (typeof inst.currentCost === 'number') {
             cost = inst.currentCost;
             if (typeof inst.calculatePurchaseCost === 'function') {
                 const getMult = typeof inst.multiplierGetter === 'function' ? inst.multiplierGetter.bind(inst) : null;
@@ -119,19 +131,30 @@ export function updateUpgradeVisibility() {
                 cost = inst.calculatePurchaseCost(mult);
             }
         }
-        if (!isFinite(cost)) return;
-
-        let balance = currency === 'notes' ? notes : coins;
-
-        if (balance >= thresholdFactor * cost) {
-            item.classList.remove('d-none');
-            item.classList.add('fade-in', 'revealed');
-            const parentContainer = item.closest('.autoclickers-container, .upgrades-container');
-            if (parentContainer) {
-                parentContainer.classList.remove('d-none');
-                parentContainer.classList.add('revealed');
+        
+        // Get the current balance
+        const balance = currency === 'notes' ? notes : coins;
+        const canAfford = balance >= (cost * thresholdFactor);
+        
+        // Update the button's data attributes
+        btn.setAttribute('data-cost', cost);
+        
+        // Update visibility state
+        const item = btn.closest('.upgrade-item');
+        if (item) {
+            if (canAfford) {
+                item.classList.add('revealed');
+                if (getGameStateVariable() === getStateUpgradesScreen()) {
+                    item.classList.remove('d-none');
+                    // Show parent container if needed
+                    const parentContainer = item.closest('.autoclickers-container, .upgrades-container');
+                    if (parentContainer) {
+                        parentContainer.classList.remove('d-none');
+                    }
+                }
             }
-            setTimeout(() => item.classList.remove('fade-in'), 500);
+            // Update button state based on full cost
+            btn.disabled = balance < cost;
         }
     });
 }

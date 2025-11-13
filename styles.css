@@ -986,21 +986,24 @@ button.disabled {
 /* Chevron Button */
 .clicker-btn {
     position: relative;
-    width: 400px;  /* Further reduced from 450px */
-    height: 120px;
-    background: var(--theme-accent, #4a90e2);  /* Using theme accent color with fallback */
+    width: 800px;  /* Doubled from 400px */
+    height: 120px; /* Original height */
+    background: var(--theme-accent, #4a90e2);
     border: none;
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.5rem; /* Original font size */
     font-weight: bold;
     cursor: pointer;
-    clip-path: polygon(85% 0%, 100% 50%, 85% 100%, 0% 100%, 15% 50%, 0% 0%);
+    clip-path: polygon(92.5% 0%, 100% 50%, 92.5% 100%, 0% 100%, 7.5% 50%, 0% 0%);
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 40px;
+    padding: 0 80px; /* Doubled from 40px */
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    margin: 0 auto; /* Center the button */
+    max-width: 90%; /* Prevent overflow on smaller screens */
+    box-sizing: border-box;
 }
 
 /* Progress overlay inside clicker button (fills from left to right) */
@@ -1047,12 +1050,12 @@ button.disabled {
 
 /* Clicker emojis - right side (coins/notes) */
 .clicker-emoji:not(.clicker-emoji-left) {
-    right: -80px;
+    right: -70px; /* Adjusted for original height */
 }
 
 /* Clicker emojis - left side (metal beams) */
 .clicker-emoji-left {
-    left: -80px;
+    left: -70px; /* Adjusted for original height */
     right: auto;
 }
 
@@ -1072,8 +1075,8 @@ button.disabled {
 
 .clicker-emoji {
     position: absolute;
-    width: 64px;
-    height: 64px;
+    width: 64px; /* Original size */
+    height: 64px; /* Original size */
     transition: transform 0.2s ease;
     z-index: 10;
 }
@@ -1084,8 +1087,8 @@ button.disabled {
 
 .clicker-label {
     position: absolute;
-    left: -100px;  /* Position outside the chevron on the left */
-    font-size: 1.5rem;
+    left: -120px;  /* Adjusted for original height */
+    font-size: 1.5rem; /* Original font size */
     font-weight: bold;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     white-space: nowrap;

@@ -358,11 +358,27 @@ export function restoreGameStatus(gameState) {
                     const autoContainer = document.querySelector('.autoclickers-container');
                     const upgradesContainer = document.querySelector('.upgrades-container');
                     if (autoContainer) {
-                        if (vis.parents?.autoclickers) { autoContainer.classList.remove('d-none'); autoContainer.classList.add('revealed'); } else { autoContainer.classList.add('d-none'); autoContainer.classList.remove('revealed'); }
+                        if (vis.parents?.autoclickers) { 
+                        if (gameState.state === getStateUpgradesScreen()) {
+                            autoContainer.classList.remove('d-none');
+                        }
+                        autoContainer.classList.add('revealed'); 
+                    } else { 
+                        autoContainer.classList.add('d-none'); 
+                        autoContainer.classList.remove('revealed'); 
                     }
-                    if (upgradesContainer) {
-                        if (vis.parents?.upgrades) { upgradesContainer.classList.remove('d-none'); upgradesContainer.classList.add('revealed'); } else { upgradesContainer.classList.add('d-none'); upgradesContainer.classList.remove('revealed'); }
+                }
+                if (upgradesContainer) {
+                    if (vis.parents?.upgrades) { 
+                        if (gameState.state === getStateUpgradesScreen()) {
+                            upgradesContainer.classList.remove('d-none');
+                        }
+                        upgradesContainer.classList.add('revealed'); 
+                    } else { 
+                        upgradesContainer.classList.add('d-none'); 
+                        upgradesContainer.classList.remove('revealed'); 
                     }
+                }
                     if (Array.isArray(vis.items)) {
                         vis.items.forEach(id => { const btn = document.getElementById(id); if (!btn) return; const item = btn.closest('.upgrade-item'); if (!item) return; item.classList.remove('d-none'); item.classList.add('revealed'); });
                     }

@@ -84,43 +84,45 @@ function createCoinClickHandler() {
             const award = getCoinsIncrementValue();
             setCoins(current + award);
             
-            // Show coin animation
-            const coinOverlay = document.getElementById('coinOverlay');
-            const numCoins = Math.min(Math.ceil(award), 8);
-            
-            for (let i = 0; i < numCoins; i++) {
-                const coin = document.createElement('img');
-                coin.src = 'assets/images/coin.png';
-                coin.className = 'coin-animation';
+            // Only show animation if we're on the main screen
+            if (getGameStateVariable() === getStateMainScreen()) {
+                const coinOverlay = document.getElementById('coinOverlay');
+                const numCoins = Math.min(Math.ceil(award), 8);
                 
-                const delay = i * 50 + Math.random() * 50;
-                coin.style.animationDelay = `${delay}ms`;
+                for (let i = 0; i < numCoins; i++) {
+                    const coin = document.createElement('img');
+                    coin.src = 'assets/images/coin.png';
+                    coin.className = 'coin-animation';
+                    
+                    const delay = i * 50 + Math.random() * 50;
+                    coin.style.animationDelay = `${delay}ms`;
+                    
+                    const spread = 60 + (numCoins * 5);
+                    const angle = (i / numCoins) * Math.PI * 2;
+                    const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
+                    const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
+                    
+                    const rect = this.getBoundingClientRect();
+                    coin.style.left = `${rect.left + rect.width/2 + offsetX}px`;
+                    coin.style.top = `${rect.top + rect.height/2 + offsetY}px`;
+                    
+                    const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+                    coin.style.animationName = `coinFly${direction}`;
                 
-                const spread = 60 + (numCoins * 5);
-                const angle = (i / numCoins) * Math.PI * 2;
-                const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
-                const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
-                
-                const rect = this.getBoundingClientRect();
-                coin.style.left = `${rect.left + rect.width/2 + offsetX}px`;
-                coin.style.top = `${rect.top + rect.height/2 + offsetY}px`;
-                
-                const direction = Math.random() > 0.5 ? 'Right' : 'Left';
-                coin.style.animationName = `coinFly${direction}`;
-            
-                const duration = 0.8 + Math.random() * 0.4;
-                coin.style.animationDuration = `${duration}s`;
-                
-                const scale = 0.7 + Math.random() * 0.3;
-                coin.style.transform = `scale(${scale})`;
-                
-                coinOverlay.appendChild(coin);
-                
-                setTimeout(() => {
-                    if (coin.parentNode === coinOverlay) {
-                        coinOverlay.removeChild(coin);
-                    }
-                }, (duration * 1000) + delay);
+                    const duration = 0.8 + Math.random() * 0.4;
+                    coin.style.animationDuration = `${duration}s`;
+                    
+                    const scale = 0.7 + Math.random() * 0.3;
+                    coin.style.transform = `scale(${scale})`;
+                    
+                    coinOverlay.appendChild(coin);
+                    
+                    setTimeout(() => {
+                        if (coin.parentNode === coinOverlay) {
+                            coinOverlay.removeChild(coin);
+                        }
+                    }, (duration * 1000) + delay);
+                }
             }
             
             // Reset animation state
@@ -134,16 +136,18 @@ function createCoinClickHandler() {
             this.classList.add('clicked');
             setTimeout(() => this.classList.remove('clicked'), 100);
             
-            // Show +X coins text
-            const fx = document.createElement('div');
-            fx.className = 'bonus-float';
-            fx.textContent = `+${award}`;
-            fx.style.left = `${this.getBoundingClientRect().left + this.offsetWidth/2}px`;
-            fx.style.top = `${this.getBoundingClientRect().top - 10}px`;
-            document.body.appendChild(fx);
-            setTimeout(() => fx.remove(), 1200);
+            // Show +X coins text only on main screen
+            if (getGameStateVariable() === getStateMainScreen()) {
+                const fx = document.createElement('div');
+                fx.className = 'bonus-float';
+                fx.textContent = `+${award}`;
+                fx.style.left = `${this.getBoundingClientRect().left + this.offsetWidth/2}px`;
+                fx.style.top = `${this.getBoundingClientRect().top - 10}px`;
+                document.body.appendChild(fx);
+                setTimeout(() => fx.remove(), 1200);
+            }
             
-            // Play sound
+            // Always play sound regardless of screen
             audioManager.playFx('coinJingle');
         }, getFillDuration());
         
@@ -185,67 +189,71 @@ function createNoteClickHandler() {
             const award = getNotesIncrementValue();
             setNotes(current + award);
             
-            // Show note animation
-            const noteOverlay = document.getElementById('noteOverlay');
-            const numNotes = Math.min(Math.ceil(award), 5);
-            
-            for (let i = 0; i < numNotes; i++) {
-                const note = document.createElement('img');
-                note.src = 'assets/images/dollar_banknote.png';
-                note.className = 'note-animation';
+            // Only show animation if we're on the main screen
+            if (getGameStateVariable() === getStateMainScreen()) {
+                const noteOverlay = document.getElementById('noteOverlay');
+                const numNotes = Math.min(Math.ceil(award), 5);
                 
-                const delay = i * 50 + Math.random() * 50;
-                note.style.animationDelay = `${delay}ms`;
+                for (let i = 0; i < numNotes; i++) {
+                    const note = document.createElement('img');
+                    note.src = 'assets/images/dollar_banknote.png';
+                    note.className = 'note-animation';
+                    
+                    const delay = i * 50 + Math.random() * 50;
+                    note.style.animationDelay = `${delay}ms`;
                 
-                const spread = 60 + (numNotes * 5);
-                const angle = (i / numNotes) * Math.PI * 2;
-                const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
-                const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
+                    const spread = 60 + (numNotes * 5);
+                    const angle = (i / numNotes) * Math.PI * 2;
+                    const offsetX = Math.cos(angle) * spread * (Math.random() * 0.5 + 0.5);
+                    const offsetY = Math.sin(angle) * spread * (Math.random() * 0.5 + 0.5);
+                    
+                    const rect = this.getBoundingClientRect();
+                    note.style.left = `${rect.left + rect.width/2 + offsetX}px`;
+                    note.style.top = `${rect.top + rect.height/2 + offsetY}px`;
                 
-                const rect = this.getBoundingClientRect();
-                note.style.left = `${rect.left + rect.width/2 + offsetX}px`;
-                note.style.top = `${rect.top + rect.height/2 + offsetY}px`;
+                    const direction = Math.random() > 0.5 ? 'Right' : 'Left';
+                    note.style.animationName = `noteFly${direction}`;
                 
-                const direction = Math.random() > 0.5 ? 'Right' : 'Left';
-                note.style.animationName = `noteFly${direction}`;
-            
-                const duration = 0.8 + Math.random() * 0.4;
-                note.style.animationDuration = `${duration}s`;
+                    const duration = 0.8 + Math.random() * 0.4;
+                    note.style.animationDuration = `${duration}s`;
+                    
+                    const scale = 0.5 + Math.random() * 0.3;
+                    note.style.transform = `scale(${scale})`;
                 
-                const scale = 0.5 + Math.random() * 0.3;
-                note.style.transform = `scale(${scale})`;
+                    noteOverlay.appendChild(note);
+                    
+                    setTimeout(() => {
+                        if (note.parentNode === noteOverlay) {
+                            noteOverlay.removeChild(note);
+                        }
+                    }, (duration * 1000) + delay);
+                }
                 
-                noteOverlay.appendChild(note);
+                // Reset animation state
+                noteAnimationId = null;
+                noteAnimationStart = 0;
                 
-                setTimeout(() => {
-                    if (note.parentNode === noteOverlay) {
-                        noteOverlay.removeChild(note);
-                    }
-                }, (duration * 1000) + delay);
+                // Animation will reset automatically via CSS
+                this.classList.remove('filling');
+                
+                // Visual feedback
+                this.classList.add('clicked');
+                setTimeout(() => this.classList.remove('clicked'), 100);
+                
+                // Show +X notes text only on main screen
+                if (getGameStateVariable() === getStateMainScreen()) {
+                    const fx = document.createElement('div');
+                    fx.className = 'bonus-float';
+                    fx.textContent = `+${award}`;
+                    fx.style.left = `${this.getBoundingClientRect().left + this.offsetWidth/2}px`;
+                    fx.style.top = `${this.getBoundingClientRect().top - 10}px`;
+                    document.body.appendChild(fx);
+                    setTimeout(() => fx.remove(), 1200);
+                }
+                
+                // Always play sound regardless of screen
+                audioManager.playFx('noteJingle');
             }
-            
-            // Reset animation state
-            noteAnimationId = null;
-            noteAnimationStart = 0;
-            
-            // Animation will reset automatically via CSS
-            this.classList.remove('filling');
-            
-            // Visual feedback
-            this.classList.add('clicked');
-            setTimeout(() => this.classList.remove('clicked'), 100);
-            
-            // Show +X notes text
-            const fx = document.createElement('div');
-            fx.className = 'bonus-float';
-            fx.textContent = `+${award}`;
-            fx.style.left = `${this.getBoundingClientRect().left + this.offsetWidth/2}px`;
-            fx.style.top = `${this.getBoundingClientRect().top - 10}px`;
-            document.body.appendChild(fx);
-            setTimeout(() => fx.remove(), 1200);
-            
-            // Play sound
-            audioManager.playFx('noteJingle');
         }, getFillDuration());
         
         // Visual feedback for starting the fill
@@ -464,6 +472,8 @@ window.createFloatingBonus = createFloatingBonus;
 
 let lastTime = 0;
 const fixedTimeStep = 1000 / 60;
+let visibilityCheckCounter = 0;
+const VISIBILITY_CHECK_INTERVAL = 10; // Check every 10 frames (about 166ms at 60fps)
 
 let bonusSpawnRemainingMs = 0;
 let bonusLastLoggedSecond = null;
@@ -568,6 +578,15 @@ export function gameLoop(timestamp) {
         }
     }
     
+    // Update upgrade visibility at regular intervals
+    visibilityCheckCounter++;
+    if (visibilityCheckCounter >= VISIBILITY_CHECK_INTERVAL) {
+        visibilityCheckCounter = 0;
+        if (typeof updateUpgradeVisibility === 'function') {
+            updateUpgradeVisibility();
+        }
+    }
+
     if (gameState === getStateMainScreen()) {
         if (bonusSpawnRemainingMs > 0) {
             bonusSpawnRemainingMs -= deltaTime;
@@ -576,7 +595,10 @@ export function gameLoop(timestamp) {
                 bonusLastLoggedSecond = secLeft;
             }
             if (bonusSpawnRemainingMs <= 0) {
-                createFloatingBonus();
+                // Only create bonus if we're on the main screen
+                if (gameState === getStateMainScreen()) {
+                    createFloatingBonus();
+                }
                 resetBonusSpawnTimer();
             }
         }
@@ -585,6 +607,7 @@ export function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
+// ... (rest of the code remains the same)
 export function setGameState(newState) {
     console.log("Setting game state to " + newState);
     // Store current state as last state before updating, but only if it's not the same as new state
@@ -670,14 +693,36 @@ export function setGameState(newState) {
             const mainElements = elements.gameContainer.querySelectorAll('.clicker-container, .resource-display, .clicker-buttons');
             mainElements.forEach(el => el.classList.add('d-none'));
             
-            // Show upgrades and autoclickers containers
-            const upgradesContainer = document.querySelector('.upgrades-container');
-            const autoClickersContainer = document.querySelector('.autoclickers-container');
-            if (upgradesContainer) upgradesContainer.classList.remove('d-none');
-            if (autoClickersContainer) autoClickersContainer.classList.remove('d-none');
+            // Show all upgrades that should be visible
+            if (typeof showAllVisibleUpgrades === 'function') {
+                showAllVisibleUpgrades();
+            } else {
+                // Fallback to showing all revealed items if showAllVisibleUpgrades is not available
+                const upgradesContainer = document.querySelector('.upgrades-container');
+                const autoClickersContainer = document.querySelector('.autoclickers-container');
+                
+                if (upgradesContainer) {
+                    const hasRevealedItems = upgradesContainer.querySelector('.upgrade-item.revealed') !== null;
+                    if (hasRevealedItems) {
+                        upgradesContainer.classList.remove('d-none');
+                    }
+                }
+                
+                if (autoClickersContainer) {
+                    const hasRevealedItems = autoClickersContainer.querySelector('.upgrade-item.revealed') !== null;
+                    if (hasRevealedItems) {
+                        autoClickersContainer.classList.remove('d-none');
+                    }
+                }
+            }
             
             // Don't set up click handlers for the main game buttons
             cleanupClickHandlers();
+            
+            // Check if we need to reveal any upgrades based on current balance
+            if (typeof updateUpgradeVisibility === 'function') {
+                updateUpgradeVisibility();
+            }
         }
     }
 }

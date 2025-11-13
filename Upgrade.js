@@ -26,6 +26,39 @@ export default class Upgrade {
         this.currentCost = baseCost;
         this.button = null;
         this.initialized = false;
+        this._isVisible = false; // Track if this upgrade should be visible
+    }
+
+    // Getter and setter for visibility
+    get isVisible() {
+        return this._isVisible;
+    }
+
+    set isVisible(value) {
+        this._isVisible = !!value;
+        this.updateVisibility();
+    }
+
+    // Update the DOM to reflect visibility state
+    updateVisibility() {
+        if (!this.button) return;
+        
+        const container = this.button.closest('.upgrade-item');
+        if (!container) return;
+        
+        if (this._isVisible) {
+            container.classList.remove('d-none');
+            container.classList.add('revealed');
+            
+            // Show parent container if needed
+            const parentContainer = container.closest('.autoclickers-container, .upgrades-container');
+            if (parentContainer) {
+                parentContainer.classList.remove('d-none');
+            }
+        } else {
+            container.classList.add('d-none');
+            container.classList.remove('revealed');
+        }
     }
 
     init() {
@@ -46,6 +79,8 @@ export default class Upgrade {
             updateScoreDisplay();
         });
 
+        // Set initial visibility
+        this.updateVisibility();
         this.updateButtonState();
         this.initialized = true;
     }

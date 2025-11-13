@@ -4,9 +4,9 @@ import {
     setBeginGameStatus, 
     getGameInProgress, 
     setGameInProgress,
-    getMenuState, 
+    getStateMenuScreen, 
     getLanguageSelected,
-    getGameActive,
+    getStateMainScreen,
     resetGame,
     getCoins,
     getNotes,
@@ -344,7 +344,7 @@ async function startNewGameFlow() {
             });
             
             // Start the game
-            setGameState(getGameActive());
+            setGameState(getStateMainScreen());
             startGame();
             window.gameLoopRunning = true;
 
@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (elements.resumeGameMenuButton) {
         elements.resumeGameMenuButton.addEventListener('click', () => {
-            setGameState(getGameActive());
+            setGameState(getStateMainScreen());
             if (!window.gameLoopRunning) {
                 gameLoop();
                 window.gameLoopRunning = true;
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     returnToMenuButtons.forEach(button => {
         button.addEventListener('click', () => {
-            setGameState(getMenuState());
+            setGameState(getStateMenuScreen());
         });
     });
 
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.addEventListener('click', () => {
                 changeLanguage(lang);
                 refreshUpgradeUI();
-                setGameState(getMenuState());
+                setGameState(getStateMenuScreen());
             });
         }
     });
@@ -609,7 +609,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-        setGameState(getMenuState());
+        setGameState(getStateMenuScreen());
         handleLanguageChange(getLanguageSelected());
         
         window.gameLoopRunning = false;

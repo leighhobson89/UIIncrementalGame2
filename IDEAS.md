@@ -16,22 +16,30 @@
 
 ## Visual & Audio
 - [ ] Add particle effects for clicks and upgrades
-- [ ] Implement different visual themes
-- [ ] Add sound effects for all actions
-- [ ] Create animated transitions between screens
+- [X] Responsive design
+- [X] Animated elements
+- [ ] Advanced animations
+- [X] Sound effects and music
+- [X] Multiple themes
+- [X] Mobile supported transitions between screens
 - [ ] Add character customization options
 
 ## Technical Improvements
 - [ ] Optimize performance for mobile devices
-- [ ] Add cloud save functionality
-- [ ] Implement analytics to track player progress
-- [ ] Add modding support
-- [ ] Create a demo/tutorial for new players
+- [X] Cloud save functionality
+- [ ] Offline progress
+- [ ] Achievements system
+- [ ] Prestige system
+- [ ] Daily rewards
+- [ ] Bonus items/boosts
+- [ ] Mini-games a demo/tutorial for new players
 
 ## Balance & Polish
-- [ ] Balance resource generation rates
-- [ ] Add tooltips for all game mechanics
-- [ ] Implement quality of life improvements
+- [X] Basic resource generation (coins and notes)
+- [X] Auto-clickers
+- [X] Upgrades system
+- [X] Save/load functionality
+- [X] Multiple language support
 - [ ] Add accessibility options
 - [ ] Create an in-game help system
 

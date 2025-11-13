@@ -1,8 +1,8 @@
 import { localize } from './localization.js';
 import { 
     setGameStateVariable, 
-    getMenuState, 
-    getGameActive,
+    getStateMenuScreen, 
+    getStateMainScreen,
     getElements, 
     getLanguage, 
     getGameInProgress, 
@@ -564,7 +564,7 @@ export function gameLoop(timestamp) {
         }
     }
     
-    if (gameState === getGameActive()) {
+    if (gameState === getStateMainScreen()) {
         if (bonusSpawnRemainingMs > 0) {
             bonusSpawnRemainingMs -= deltaTime;
             const secLeft = Math.max(0, Math.ceil(bonusSpawnRemainingMs / 1000));
@@ -594,7 +594,7 @@ export function setGameState(newState) {
     if (elements.canvasContainer) elements.canvasContainer.classList.remove('d-flex');
     if (elements.gameContainer) elements.gameContainer.classList.remove('d-flex');
 
-    if (newState === getMenuState()) {
+    if (newState === getStateMenuScreen()) {
         if (elements.menu) {
             elements.menu.classList.remove('d-none');
             elements.menu.classList.add('d-flex');
@@ -631,7 +631,7 @@ export function setGameState(newState) {
             elements.copyButtonSavePopup.innerHTML = `${localize('copyButton', currentLanguage)}`;
             elements.closeButtonSavePopup.innerHTML = `${localize('closeButton', currentLanguage)}`;
         }
-    } else if (newState === getGameActive()) {
+    } else if (newState === getStateMainScreen()) {
         if (elements.gameContainer) {
             elements.gameContainer.classList.remove('d-none');
             elements.gameContainer.classList.add('d-flex');

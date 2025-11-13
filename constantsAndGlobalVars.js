@@ -1,14 +1,24 @@
 import { updateScoreDisplay } from './game.js';
 
-// CONSTANTS
-const _MENU_STATE = 'menuState';
-const _GAME_ACTIVE = 'gameActive';
-const CLICK_RATE_WINDOW = 1000;
+// =============================================
+// GAME STATE CONSTANTS
+// =============================================
+const STATE_MENU_SCREEN = 'state_menu_screen';
+const STATE_MAIN_SCREEN = 'state_main_screen';
+const STATE_UPGRADES_SCREEN = 'state_upgrades_screen';
 
-// GLOBAL VARIABLES
+// =============================================
+// GAME TIMING CONSTANTS (ms)
+// =============================================
+const CLICK_RATE_WINDOW = 1000;  // Time window for calculating clicks per second
+const DEFAULT_FILL_DURATION = 4000;  // Default button fill animation duration
+
+// =============================================
+// GLOBAL STATE VARIABLES
+// =============================================
 export let gameState;
 let lastClickTime = 0;
-let fillDuration = 4000; // Time in milliseconds for button fill animation
+let fillDuration = DEFAULT_FILL_DURATION;
 
 let coins = 0;
 let coinsIncrementValue = 1;
@@ -223,11 +233,17 @@ export function setSaveName(name) {
 }
 
 // =============================================
-// Bottom functions
+// STATE MANAGEMENT FUNCTIONS
 // =============================================
 
-export function getMenuState() { return _MENU_STATE; }
-export function getGameActive() { return _GAME_ACTIVE; }
+export function getStateMenuScreen() { return STATE_MENU_SCREEN; }
+export function getStateMainScreen() { return STATE_MAIN_SCREEN; }
+export function getStateUpgradesScreen() { return STATE_UPGRADES_SCREEN; }
+
+// =============================================
+// GAME MECHANICS FUNCTIONS
+// =============================================
+
 export function getClickRateWindow() { return CLICK_RATE_WINDOW; }
 
 export function resetGame() {

@@ -17,6 +17,7 @@ const DEFAULT_FILL_DURATION = 4000;  // Default button fill animation duration
 // GLOBAL STATE VARIABLES
 // =============================================
 export let gameState;
+let lastGameState = null;  // Track the previous game state
 let lastClickTime = 0;
 let fillDuration = DEFAULT_FILL_DURATION;
 
@@ -150,7 +151,17 @@ export function setElements() {
 
 // Game State Variable
 export function getGameStateVariable() { return gameState; }
-export function setGameStateVariable(value) { gameState = value; }
+export function setGameStateVariable(value) { 
+    // Store current state as last state before updating
+    if (gameState && gameState !== value) {
+        lastGameState = gameState;
+    }
+    gameState = value; 
+}
+
+// Last Game State
+export function getLastGameState() { return lastGameState; }
+export function setLastGameState(value) { lastGameState = value; }
 
 // Coin Click Timestamps
 export function getCoinClickTimestamps() { return [...coinClickTimestamps]; }

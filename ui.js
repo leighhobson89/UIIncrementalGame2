@@ -7,13 +7,17 @@ import {
     getStateMenuScreen, 
     getLanguageSelected,
     getStateMainScreen,
+    getStateUpgradesScreen,
     resetGame,
     getCoins,
     getNotes,
     setSaveName,
     getLanguage,
     setLanguage,
-    setLanguageChangedFlag
+    setLanguageChangedFlag,
+    getLastGameState,
+    setLastGameState,
+    getGameStateVariable
 } from './constantsAndGlobalVars.js';
 import { audioManager } from './AudioManager.js';
 import { setGameState, startGame, gameLoop } from './game.js';
@@ -344,6 +348,8 @@ async function startNewGameFlow() {
             });
             
             // Start the game
+            // When starting a new game, set last state to menu
+            setLastGameState(getStateMenuScreen());
             setGameState(getStateMainScreen());
             startGame();
             window.gameLoopRunning = true;
@@ -442,6 +448,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         toggleSoundBtn.addEventListener('click', toggleSound);
         initThemes();
         
+        // Add click handlers for Main and Upgrades buttons
+        const toggleMainBtn = document.getElementById('toggleMain');
+        const toggleUpgradesBtn = document.getElementById('toggleUpgrades');
+        
+        if (toggleMainBtn) {
+            toggleMainBtn.addEventListener('click', () => {
+                const currentState = getGameStateVariable();
+                // Only update last state if we're not already in the main screen
+                if (currentState !== getStateMainScreen()) {
+                    setLastGameState(currentState);
+                }
+                setGameState(getStateMainScreen());
+            });
+        }
+        
+        if (toggleUpgradesBtn) {
+            toggleUpgradesBtn.addEventListener('click', () => {
+                const currentState = getGameStateVariable();
+                // Only update last state if we're not already in the upgrades screen
+                if (currentState !== getStateUpgradesScreen()) {
+                    setLastGameState(currentState);
+                }
+                setGameState(getStateUpgradesScreen());
+            });
+        }
+        
         // Show initial loading message
         updateLoadingMessage('Loading game resources...');
         
@@ -530,7 +562,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (elements.resumeGameMenuButton) {
         elements.resumeGameMenuButton.addEventListener('click', () => {
-            setGameState(getStateMainScreen());
+            // Get the last state before menu was shown, default to main screen if none
+            const lastState = getLastGameState() || getStateMainScreen();
+            setGameState(lastState);
             if (!window.gameLoopRunning) {
                 gameLoop();
                 window.gameLoopRunning = true;
@@ -545,6 +579,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     returnToMenuButtons.forEach(button => {
         button.addEventListener('click', () => {
+            // When going to menu, store the current state as last state
+            const currentState = getGameStateVariable();
+            if (currentState !== getStateMenuScreen()) {
+                setLastGameState(currentState);
+            }
             setGameState(getStateMenuScreen());
         });
     });

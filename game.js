@@ -1,8 +1,12 @@
 import { localize } from './localization.js';
 import { 
-    setGameStateVariable, 
+    setGameStateVariable,
+    getGameStateVariable,
+    getLastGameState,
+    setLastGameState,
     getStateMenuScreen, 
     getStateMainScreen,
+    getStateUpgradesScreen,
     getElements, 
     getLanguage, 
     getGameInProgress, 
@@ -583,6 +587,11 @@ export function gameLoop(timestamp) {
 
 export function setGameState(newState) {
     console.log("Setting game state to " + newState);
+    // Store current state as last state before updating, but only if it's not the same as new state
+    const currentState = getGameStateVariable();
+    if (currentState && currentState !== newState) {
+        setLastGameState(currentState);
+    }
     setGameStateVariable(newState);
     const elements = getElements();
 
@@ -636,7 +645,39 @@ export function setGameState(newState) {
             elements.gameContainer.classList.remove('d-none');
             elements.gameContainer.classList.add('d-flex');
             
+            // Show main game elements
+            const mainElements = elements.gameContainer.querySelectorAll('.clicker-container, .resource-display, .clicker-buttons');
+            mainElements.forEach(el => el.classList.remove('d-none'));
+            
+            // Hide upgrades/autoclickers containers
+            const upgradesContainer = document.querySelector('.upgrades-container');
+            const autoClickersContainer = document.querySelector('.autoclickers-container');
+            if (upgradesContainer) {
+                upgradesContainer.classList.add('d-none');
+            }
+            if (autoClickersContainer) {
+                autoClickersContainer.classList.add('d-none');
+            }
+            
             setupClickHandler();
+        }
+    } else if (newState === getStateUpgradesScreen()) {
+        if (elements.gameContainer) {
+            elements.gameContainer.classList.remove('d-none');
+            elements.gameContainer.classList.add('d-flex');
+            
+            // Hide main game elements
+            const mainElements = elements.gameContainer.querySelectorAll('.clicker-container, .resource-display, .clicker-buttons');
+            mainElements.forEach(el => el.classList.add('d-none'));
+            
+            // Show upgrades and autoclickers containers
+            const upgradesContainer = document.querySelector('.upgrades-container');
+            const autoClickersContainer = document.querySelector('.autoclickers-container');
+            if (upgradesContainer) upgradesContainer.classList.remove('d-none');
+            if (autoClickersContainer) autoClickersContainer.classList.remove('d-none');
+            
+            // Don't set up click handlers for the main game buttons
+            cleanupClickHandlers();
         }
     }
 }

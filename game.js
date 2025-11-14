@@ -189,6 +189,9 @@ function createNoteClickHandler() {
             const award = getNotesIncrementValue();
             setNotes(current + award);
             
+            // Always play sound regardless of screen
+            audioManager.playFx('buxCollect');
+            
             // Only show animation if we're on the main screen
             if (getGameStateVariable() === getStateMainScreen()) {
                 const noteOverlay = document.getElementById('noteOverlay');
@@ -399,7 +402,7 @@ function createFloatingBonus() {
         setTimeout(() => fx.remove(), 1200);
         
         if (audioManager && !audioManager.muted) {
-            audioManager.playFx('buxCollect');
+            audioManager.playFx(isCoin ? 'coinJingle' : 'buxCollect');
         }
         
         bonus.remove();

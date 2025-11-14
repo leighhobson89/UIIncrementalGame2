@@ -160,24 +160,50 @@
                 </div>
             </div>
 
-            <!-- Main Clickers -->
+            <!-- Main Clickers and Stats -->
             <div class="clicker-container">
-                <!-- Coin Clicker -->
-                <div class="clicker-wrapper">
-                    <img src="assets/images/beammetal.png" alt="Beam" class="clicker-emoji clicker-emoji-left">
-                    <button id="mainClicker" class="clicker-btn">
-                        <div class="progress-fill"></div>
-                    </button>
-                    <img src="assets/images/coin.png" alt="Coin" class="clicker-emoji">
+                <!-- Coin Clicker with Stats -->
+                <div class="clicker-row">
+                    <div class="clicker-wrapper">
+                        <img src="assets/images/beammetal.png" alt="Beam" class="clicker-emoji clicker-emoji-left">
+                        <button id="mainClicker" class="clicker-btn">
+                            <div class="progress-fill"></div>
+                        </button>
+                        <img src="assets/images/coin.png" alt="Coin" class="clicker-emoji">
+                    </div>
+                    <!-- Coin Stats -->
+                    <div class="stats-container">
+                        <div class="stat">
+                            <span class="coin-icon"></span>
+                            <div class="stat-value" id="points">0</div>
+                        </div>
+                        <div class="stat">
+                            <span class="coin-icon small"></span>
+                            <div class="stat-value" id="pointsPerSecond">0<span class="per-second">/sec</span></div>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Note Clicker -->
-                <div class="clicker-wrapper note-clicker-container d-none">
-                    <img src="assets/images/beammetal.png" alt="Beam" class="clicker-emoji clicker-emoji-left">
-                    <button id="noteClicker" class="clicker-btn">
-                        <div class="progress-fill"></div>
-                    </button>
-                    <img src="assets/images/dollar_banknote.png" alt="Note" class="clicker-emoji">
+                <!-- Note Clicker with Stats -->
+                <div class="clicker-row">
+                    <div class="clicker-wrapper note-clicker-container">
+                        <img src="assets/images/beammetal.png" alt="Beam" class="clicker-emoji clicker-emoji-left">
+                        <button id="noteClicker" class="clicker-btn">
+                            <div class="progress-fill"></div>
+                        </button>
+                        <img src="assets/images/dollar_banknote.png" alt="Note" class="clicker-emoji">
+                    </div>
+                    <!-- Note Stats -->
+                    <div class="stats-container">
+                        <div class="stat">
+                            <span class="note-icon"></span>
+                            <div class="stat-value" id="notes">0</div>
+                        </div>
+                        <div class="stat">
+                            <span class="note-icon small"></span>
+                            <div class="stat-value" id="notesPerSecond">0<span class="per-second">/sec</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

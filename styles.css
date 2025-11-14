@@ -943,14 +943,147 @@ button.disabled {
   padding: 1rem 0;
 }
 
+/* Main container for clickers and stats */
 .clicker-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 3rem 0;
-  position: relative;
-  gap: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Each row contains a clicker and its stats */
+.clicker-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+/* Clicker wrapper styles */
+.clicker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    position: relative;
+    margin-right: 2rem;
+}
+
+/* Adjust the clicker button width */
+.clicker-btn {
+    width: 200px;
+    height: 60px;
+    margin: 0;
+}
+
+/* Ensure clicker emojis stay close to the button */
+.clicker-emoji {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+/* Stats container */
+.stats-container {
+    display: flex;
+    gap: 1.5rem;
+    background: var(--theme-stat-bg);
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    margin-left: auto;
+    height: fit-content;
+}
+
+/* Individual stat item */
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Stat value styling */
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--theme-accent);
+    white-space: nowrap;
+}
+
+.per-second {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-left: 2px;
+}
+
+/* Icons */
+.coin-icon,
+.note-icon {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.coin-icon {
+    background-image: url('assets/images/coin.png');
+}
+
+.note-icon {
+    background-image: url('assets/images/dollar_banknote.png');
+}
+
+.small {
+    width: 16px;
+    height: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .clicker-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0.5rem;
+    }
+    
+    .clicker-wrapper {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .stats-container {
+        width: 100%;
+        justify-content: space-around;
+        margin-left: 0;
+    }
+    
+    .clicker-btn {
+        width: 180px;
+        height: 50px;
+    }
+    
+    .clicker-emoji {
+        width: 30px;
+        height: 30px;
+    }
 }
 
 .clicker-container > .clicker-wrapper {

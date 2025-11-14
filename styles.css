@@ -890,6 +890,16 @@ button.disabled {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem;
+}
+
+.game-title {
+  color: var(--theme-accent);
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 1.75rem;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 1rem;
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   margin-bottom: 1.5rem;
@@ -959,14 +969,13 @@ button.disabled {
 .clicker-row {
     display: flex;
     align-items: center;
-    gap: 1rem;
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 0.5rem auto;
+    padding: 1.5rem 2rem;
     border-radius: 12px;
     box-sizing: border-box;
+    position: relative;
 }
 
 /* Clicker wrapper styles */
@@ -976,7 +985,8 @@ button.disabled {
     gap: 0.5rem;
     flex-shrink: 0;
     position: relative;
-    margin-right: 2rem;
+    margin-right: 4rem;
+    margin-left: -150px;
 }
 
 /* Adjust the clicker button width */
@@ -999,22 +1009,32 @@ button.disabled {
 /* Stats container */
 .stats-container {
     display: flex;
-    gap: 1.5rem;
+    gap: 1rem; /* Reduced gap for better distribution */
     background: var(--theme-stat-bg);
-    padding: 0.8rem 1.2rem;
+    padding: 1rem 2rem;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    min-width: 200px;
+    min-width: 400px;
     margin-left: auto;
+    margin-right: 0;
     height: fit-content;
+    justify-content: space-around; /* Evenly distribute space around items */
+    position: relative;
+    z-index: 2;
+    transform: translateX(80px);
 }
 
 /* Individual stat item */
 .stat {
     display: flex;
     align-items: center;
+    justify-content: center; /* Center content horizontally */
     gap: 0.5rem;
+    flex: 1; /* Allow items to grow and take equal space */
+    min-width: 120px; /* Ensure minimum width for each stat */
+    text-align: center; /* Center text */
+    border: none;
 }
 
 /* Stat value styling */
@@ -1060,8 +1080,21 @@ button.disabled {
     .clicker-row {
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem 0.5rem;
+        gap: 1.5rem;
+        padding: 1.5rem 1rem;
+        max-width: 95%;
+        margin: 0.5rem auto;
+    }
+    
+    .clicker-wrapper {
+        margin: 0 0 1rem 0;
+    }
+    
+    .stats-container {
+        transform: none;
+        min-width: 100%;
+        justify-content: space-around;
+        padding: 1rem;
     }
     
     .clicker-wrapper {
@@ -1071,8 +1104,10 @@ button.disabled {
     
     .stats-container {
         width: 100%;
+        min-width: auto;
         justify-content: space-around;
-        margin-left: 0;
+        margin: 0;
+        padding: 0.8rem 1rem;
     }
     
     .clicker-btn {

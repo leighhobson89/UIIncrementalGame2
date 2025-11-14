@@ -305,15 +305,6 @@ textarea,
   margin: 0 2px;
 }
 
-.clicker-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: transform 0.1s ease;
-  transform: scale(1);
-}
-
 .clicker-btn:active {
   transform: scale(0.95);
 }
@@ -417,11 +408,14 @@ textarea,
   opacity: 0.8;
 }
 
+/* Combined hover states for interactive elements */
 .theme-select:hover,
 .icon-button:hover {
   border-color: rgba(255, 255, 255, 0.4);
   background-color: rgba(0, 0, 0, 0.4);
   transform: translateY(-1px);
+  color: var(--theme-text);
+  border-color: var(--theme-accent);
 }
 
 #bonusOverlay {
@@ -506,10 +500,6 @@ textarea,
   transition: color 0.3s ease;
 }
 
-.icon-button:hover {
-  color: var(--theme-text);
-  border-color: var(--theme-accent);
-}
 
 button:focus,
 button:focus-visible,
@@ -959,10 +949,10 @@ button.disabled {
     flex-direction: column;
     align-items: center;
     gap: 2rem;
-    width: 100%;
-    max-width: 1000px;
-    margin: 2rem auto;
+    width: 75%;
+    margin: 2rem 0 2rem 15%;
     padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 /* Each row contains a clicker and its stats */
@@ -978,25 +968,16 @@ button.disabled {
     position: relative;
 }
 
-/* Clicker wrapper styles */
+/* Clicker Wrapper and Emoji Styles */
 .clicker-wrapper {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
     position: relative;
-    margin-right: 4rem;
-    margin-left: -150px;
+    margin: 0 4rem 1rem -150px;
 }
 
-/* Adjust the clicker button width */
-.clicker-btn {
-    width: 200px;
-    height: 60px;
-    margin: 0;
-}
-
-/* Ensure clicker emojis stay close to the button */
 .clicker-emoji {
     position: relative;
     z-index: 2;
@@ -1016,7 +997,6 @@ button.disabled {
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     min-width: 400px;
-    margin-left: auto;
     margin-right: 0;
     height: fit-content;
     justify-content: space-around; /* Evenly distribute space around items */
@@ -1092,27 +1072,12 @@ button.disabled {
     
     .stats-container {
         transform: none;
-        min-width: 100%;
-        justify-content: space-around;
-        padding: 1rem;
-    }
-    
-    .clicker-wrapper {
-        margin-right: 0;
-        margin-bottom: 1rem;
-    }
-    
-    .stats-container {
         width: 100%;
         min-width: auto;
         justify-content: space-around;
+        padding: 1rem;
         margin: 0;
         padding: 0.8rem 1rem;
-    }
-    
-    .clicker-btn {
-        width: 180px;
-        height: 50px;
     }
     
     .clicker-emoji {
@@ -1130,26 +1095,22 @@ button.disabled {
 }
 
 .clicker-btn {
-  position: relative;
-  width: 800px;
-  height: 120px;
+  width: 85%;
+  min-height: 80px;
+  aspect-ratio: 8/1.2;
   background: var(--theme-accent, #4a90e2);
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
   cursor: pointer;
   clip-path: polygon(92.5% 0%, 100% 50%, 92.5% 100%, 0% 100%, 7.5% 50%, 0% 0%);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 80px;
+  padding: 10px 5%;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
   margin: 0 auto;
-  max-width: 90%;
   box-sizing: border-box;
   overflow: hidden;
+  transform: scale(1);
 }
 
 .clicker-btn .progress-fill {
@@ -1599,11 +1560,6 @@ button.disabled {
   .game-controls {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .clicker-btn {
-    width: 180px;
-    height: 180px;
   }
 
   .upgrade-item {

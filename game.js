@@ -335,7 +335,7 @@ function createFloatingBonus() {
     }
     
     const bonusValue = isCoin 
-        ? Math.floor(3000 + Math.random() * 3001)
+        ? Math.floor(300 + Math.random() * 301)
         : 1 + Math.floor(Math.random() * 3);
         
     bonus.className = `floating-bonus ${bonusType}-bonus`;
